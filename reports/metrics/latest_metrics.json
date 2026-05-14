@@ -1,0 +1,19 @@
+{
+  "dataset": {
+    "doi": "10.24432/C56S3T",
+    "name": "UCI Wine Quality - white wine",
+    "processed_path": "data\\processed\\winequality-white-processed.csv",
+    "raw_sha256": "76c3f809815c17c07212622f776311faeb31e87610d52c26d87d6e361b169836",
+    "source": "https://archive.ics.uci.edu/dataset/186/wine+quality"
+  },
+  "evaluation_command": "python -m src.evaluate",
+  "metric_summary": {
+    "accuracy": 0.6877551020408164,
+    "macro_f1": 0.6885325803364882
+  },
+  "model_path": "models\\wine_quality_classifier.joblib",
+  "model_version": "wine-quality-random-forest-v1",
+  "status": "latest_evaluation",
+  "training_command": "python -m src.train",
+  "training_timestamp": "2026-05-14T12:40:08+00:00"
+}

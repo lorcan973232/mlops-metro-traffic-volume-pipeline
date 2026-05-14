@@ -1,0 +1,89 @@
+{
+  "api_url": "http://127.0.0.1:8080",
+  "dataset_name": "UCI Wine Quality - white wine",
+  "dataset_source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
+  "error": null,
+  "expected_model_version": "wine-quality-random-forest-v1",
+  "feature_schema": [
+    "fixed_acidity",
+    "volatile_acidity",
+    "citric_acid",
+    "residual_sugar",
+    "chlorides",
+    "free_sulfur_dioxide",
+    "total_sulfur_dioxide",
+    "density",
+    "pH",
+    "sulphates",
+    "alcohol"
+  ],
+  "health": {
+    "response": {
+      "class_labels": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "dataset": {
+        "doi": "10.24432/C56S3T",
+        "name": "UCI Wine Quality - white wine",
+        "processed_path": "data/processed/winequality-white-processed.csv",
+        "raw_sha256": "76c3f809815c17c07212622f776311faeb31e87610d52c26d87d6e361b169836",
+        "source": "https://archive.ics.uci.edu/dataset/186/wine+quality"
+      },
+      "feature_count": 11,
+      "model_loaded": true,
+      "model_path": "models/wine_quality_classifier.joblib",
+      "model_version": "wine-quality-random-forest-v1",
+      "status": "healthy"
+    },
+    "status_code": 200
+  },
+  "model_version": "wine-quality-random-forest-v1",
+  "monitoring_mode": "api_aware_monitoring",
+  "predict": {
+    "response": {
+      "model_version": "wine-quality-random-forest-v1",
+      "prediction": "low",
+      "predictions": [
+        {
+          "prediction": "low",
+          "probabilities": {
+            "high": 0.07989542535588882,
+            "low": 0.688847437306355,
+            "medium": 0.23125713733775607
+          }
+        }
+      ],
+      "probabilities": {
+        "high": 0.07989542535588882,
+        "low": 0.688847437306355,
+        "medium": 0.23125713733775607
+      }
+    },
+    "status_code": 200
+  },
+  "prediction_request_schema": {
+    "features": {
+      "alcohol": 8.8,
+      "chlorides": 0.045,
+      "citric_acid": 0.36,
+      "density": 1.001,
+      "fixed_acidity": 7.0,
+      "free_sulfur_dioxide": 45.0,
+      "pH": 3.0,
+      "residual_sugar": 20.7,
+      "sulphates": 0.45,
+      "total_sulfur_dioxide": 170.0,
+      "volatile_acidity": 0.27
+    }
+  },
+  "prediction_response_schema_valid": true,
+  "production_claim": "api_check_only",
+  "reason": "No retraining investigation required from API health and prediction checks.",
+  "response_status": "passed",
+  "retraining_recommended": false,
+  "retraining_required": false,
+  "status": "monitored",
+  "timestamp_utc": "2026-05-14T12:38:17+00:00"
+}

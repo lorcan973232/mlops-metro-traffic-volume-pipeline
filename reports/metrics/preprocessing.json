@@ -1,0 +1,31 @@
+{
+  "class_column": "quality_class",
+  "class_distribution": {
+    "high": 1060,
+    "low": 1640,
+    "medium": 2198
+  },
+  "class_mapping": {
+    "6": "medium",
+    "<=5": "low",
+    ">=7": "high"
+  },
+  "feature_columns": [
+    "fixed_acidity",
+    "volatile_acidity",
+    "citric_acid",
+    "residual_sugar",
+    "chlorides",
+    "free_sulfur_dioxide",
+    "total_sulfur_dioxide",
+    "density",
+    "pH",
+    "sulphates",
+    "alcohol"
+  ],
+  "input": "data\\raw\\winequality-white.csv",
+  "output": "data\\processed\\winequality-white-processed.csv",
+  "rows": 4898,
+  "status": "processed",
+  "target_column": "quality"
+}

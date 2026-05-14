@@ -1,0 +1,108 @@
+name: Continuous Training
+
+"on":
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  retrain-candidate:
+    name: Retrain candidate from public dataset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run CT data, training, and evaluation stages
+        run: |
+          python -m src.data
+          python -m src.preprocess
+          python -m src.train
+          python -m src.evaluate
+
+      - name: Upload candidate model and metric reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: ct-candidate
+          path: |
+            models/
+            reports/metrics/
+
+  quality-gate:
+    name: Compare latest metrics against baseline and thresholds
+    runs-on: ubuntu-latest
+    needs: retrain-candidate
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download candidate artefacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ct-candidate
+          path: .
+
+      - name: Enforce CT metrics contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          latest = json.loads(Path("reports/metrics/latest_metrics.json").read_text())
+          gate = json.loads(Path("reports/metrics/quality_gate_report.json").read_text())
+          print(json.dumps({"latest_metrics": latest["metric_summary"], "quality_gate": gate}, indent=2))
+          if not gate["passed"]:
+              raise SystemExit("Continuous Training rejected candidate model.")
+          PY
+
+      - name: Upload quality-gate report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ct-quality-gate
+          path: reports/metrics/quality_gate_report.json
+
+  promote-model:
+    name: Register accepted model metadata
+    runs-on: ubuntu-latest
+    needs: quality-gate
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Download accepted candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: ct-candidate
+          path: .
+
+      - name: Register accepted candidate
+        run: python -m src.model_registry
+
+      - name: Upload promoted model and metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: continuous-training-artifacts
+          path: |
+            models/
+            reports/metrics/
+

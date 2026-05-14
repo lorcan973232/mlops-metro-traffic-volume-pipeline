@@ -1,0 +1,79 @@
+name: CI
+
+"on":
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  setup-check:
+    name: Python setup check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Verify Python setup without deployment tooling
+        run: bash scripts/check_setup.sh --python-only
+
+  quality-gates:
+    name: Code, test, and ML quality gates
+    runs-on: ubuntu-latest
+    needs: setup-check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Static checks
+        run: ruff check .
+
+      - name: Compile Python modules
+        run: python -m compileall app src tests
+
+      - name: Run pytest suite
+        run: pytest
+
+      - name: Run dataset and ML pipeline smoke path
+        run: |
+          python -m src.data
+          python -m src.preprocess
+          python -m src.train
+          python -m src.evaluate
+          python -m src.model_registry
+          python -m src.predict
+
+      - name: Run monitoring scripts
+        run: |
+          python scripts/monitor.py
+          python scripts/check_drift.py
+
+      - name: Upload CI artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-artifacts
+          path: |
+            reports/
+            models/
+

@@ -1,0 +1,42 @@
+{
+  "dataset": "UCI Wine Quality - white wine",
+  "doi": "10.24432/C56S3T",
+  "ingestion": {
+    "fallback_used": false,
+    "path": "data\\raw\\winequality-white.csv",
+    "sha256": "76c3f809815c17c07212622f776311faeb31e87610d52c26d87d6e361b169836",
+    "source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
+    "status": "cached"
+  },
+  "license": "Creative Commons Attribution 4.0 International",
+  "source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
+  "validation": {
+    "columns": 12,
+    "feature_columns": [
+      "fixed_acidity",
+      "volatile_acidity",
+      "citric_acid",
+      "residual_sugar",
+      "chlorides",
+      "free_sulfur_dioxide",
+      "total_sulfur_dioxide",
+      "density",
+      "pH",
+      "sulphates",
+      "alcohol"
+    ],
+    "missing_values": 0,
+    "rows": 4898,
+    "status": "valid",
+    "target_column": "quality",
+    "target_distribution": {
+      "3": 20,
+      "4": 163,
+      "5": 1457,
+      "6": 2198,
+      "7": 880,
+      "8": 175,
+      "9": 5
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "ct_quality_gate_reference": {
+    "max_baseline_regression": 0.02,
+    "min_accuracy": 0.5,
+    "min_macro_f1": 0.35
+  },
+  "current_batch": {
+    "drift_detected": false,
+    "feature_psi": {
+      "alcohol": 0.0,
+      "chlorides": 0.0,
+      "citric_acid": 0.0,
+      "density": 0.0,
+      "fixed_acidity": 0.0,
+      "free_sulfur_dioxide": 0.0,
+      "pH": 0.0,
+      "residual_sugar": 0.0,
+      "sulphates": 0.0,
+      "total_sulfur_dioxide": 0.0,
+      "volatile_acidity": 0.0
+    },
+    "max_psi": 0.0
+  },
+  "data_quality_status": "passed",
+  "dataset_name": "UCI Wine Quality - white wine",
+  "dataset_source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
+  "drift_metric": "population_stability_index",
+  "drift_score": 3.8010982141092176,
+  "feature_schema": [
+    "fixed_acidity",
+    "volatile_acidity",
+    "citric_acid",
+    "residual_sugar",
+    "chlorides",
+    "free_sulfur_dioxide",
+    "total_sulfur_dioxide",
+    "density",
+    "pH",
+    "sulphates",
+    "alcohol"
+  ],
+  "model_version": "wine-quality-random-forest-v1",
+  "monitoring_mode": "simulated_drift_check",
+  "production_claim": "simulated_only",
+  "reason": "Current batch has no drift; simulated batch confirms drift detection logic.",
+  "retraining_recommended": true,
+  "retraining_required": false,
+  "simulated_drift_batch": {
+    "drift_detected": true,
+    "feature_psi": {
+      "alcohol": 3.8010982141092176,
+      "chlorides": 0.0,
+      "citric_acid": 0.0,
+      "density": 0.0,
+      "fixed_acidity": 0.0,
+      "free_sulfur_dioxide": 0.0,
+      "pH": 0.0,
+      "residual_sugar": 0.447858590723484,
+      "sulphates": 0.0,
+      "total_sulfur_dioxide": 0.0,
+      "volatile_acidity": 2.5311848260673573
+    },
+    "max_psi": 3.8010982141092176
+  },
+  "simulated_retraining_signal": {
+    "reason": "Synthetic drift was injected to demonstrate monitoring and retraining trigger logic.",
+    "retraining_required": true
+  },
+  "status": "checked",
+  "threshold": 0.2,
+  "timestamp_utc": "2026-05-14T12:40:52+00:00"
+}

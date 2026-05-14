@@ -1,0 +1,50 @@
+name: Docker Build
+
+"on":
+  workflow_dispatch:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  docker-build:
+    name: Build image tagged with commit SHA
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t mlops-flask-api:${{ github.sha }} \
+            -t mlops-flask-api:latest \
+            .
+
+      - name: Run Docker container
+        run: |
+          docker run -d --name mlops-flask-api -p 8080:8080 mlops-flask-api:${{ github.sha }}
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/health; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs mlops-flask-api
+          exit 1
+
+      - name: Docker API smoke test
+        run: bash scripts/smoke_test_api.sh http://127.0.0.1:8080
+
+      - name: Upload Docker smoke logs
+        if: always()
+        run: docker logs mlops-flask-api > docker-smoke.log 2>&1 || true
+
+      - name: Publish Docker smoke logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-smoke-logs
+          path: docker-smoke.log
+

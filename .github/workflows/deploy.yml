@@ -1,0 +1,110 @@
+name: Deploy Kind
+
+"on":
+  workflow_dispatch:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: ["Docker Build"]
+    branches: [main]
+    types: [completed]
+
+jobs:
+  build-image:
+    name: Build deployment image
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t mlops-flask-api:${{ github.sha }} \
+            -t mlops-flask-api:latest \
+            .
+
+      - name: Save Docker image archive for Kind job
+        run: docker save mlops-flask-api:latest -o mlops-flask-api.tar
+
+      - name: Upload image archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-image
+          path: mlops-flask-api.tar
+
+  deploy-kind:
+    name: Deploy image into Kind and smoke test
+    runs-on: ubuntu-latest
+    needs: build-image
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Kind
+        run: |
+          curl -fsSL -o kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64
+          chmod +x kind
+          sudo mv kind /usr/local/bin/kind
+
+      - name: Install kubectl
+        run: |
+          curl -fsSL -o kubectl https://dl.k8s.io/release/v1.30.2/bin/linux/amd64/kubectl
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/kubectl
+
+      - name: Download image archive
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-image
+          path: .
+
+      - name: Load image into Docker
+        run: docker load -i mlops-flask-api.tar
+
+      - name: kind create cluster
+        run: kind create cluster --name mlops-kind --image kindest/node:v1.30.2
+
+      - name: kind load docker-image
+        run: kind load docker-image mlops-flask-api:latest --name mlops-kind
+
+      - name: kubectl apply Kind manifests
+        run: kubectl apply -f deployment/kind/
+
+      - name: kubectl rollout status
+        run: kubectl rollout status deployment/mlops-flask-api --timeout=180s
+
+      - name: Post-deployment health and prediction smoke tests
+        run: |
+          kubectl get pods -o wide | tee deployment-pods.log
+          kubectl describe deployment/mlops-flask-api | tee deployment-describe.log
+          kubectl port-forward service/mlops-flask-api 8080:80 > port-forward.log 2>&1 &
+          port_forward_pid=$!
+          trap "kill ${port_forward_pid}" EXIT
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/health; then
+              break
+            fi
+            sleep 2
+          done
+          bash scripts/smoke_test_api.sh http://127.0.0.1:8080 | tee smoke-test.log
+
+      - name: Capture Kubernetes logs
+        if: always()
+        run: |
+          kubectl get all -o wide > kind-resources.log 2>&1 || true
+          kubectl logs deployment/mlops-flask-api > kind-api.log 2>&1 || true
+
+      - name: Upload deployment logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kind-deployment-logs
+          path: |
+            deployment-pods.log
+            deployment-describe.log
+            port-forward.log
+            smoke-test.log
+            kind-resources.log
+            kind-api.log

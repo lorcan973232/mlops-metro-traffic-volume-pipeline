@@ -1,0 +1,60 @@
+{
+  "dataset_hash": "76c3f809815c17c07212622f776311faeb31e87610d52c26d87d6e361b169836",
+  "dataset_name": "UCI Wine Quality - white wine",
+  "dataset_source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
+  "evaluation_command": "python -m src.evaluate",
+  "feature_schema": [
+    "fixed_acidity",
+    "volatile_acidity",
+    "citric_acid",
+    "residual_sugar",
+    "chlorides",
+    "free_sulfur_dioxide",
+    "total_sulfur_dioxide",
+    "density",
+    "pH",
+    "sulphates",
+    "alcohol"
+  ],
+  "metric_summary": {
+    "accuracy": 0.6877551020408164,
+    "macro_f1": 0.6885325803364882
+  },
+  "model_path": "models\\wine_quality_classifier.joblib",
+  "model_version": "wine-quality-random-forest-v1",
+  "quality_gate": {
+    "baseline_metrics": {
+      "accuracy": 0.6877551020408164,
+      "macro_f1": 0.6885325803364882
+    },
+    "checks": {
+      "accuracy_above_minimum": true,
+      "accuracy_not_regressed_from_baseline": true,
+      "macro_f1_above_minimum": true,
+      "macro_f1_not_regressed_from_baseline": true
+    },
+    "decision": "accept_candidate_model",
+    "latest_metrics": {
+      "accuracy": 0.6877551020408164,
+      "macro_f1": 0.6885325803364882
+    },
+    "passed": true,
+    "status": "passed",
+    "thresholds": {
+      "max_baseline_regression": 0.02,
+      "min_accuracy": 0.5,
+      "min_macro_f1": 0.35
+    }
+  },
+  "target_definition": {
+    "class_mapping": {
+      "6": "medium",
+      "<=5": "low",
+      ">=7": "high"
+    },
+    "model_target": "quality_class",
+    "raw_target": "quality"
+  },
+  "training_command": "python -m src.train",
+  "training_timestamp": "2026-05-14T12:40:08+00:00"
+}

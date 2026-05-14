@@ -1,0 +1,137 @@
+{
+  "class_distribution": {
+    "high": 1060,
+    "low": 1640,
+    "medium": 2198
+  },
+  "data_quality": {
+    "expected_feature_schema": [
+      "fixed_acidity",
+      "volatile_acidity",
+      "citric_acid",
+      "residual_sugar",
+      "chlorides",
+      "free_sulfur_dioxide",
+      "total_sulfur_dioxide",
+      "density",
+      "pH",
+      "sulphates",
+      "alcohol"
+    ],
+    "missing_columns": [],
+    "missing_values": 0,
+    "non_numeric_columns": [],
+    "status": "passed",
+    "unexpected_columns": []
+  },
+  "dataset_name": "UCI Wine Quality - white wine",
+  "dataset_source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
+  "feature_schema": [
+    "fixed_acidity",
+    "volatile_acidity",
+    "citric_acid",
+    "residual_sugar",
+    "chlorides",
+    "free_sulfur_dioxide",
+    "total_sulfur_dioxide",
+    "density",
+    "pH",
+    "sulphates",
+    "alcohol"
+  ],
+  "feature_summary": {
+    "alcohol": {
+      "max": 14.2,
+      "mean": 10.514267047774602,
+      "min": 8.0,
+      "std": 1.230620567757318
+    },
+    "chlorides": {
+      "max": 0.346,
+      "mean": 0.04577235606369946,
+      "min": 0.009,
+      "std": 0.021847968093728798
+    },
+    "citric_acid": {
+      "max": 1.66,
+      "mean": 0.33419150673744386,
+      "min": 0.0,
+      "std": 0.12101980420298249
+    },
+    "density": {
+      "max": 1.03898,
+      "mean": 0.9940273764801959,
+      "min": 0.98711,
+      "std": 0.0029909069169369337
+    },
+    "fixed_acidity": {
+      "max": 14.2,
+      "mean": 6.854787668436097,
+      "min": 3.8,
+      "std": 0.843868227687513
+    },
+    "free_sulfur_dioxide": {
+      "max": 289.0,
+      "mean": 35.30808493262556,
+      "min": 2.0,
+      "std": 17.00713732523259
+    },
+    "pH": {
+      "max": 3.82,
+      "mean": 3.1882666394446715,
+      "min": 2.72,
+      "std": 0.1510005996150668
+    },
+    "residual_sugar": {
+      "max": 65.8,
+      "mean": 6.391414863209474,
+      "min": 0.6,
+      "std": 5.072057784014881
+    },
+    "sulphates": {
+      "max": 1.08,
+      "mean": 0.48984687627603113,
+      "min": 0.22,
+      "std": 0.1141258339488323
+    },
+    "total_sulfur_dioxide": {
+      "max": 440.0,
+      "mean": 138.36065741118824,
+      "min": 9.0,
+      "std": 42.49806455414291
+    },
+    "volatile_acidity": {
+      "max": 1.1,
+      "mean": 0.27824111882400976,
+      "min": 0.08,
+      "std": 0.10079454842486534
+    }
+  },
+  "model_path": "models\\wine_quality_classifier.joblib",
+  "model_version": "wine-quality-random-forest-v1",
+  "monitoring_mode": "offline_simulated_monitoring",
+  "prediction_request_schema": {
+    "features": [
+      "fixed_acidity",
+      "volatile_acidity",
+      "citric_acid",
+      "residual_sugar",
+      "chlorides",
+      "free_sulfur_dioxide",
+      "total_sulfur_dioxide",
+      "density",
+      "pH",
+      "sulphates",
+      "alcohol"
+    ]
+  },
+  "production_claim": "simulated_only",
+  "production_limitation": "No live production telemetry is available in this student artefact; monitoring uses the selected public dataset schema and deterministic batch checks.",
+  "reason": "No retraining required from offline schema and data-quality checks.",
+  "response_status": "simulated_batch_available",
+  "retraining_recommended": false,
+  "retraining_required": false,
+  "rows": 4898,
+  "status": "monitored",
+  "timestamp_utc": "2026-05-14T12:40:44+00:00"
+}

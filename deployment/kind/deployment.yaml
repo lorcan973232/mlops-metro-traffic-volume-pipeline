@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlops-flask-api
+  labels:
+    app: mlops-flask-api
+    component: prediction-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlops-flask-api
+  template:
+    metadata:
+      labels:
+        app: mlops-flask-api
+        component: prediction-api
+    spec:
+      containers:
+        - name: api
+          image: mlops-flask-api:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MODEL_PATH
+              value: models/wine_quality_classifier.joblib
+          ports:
+            - containerPort: 8080
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

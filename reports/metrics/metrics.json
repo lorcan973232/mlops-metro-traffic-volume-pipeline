@@ -1,0 +1,113 @@
+{
+  "accuracy": 0.6877551020408164,
+  "classification_report": {
+    "accuracy": 0.6877551020408164,
+    "high": {
+      "f1-score": 0.6652078774617067,
+      "precision": 0.6204081632653061,
+      "recall": 0.7169811320754716,
+      "support": 212.0
+    },
+    "low": {
+      "f1-score": 0.7407407407407407,
+      "precision": 0.75,
+      "recall": 0.7317073170731707,
+      "support": 328.0
+    },
+    "macro avg": {
+      "f1-score": 0.6885325803364882,
+      "precision": 0.6833087451848209,
+      "recall": 0.6965325133525777,
+      "support": 980.0
+    },
+    "medium": {
+      "f1-score": 0.6596491228070176,
+      "precision": 0.6795180722891566,
+      "recall": 0.6409090909090909,
+      "support": 440.0
+    },
+    "weighted avg": {
+      "f1-score": 0.6879924969591148,
+      "precision": 0.6903209004280345,
+      "recall": 0.6877551020408164,
+      "support": 980.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      240,
+      79,
+      9
+    ],
+    [
+      74,
+      282,
+      84
+    ],
+    [
+      6,
+      54,
+      152
+    ]
+  ],
+  "dataset": {
+    "doi": "10.24432/C56S3T",
+    "name": "UCI Wine Quality - white wine",
+    "processed_path": "data\\processed\\winequality-white-processed.csv",
+    "raw_sha256": "76c3f809815c17c07212622f776311faeb31e87610d52c26d87d6e361b169836",
+    "source": "https://archive.ics.uci.edu/dataset/186/wine+quality"
+  },
+  "evaluation_command": "python -m src.evaluate",
+  "feature_schema": [
+    "fixed_acidity",
+    "volatile_acidity",
+    "citric_acid",
+    "residual_sugar",
+    "chlorides",
+    "free_sulfur_dioxide",
+    "total_sulfur_dioxide",
+    "density",
+    "pH",
+    "sulphates",
+    "alcohol"
+  ],
+  "macro_f1": 0.6885325803364882,
+  "model_path": "models\\wine_quality_classifier.joblib",
+  "model_version": "wine-quality-random-forest-v1",
+  "quality_gate": {
+    "baseline_metrics": {
+      "accuracy": 0.6877551020408164,
+      "macro_f1": 0.6885325803364882
+    },
+    "checks": {
+      "accuracy_above_minimum": true,
+      "accuracy_not_regressed_from_baseline": true,
+      "macro_f1_above_minimum": true,
+      "macro_f1_not_regressed_from_baseline": true
+    },
+    "decision": "accept_candidate_model",
+    "latest_metrics": {
+      "accuracy": 0.6877551020408164,
+      "macro_f1": 0.6885325803364882
+    },
+    "passed": true,
+    "status": "passed",
+    "thresholds": {
+      "max_baseline_regression": 0.02,
+      "min_accuracy": 0.5,
+      "min_macro_f1": 0.35
+    }
+  },
+  "status": "evaluated",
+  "target_definition": {
+    "class_mapping": {
+      "6": "medium",
+      "<=5": "low",
+      ">=7": "high"
+    },
+    "model_target": "quality_class",
+    "raw_target": "quality"
+  },
+  "training_command": "python -m src.train",
+  "training_timestamp": "2026-05-14T12:40:08+00:00"
+}

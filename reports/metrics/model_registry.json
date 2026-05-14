@@ -1,0 +1,11 @@
+{
+  "accuracy": 0.6877551020408164,
+  "dataset_doi": "10.24432/C56S3T",
+  "dataset_source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
+  "macro_f1": 0.6885325803364882,
+  "metrics_path": "reports\\metrics\\metrics.json",
+  "model_path": "models\\wine_quality_classifier.joblib",
+  "model_version": "wine-quality-random-forest-v1",
+  "promotion_decision": "accepted",
+  "quality_gate_passed": true
+}
