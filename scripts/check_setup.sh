@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=env_paths.sh
+source "${SCRIPT_DIR}/env_paths.sh"
+
 MODE="${1:-full}"
 REQUIRE_GH="${2:-}"
 blocked=0

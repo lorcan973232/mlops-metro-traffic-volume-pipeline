@@ -109,5 +109,5 @@
     "raw_target": "quality"
   },
   "training_command": "python -m src.train",
-  "training_timestamp": "2026-05-14T12:40:08+00:00"
+  "training_timestamp": "2026-05-14T13:46:19+00:00"
 }

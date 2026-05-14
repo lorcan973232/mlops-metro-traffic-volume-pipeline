@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=env_paths.sh
+source "${SCRIPT_DIR}/env_paths.sh"
+
 CLUSTER_NAME="${KIND_CLUSTER_NAME:-mlops-kind}"
 KIND_NODE_IMAGE="${KIND_NODE_IMAGE:-kindest/node:v1.30.2}"
 

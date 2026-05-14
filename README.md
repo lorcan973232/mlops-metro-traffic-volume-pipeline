@@ -240,6 +240,15 @@ source .venv/bin/activate
 bash scripts/check_setup.sh
 ```
 
+On Windows, if `bash` opens the WSL stub and no Linux distribution is installed, use Git Bash directly or use the PowerShell scripts below:
+
+```powershell
+& "C:\Program Files\Git\bin\bash.exe" scripts/check_setup.sh
+make BASH="C:/Program Files/Git/bin/bash.exe" check-setup
+```
+
+The Bash scripts load `scripts/env_paths.sh`, which adds the standard Docker Desktop and WinGet tool locations for Git Bash before checking Docker, Kind, and kubectl.
+
 Windows PowerShell:
 
 ```powershell
@@ -590,19 +599,19 @@ Monitoring reports include `retraining_required`, `retraining_recommended`, `rea
 | Model metadata and registry | `src/model_registry.py` | `python -m src.model_registry` | `ci.yml`, `train-and-evaluate.yml`, `continuous-training.yml`, `monitoring.yml` | metadata includes version, dataset, schema, metrics, path | Implemented and locally verified | None |
 | Local prediction | `src/predict.py` | `python -m src.predict` | `ci.yml`, `train-and-evaluate.yml` | saved model schema matches API schema | Implemented and locally verified | None |
 | Flask API | `app/main.py`, `app/model_loader.py`, `app/schemas.py` | `python -m app.main`; `scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:8080` | `docker-build.yml`, `deploy.yml` | `tests/test_api.py`, smoke scripts | Implemented and locally verified | None |
-| Docker containerisation | `Dockerfile`, `.dockerignore` | `docker build -t mlops-flask-api:latest .` | `docker-build.yml` | container `/health` and `/predict` smoke test | Implemented; local verification depends on Docker | Install/start Docker Desktop if `BLOCKED_BY_LOCAL_SETUP` |
-| Kind Kubernetes deployment | `deployment/kind/deployment.yaml`, `deployment/kind/service.yaml`, `deployment/kind/README.md` | `scripts/deploy_kind.sh` or `scripts/deploy_kind.ps1` | `deploy.yml` | rollout status and smoke test | Implemented; local verification depends on Docker, Kind, kubectl | Install Docker, Kind, and kubectl if `BLOCKED_BY_LOCAL_SETUP` |
-| CI workflow | `.github/workflows/ci.yml` | `pytest`; `ruff check .` | `ci.yml` | compile, ruff, pytest, ML path, monitoring | Implemented and locally YAML-validated | Verify remote run after GitHub push |
-| Data workflow | `.github/workflows/data-preprocessing.yml` | `python -m src.data`; `python -m src.preprocess` | `data-preprocessing.yml` | data validation and processed output check | Implemented and locally YAML-validated | Verify remote run after GitHub push |
-| Train/evaluate workflow | `.github/workflows/train-and-evaluate.yml` | `python -m src.train`; `python -m src.evaluate` | `train-and-evaluate.yml` | model and metrics artefacts | Implemented and locally YAML-validated | Verify remote run after GitHub push |
-| Continuous Training | `.github/workflows/continuous-training.yml` | `python -m src.evaluate` | `continuous-training.yml` | `quality_gate_report.json` must pass | Implemented and locally YAML-validated | Trigger manual workflow after GitHub push |
-| Docker build workflow | `.github/workflows/docker-build.yml` | `docker build -t mlops-flask-api:latest .` | `docker-build.yml` | Docker smoke test | Implemented and locally YAML-validated | Verify build after Docker/GitHub runner execution |
-| Kind deployment workflow | `.github/workflows/deploy.yml` | `kubectl rollout status deployment/mlops-flask-api --timeout=180s` | `deploy.yml` | rollout plus `/health` and `/predict` smoke test | Implemented and locally YAML-validated | Verify Kind deployment after Docker/GitHub runner execution |
-| Continuous Monitoring | `scripts/monitor.py`, `scripts/check_drift.py`, `reports/monitoring/.gitkeep` | `python scripts/monitor.py`; `python scripts/check_drift.py` | `monitoring.yml` | schema checks, PSI drift report, retraining flag | Implemented and locally verified | Run API-aware monitoring against Kind URL after Kind is available |
-| Setup verification | `scripts/setup_local.sh`, `scripts/setup_local.ps1`, `scripts/check_setup.sh`, `scripts/check_setup.ps1` | `scripts/check_setup.sh`; `powershell -ExecutionPolicy Bypass -File scripts/check_setup.ps1` | `ci.yml` uses `--python-only` | dependency and tooling checks | Implemented; deployment checks depend on local tools | Install missing tools if `BLOCKED_BY_LOCAL_SETUP` |
-| Smoke tests | `scripts/smoke_test_api.sh`, `scripts/smoke_test_api.ps1` | `scripts/smoke_test_api.sh http://127.0.0.1:8080`; `scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:8080` | `docker-build.yml`, `deploy.yml` | `/health`, `/predict`, model version, probabilities | Implemented and PowerShell-verified locally | Re-run against Docker and Kind APIs after tools are available |
-| Branching strategy | `README.md`, `.github/pull_request_template.md` | Pull request to `main` or `develop` | `ci.yml` | CI must pass before merge | Documented | Apply when publishing to GitHub |
-| README evidence | `README.md` | `pytest tests/test_workflows.py` | `ci.yml` | workflow and path consistency tests | Implemented and locally verified | Add final public GitHub URL after authentication |
+| Docker containerisation | `Dockerfile`, `.dockerignore` | `docker build -t mlops-flask-api:latest .` | `docker-build.yml` | container `/health` and `/predict` smoke test | Implemented and locally verified | None |
+| Kind Kubernetes deployment | `deployment/kind/deployment.yaml`, `deployment/kind/service.yaml`, `deployment/kind/README.md` | `scripts/deploy_kind.sh` or `scripts/deploy_kind.ps1` | `deploy.yml` | rollout status and smoke test | Implemented and locally verified | None |
+| CI workflow | `.github/workflows/ci.yml` | `pytest`; `ruff check .` | `ci.yml` | compile, ruff, pytest, ML path, monitoring | Implemented, locally YAML-validated, and GitHub-verified | None |
+| Data workflow | `.github/workflows/data-preprocessing.yml` | `python -m src.data`; `python -m src.preprocess` | `data-preprocessing.yml` | data validation and processed output check | Implemented, locally YAML-validated, and GitHub-verified | None |
+| Train/evaluate workflow | `.github/workflows/train-and-evaluate.yml` | `python -m src.train`; `python -m src.evaluate` | `train-and-evaluate.yml` | model and metrics artefacts | Implemented, locally YAML-validated, and GitHub-verified | None |
+| Continuous Training | `.github/workflows/continuous-training.yml` | `python -m src.evaluate` | `continuous-training.yml` | `quality_gate_report.json` must pass | Implemented, quality-gated, and GitHub-verified | None |
+| Docker build workflow | `.github/workflows/docker-build.yml` | `docker build -t mlops-flask-api:latest .` | `docker-build.yml` | Docker smoke test | Implemented and verified locally and in GitHub Actions | None |
+| Kind deployment workflow | `.github/workflows/deploy.yml` | `kubectl rollout status deployment/mlops-flask-api --timeout=180s` | `deploy.yml` | rollout plus `/health` and `/predict` smoke test | Implemented and verified locally and in GitHub Actions | None |
+| Continuous Monitoring | `scripts/monitor.py`, `scripts/check_drift.py`, `reports/monitoring/.gitkeep` | `python scripts/monitor.py`; `python scripts/check_drift.py`; `python scripts/monitor.py --api-url http://127.0.0.1:8080` | `monitoring.yml` | schema checks, PSI drift report, API-aware monitoring, retraining flag | Implemented and locally verified offline and against Kind API | None |
+| Setup verification | `scripts/setup_local.sh`, `scripts/setup_local.ps1`, `scripts/check_setup.sh`, `scripts/check_setup.ps1`, `scripts/env_paths.sh` | `scripts/check_setup.sh`; `powershell -ExecutionPolicy Bypass -File scripts/check_setup.ps1` | `ci.yml` uses `--python-only` | dependency and tooling checks | Implemented and verified with PowerShell and Git Bash | None |
+| Smoke tests | `scripts/smoke_test_api.sh`, `scripts/smoke_test_api.ps1` | `scripts/smoke_test_api.sh http://127.0.0.1:8080`; `scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:8080` | `docker-build.yml`, `deploy.yml` | `/health`, `/predict`, model version, probabilities | Implemented and verified against Docker and Kind APIs | None |
+| Branching strategy | `README.md`, `.github/pull_request_template.md` | Pull request to `main` or `develop` | `ci.yml` | CI must pass before merge | Documented and ready for repository maintenance | None |
+| README evidence | `README.md` | `pytest tests/test_workflows.py` | `ci.yml` | workflow and path consistency tests | Implemented and locally verified | None |
 
 ## Live Demonstration Checklist
 
@@ -670,6 +679,7 @@ This repository is implementation evidence for the artefact only. Any AI-assiste
 - This repository is not the full assignment submission. The report and video must be produced separately.
 - Monitoring is simulated unless `python scripts/monitor.py --api-url <API_URL>` is run against a live local, Docker, or Kind API.
 - Local Docker and Kind verification requires Docker Desktop, Kind, kubectl, and a working Docker daemon.
-- If Bash, Docker, Kind, or kubectl are missing, local deployment verification is `BLOCKED_BY_LOCAL_SETUP`.
-- GitHub Actions workflow success must be verified after the repository is pushed to the public GitHub account.
+- On Windows, use Git Bash or PowerShell. If plain `bash` resolves to the WSL stub without a Linux distribution, run the `.ps1` scripts or call Git Bash directly.
+- If Docker, Kind, or kubectl are missing, local deployment verification is `BLOCKED_BY_LOCAL_SETUP`.
+- GitHub Actions workflow success is verified for the public repository; recheck the Actions tab after any future changes.
 - No secrets are required for this artefact. Do not commit `.env` files, tokens, credentials, private keys, or generated secret material.

@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=env_paths.sh
+source "${SCRIPT_DIR}/env_paths.sh"
+
 CLUSTER_NAME="${KIND_CLUSTER_NAME:-mlops-kind}"
 IMAGE_NAME="${IMAGE_NAME:-mlops-flask-api:latest}"
 API_URL="${API_URL:-http://127.0.0.1:8080}"
