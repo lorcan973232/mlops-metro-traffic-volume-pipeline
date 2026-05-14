@@ -61,9 +61,9 @@ def population_stability_index(
 
 def simulate_drift(frame: pd.DataFrame) -> pd.DataFrame:
     drifted = frame.copy()
-    drifted["alcohol"] = drifted["alcohol"] + 1.5
-    drifted["volatile_acidity"] = drifted["volatile_acidity"] * 1.8
-    drifted["residual_sugar"] = drifted["residual_sugar"] * 0.75
+    drifted["mean_radius"] = drifted["mean_radius"] * 1.25
+    drifted["mean_concavity"] = drifted["mean_concavity"] * 1.8
+    drifted["worst_area"] = drifted["worst_area"] * 1.35
     return drifted
 
 
@@ -72,10 +72,18 @@ def load_metadata() -> dict[str, Any]:
         return load_model_metadata()
     return {
         "model_version": "metadata_unavailable",
-        "dataset_name": "UCI Wine Quality - white wine",
+        "dataset_name": "UCI Breast Cancer Wisconsin Diagnostic",
         "dataset_source": DATA_SOURCE_PAGE,
         "feature_schema": FEATURE_COLUMNS,
-        "quality_gate": {"thresholds": {"min_accuracy": 0.5, "min_macro_f1": 0.35}},
+        "quality_gate": {
+            "thresholds": {
+                "min_accuracy": 0.94,
+                "min_macro_f1": 0.94,
+                "min_balanced_accuracy": 0.94,
+                "min_weighted_f1": 0.94,
+                "max_baseline_regression": 0.02,
+            }
+        },
     }
 
 
@@ -108,7 +116,7 @@ def drift_report(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any]:
         "timestamp_utc": utc_now(),
         "monitoring_mode": "simulated_drift_check",
         "production_claim": "simulated_only",
-        "dataset_name": metadata.get("dataset_name", "UCI Wine Quality - white wine"),
+        "dataset_name": metadata.get("dataset_name", "UCI Breast Cancer Wisconsin Diagnostic"),
         "dataset_source": metadata.get("dataset_source", DATA_SOURCE_PAGE),
         "model_version": metadata.get("model_version"),
         "feature_schema": FEATURE_COLUMNS,

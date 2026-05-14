@@ -1,0 +1,16 @@
+{
+  "class_labels": [
+    "malignant",
+    "benign"
+  ],
+  "matrix": [
+    [
+      41,
+      1
+    ],
+    [
+      0,
+      72
+    ]
+  ]
+}

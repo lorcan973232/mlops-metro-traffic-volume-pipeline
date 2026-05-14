@@ -19,10 +19,10 @@ spec:
       containers:
         - name: api
           image: mlops-flask-api:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Never
           env:
             - name: MODEL_PATH
-              value: models/wine_quality_classifier.joblib
+              value: models/breast_cancer_classifier.joblib
           ports:
             - containerPort: 8080
               name: http

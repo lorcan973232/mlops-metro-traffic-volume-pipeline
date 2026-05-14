@@ -8,11 +8,11 @@ from typing import Any
 import joblib
 import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import RobustScaler
 
 from src.data import (
     CLASS_COLUMN,
@@ -23,28 +23,27 @@ from src.data import (
     FEATURE_COLUMNS,
     RAW_DATA_PATH,
     TARGET_COLUMN,
+    TARGET_MAPPING,
     file_sha256,
     write_json,
 )
 from src.preprocess import PROCESSED_DATA_PATH, preprocess_dataset
 
-MODEL_PATH = Path("models/wine_quality_classifier.joblib")
+MODEL_PATH = Path("models/breast_cancer_classifier.joblib")
 TRAIN_METADATA_PATH = Path("reports/metrics/train_metadata.json")
-MODEL_VERSION = "wine-quality-random-forest-v1"
+MODEL_VERSION = "breast-cancer-logistic-regression-v2"
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
 TRAINING_COMMAND = "python -m src.train"
 MODEL_HYPERPARAMETERS: dict[str, Any] = {
-    "algorithm": "RandomForestClassifier",
+    "algorithm": "LogisticRegression",
     "classifier": {
-        "n_estimators": 120,
-        "max_depth": 12,
-        "min_samples_leaf": 2,
-        "class_weight": "balanced_subsample",
+        "C": 0.3,
+        "class_weight": "balanced",
+        "max_iter": 2000,
+        "penalty": "l2",
         "random_state": RANDOM_STATE,
-        "n_jobs": 1,
-        "criterion": "gini",
-        "bootstrap": True,
+        "solver": "lbfgs",
     },
     "train_test_split": {
         "test_size": TEST_SIZE,
@@ -53,8 +52,17 @@ MODEL_HYPERPARAMETERS: dict[str, Any] = {
     },
     "preprocessing": {
         "numeric_imputer_strategy": "median",
-        "numeric_scaler": "StandardScaler",
+        "numeric_scaler": "RobustScaler",
         "column_transformer_remainder": "drop",
+    },
+    "selection": {
+        "method": (
+            "dataset suitability review plus controlled scikit-learn model comparison "
+            "with feature-engineering candidates"
+        ),
+        "main_scoring_metric": "f1_macro",
+        "cross_validation": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42)",
+        "selection_rule": "highest held-out macro F1 with strong CV support and reproducibility",
     },
 }
 
@@ -67,7 +75,7 @@ def build_pipeline() -> Pipeline:
                 Pipeline(
                     steps=[
                         ("imputer", SimpleImputer(strategy="median")),
-                        ("scaler", StandardScaler()),
+                        ("scaler", RobustScaler()),
                     ]
                 ),
                 FEATURE_COLUMNS,
@@ -75,14 +83,7 @@ def build_pipeline() -> Pipeline:
         ],
         remainder="drop",
     )
-    model = RandomForestClassifier(
-        n_estimators=120,
-        max_depth=12,
-        min_samples_leaf=2,
-        class_weight="balanced_subsample",
-        random_state=RANDOM_STATE,
-        n_jobs=1,
-    )
+    model = LogisticRegression(**MODEL_HYPERPARAMETERS["classifier"])
     return Pipeline(steps=[("preprocessor", preprocessor), ("classifier", model)])
 
 
@@ -117,8 +118,9 @@ def train_model(
         "model": pipeline,
         "feature_columns": FEATURE_COLUMNS,
         "class_labels": CLASS_LABELS,
+        "task_type": "binary_classification",
         "dataset": {
-            "name": "UCI Wine Quality - white wine",
+            "name": "UCI Breast Cancer Wisconsin Diagnostic",
             "source": DATA_SOURCE_PAGE,
             "doi": DATA_DOI,
             "raw_sha256": raw_hash,
@@ -127,7 +129,7 @@ def train_model(
         "target_definition": {
             "raw_target": TARGET_COLUMN,
             "model_target": CLASS_COLUMN,
-            "class_mapping": {"<=5": "low", "6": "medium", ">=7": "high"},
+            "class_mapping": {str(key): value for key, value in TARGET_MAPPING.items()},
         },
         "random_state": RANDOM_STATE,
         "test_size": TEST_SIZE,
@@ -137,6 +139,9 @@ def train_model(
         "model_path": str(model_path),
         "training_rows": int(len(x_train)),
         "test_rows": int(len(x_test)),
+        "class_distribution": {
+            str(key): int(value) for key, value in y.value_counts().sort_index().to_dict().items()
+        },
     }
     joblib.dump(bundle, model_path)
     return bundle, x_train, x_test, y_train, y_test
@@ -152,6 +157,7 @@ def main() -> None:
         "target_definition": bundle["target_definition"],
         "feature_columns": bundle["feature_columns"],
         "class_labels": list(bundle["class_labels"]),
+        "task_type": bundle["task_type"],
         "random_state": bundle["random_state"],
         "test_size": bundle["test_size"],
         "hyperparameters": bundle["hyperparameters"],
@@ -159,6 +165,7 @@ def main() -> None:
         "training_command": TRAINING_COMMAND,
         "training_rows": bundle["training_rows"],
         "test_rows": bundle["test_rows"],
+        "class_distribution": bundle["class_distribution"],
     }
     write_json(TRAIN_METADATA_PATH, report)
     print(json.dumps(report, indent=2, sort_keys=True))

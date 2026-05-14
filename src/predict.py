@@ -38,7 +38,9 @@ def predict(payload: dict, model_path: Path = MODEL_PATH) -> list[dict[str, obje
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run one local Wine Quality prediction.")
+    parser = argparse.ArgumentParser(
+        description="Run one local breast cancer diagnosis prediction."
+    )
     parser.add_argument("--payload-json", default=None)
     args = parser.parse_args()
     payload = (

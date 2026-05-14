@@ -4,7 +4,7 @@ IMAGE_NAME ?= mlops-flask-api:latest
 KIND_CLUSTER_NAME ?= mlops-kind
 API_URL ?= http://127.0.0.1:8080
 
-.PHONY: setup setup-ps check-setup check-setup-ps test data preprocess train evaluate run-api docker-build docker-run kind-create kind-create-ps kind-load kind-deploy kind-deploy-ps kind-smoke-test kind-smoke-test-ps monitor drift-check full-local-verify
+.PHONY: setup setup-ps check-setup check-setup-ps test data preprocess model-select train evaluate run-api docker-build docker-run kind-create kind-create-ps kind-load kind-deploy kind-deploy-ps kind-smoke-test kind-smoke-test-ps monitor drift-check full-local-verify
 
 setup:
 	$(BASH) scripts/setup_local.sh
@@ -27,6 +27,9 @@ data:
 
 preprocess:
 	$(PYTHON) -m src.preprocess
+
+model-select:
+	$(PYTHON) -m src.model_selection
 
 train:
 	$(PYTHON) -m src.train
@@ -71,5 +74,5 @@ monitor:
 drift-check:
 	$(PYTHON) scripts/check_drift.py
 
-full-local-verify: check-setup test data preprocess train evaluate monitor drift-check docker-build
+full-local-verify: check-setup test data preprocess model-select train evaluate monitor drift-check docker-build
 	@echo "Run kind-deploy and kind-smoke-test after Docker, Kind, and kubectl are confirmed available."

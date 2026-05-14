@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV MODEL_PATH=models/wine_quality_classifier.joblib
+ENV MODEL_PATH=models/breast_cancer_classifier.joblib
 
 WORKDIR /app
 

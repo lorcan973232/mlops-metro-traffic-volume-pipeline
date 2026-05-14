@@ -1,24 +1,31 @@
 {
-  "baseline_metrics": {
-    "accuracy": 0.6877551020408164,
-    "macro_f1": 0.6885325803364882
-  },
+  "baseline_accuracy": 0.631578947368421,
+  "baseline_balanced_accuracy": 0.5,
+  "baseline_macro_f1": 0.3870967741935484,
+  "candidate_accuracy": 0.9912280701754386,
+  "candidate_balanced_accuracy": 0.9880952380952381,
+  "candidate_macro_f1": 0.9905276277523889,
+  "candidate_weighted_f1": 0.9912054752585661,
   "checks": {
+    "accuracy_above_baseline": true,
     "accuracy_above_minimum": true,
-    "accuracy_not_regressed_from_baseline": true,
+    "balanced_accuracy_above_baseline": true,
+    "balanced_accuracy_above_minimum": true,
+    "macro_f1_above_baseline": true,
     "macro_f1_above_minimum": true,
-    "macro_f1_not_regressed_from_baseline": true
+    "weighted_f1_above_minimum": true
   },
   "decision": "accept_candidate_model",
-  "latest_metrics": {
-    "accuracy": 0.6877551020408164,
-    "macro_f1": 0.6885325803364882
-  },
   "passed": true,
+  "reasons": [
+    "All model performance quality gates passed."
+  ],
   "status": "passed",
   "thresholds": {
     "max_baseline_regression": 0.02,
-    "min_accuracy": 0.5,
-    "min_macro_f1": 0.35
+    "min_accuracy": 0.94,
+    "min_balanced_accuracy": 0.94,
+    "min_macro_f1": 0.94,
+    "min_weighted_f1": 0.94
   }
 }

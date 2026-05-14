@@ -45,6 +45,12 @@ if ($LASTEXITCODE -ne 0) {
     throw "kubectl apply failed."
 }
 
+Write-Host "Restarting deployment so Kind uses the freshly loaded local image"
+& kubectl rollout restart deployment/mlops-flask-api
+if ($LASTEXITCODE -ne 0) {
+    throw "Kubernetes rollout restart failed."
+}
+
 Write-Host "Waiting for rollout"
 & kubectl rollout status deployment/mlops-flask-api --timeout=180s
 if ($LASTEXITCODE -ne 0) {

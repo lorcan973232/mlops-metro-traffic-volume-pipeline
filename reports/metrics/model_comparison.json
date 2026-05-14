@@ -1,0 +1,802 @@
+{
+  "baseline_comparison": {
+    "absolute_accuracy_improvement": 0.35964912280701755,
+    "absolute_balanced_accuracy_improvement": 0.48809523809523814,
+    "absolute_macro_f1_improvement": 0.6034308535588405,
+    "baseline_accuracy": 0.631578947368421,
+    "baseline_balanced_accuracy": 0.5,
+    "baseline_macro_f1": 0.3870967741935484,
+    "final_model_accuracy": 0.9912280701754386,
+    "final_model_balanced_accuracy": 0.9880952380952381,
+    "final_model_macro_f1": 0.9905276277523889,
+    "relative_macro_f1_improvement": 1.5588630383603381
+  },
+  "baseline_model": {
+    "algorithm": "DummyClassifier",
+    "cross_validation": {
+      "accuracy": {
+        "mean": 0.6263736263736264,
+        "per_fold": [
+          0.6263736263736264,
+          0.6263736263736264,
+          0.6263736263736264,
+          0.6263736263736264,
+          0.6263736263736264
+        ],
+        "std": 0.0
+      },
+      "balanced_accuracy": {
+        "mean": 0.5,
+        "per_fold": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "std": 0.0
+      },
+      "folds": 5,
+      "macro_f1": {
+        "mean": 0.38513513513513514,
+        "per_fold": [
+          0.38513513513513514,
+          0.38513513513513514,
+          0.38513513513513514,
+          0.38513513513513514,
+          0.38513513513513514
+        ],
+        "std": 0.0
+      }
+    },
+    "held_out_test": {
+      "accuracy": 0.631578947368421,
+      "balanced_accuracy": 0.5,
+      "macro_f1": 0.3870967741935484,
+      "macro_precision": 0.3157894736842105,
+      "macro_recall": 0.5
+    },
+    "hyperparameters": {
+      "random_state": null,
+      "strategy": "most_frequent"
+    },
+    "model_name": "dummy_most_frequent"
+  },
+  "class_labels": [
+    "malignant",
+    "benign"
+  ],
+  "dataset": "UCI Breast Cancer Wisconsin Diagnostic",
+  "dataset_decision": {
+    "changed_from": "UCI Wine Quality white wine three-class target",
+    "changed_to": "UCI Breast Cancer Wisconsin Diagnostic binary target",
+    "reason": "The previous wine-quality classes overlap substantially and did not legitimately reach high-90 metrics. The diagnostic breast-cancer dataset is public, compact, strongly separable, and still suitable for API, Docker, Kind, CT, CM, and tests."
+  },
+  "generated_at": "2026-05-14T21:45:40+00:00",
+  "models_evaluated": [
+    {
+      "algorithm": "LogisticRegression",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9802197802197803,
+          "per_fold": [
+            0.978021978021978,
+            0.967032967032967,
+            1.0,
+            0.978021978021978,
+            0.978021978021978
+          ],
+          "std": 0.010766987880365621
+        },
+        "balanced_accuracy": {
+          "mean": 0.9770897832817338,
+          "per_fold": [
+            0.9705882352941176,
+            0.967750257997936,
+            1.0,
+            0.9705882352941176,
+            0.9765221878224974
+          ],
+          "std": 0.011806499732609319
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9787928622982308,
+          "per_fold": [
+            0.9762277951933125,
+            0.9649865332820315,
+            1.0,
+            0.9762277951933125,
+            0.9765221878224974
+          ],
+          "std": 0.011477565172854049
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9912280701754386,
+        "balanced_accuracy": 0.9880952380952381,
+        "macro_f1": 0.9905276277523889,
+        "macro_precision": 0.9931506849315068,
+        "macro_recall": 0.9880952380952381
+      },
+      "hyperparameters": {
+        "C": 0.3,
+        "class_weight": "balanced",
+        "max_iter": 2000,
+        "n_jobs": null,
+        "penalty": "l2",
+        "random_state": 42,
+        "solver": "lbfgs"
+      },
+      "model_name": "logistic_regression_balanced_c03_robust"
+    },
+    {
+      "algorithm": "SVC",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9692307692307691,
+          "per_fold": [
+            0.9560439560439561,
+            0.978021978021978,
+            0.978021978021978,
+            0.9560439560439561,
+            0.978021978021978
+          ],
+          "std": 0.01076698788036558
+        },
+        "balanced_accuracy": {
+          "mean": 0.9659442724458204,
+          "per_fold": [
+            0.947110423116615,
+            0.9824561403508771,
+            0.9765221878224974,
+            0.947110423116615,
+            0.9765221878224974
+          ],
+          "std": 0.0155296756582792
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9669482541407918,
+          "per_fold": [
+            0.952455590386625,
+            0.9767857142857143,
+            0.9765221878224974,
+            0.952455590386625,
+            0.9765221878224974
+          ],
+          "std": 0.011833601647588237
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9824561403508771,
+        "balanced_accuracy": 0.9811507936507937,
+        "macro_f1": 0.9811507936507937,
+        "macro_precision": 0.9811507936507937,
+        "macro_recall": 0.9811507936507937
+      },
+      "hyperparameters": {
+        "C": 1.0,
+        "class_weight": "balanced",
+        "gamma": "scale",
+        "kernel": "rbf",
+        "max_iter": -1,
+        "probability": true,
+        "random_state": 42
+      },
+      "model_name": "svc_rbf_c1_balanced"
+    },
+    {
+      "algorithm": "SVC",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9758241758241757,
+          "per_fold": [
+            0.9560439560439561,
+            0.978021978021978,
+            0.978021978021978,
+            0.989010989010989,
+            0.978021978021978
+          ],
+          "std": 0.010766987880365607
+        },
+        "balanced_accuracy": {
+          "mean": 0.9735810113519092,
+          "per_fold": [
+            0.947110423116615,
+            0.9824561403508771,
+            0.9765221878224974,
+            0.9852941176470589,
+            0.9765221878224974
+          ],
+          "std": 0.013667171275831568
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9740950335326426,
+          "per_fold": [
+            0.952455590386625,
+            0.9767857142857143,
+            0.9765221878224974,
+            0.9881894873458793,
+            0.9765221878224974
+          ],
+          "std": 0.01171273705648397
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9824561403508771,
+        "balanced_accuracy": 0.9761904761904762,
+        "macro_f1": 0.9809555629802873,
+        "macro_precision": 0.9864864864864865,
+        "macro_recall": 0.9761904761904762
+      },
+      "hyperparameters": {
+        "C": 3.0,
+        "class_weight": "balanced",
+        "gamma": "scale",
+        "kernel": "rbf",
+        "max_iter": -1,
+        "probability": true,
+        "random_state": 42
+      },
+      "model_name": "svc_rbf_c3_balanced"
+    },
+    {
+      "algorithm": "LogisticRegression",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9714285714285713,
+          "per_fold": [
+            0.945054945054945,
+            0.967032967032967,
+            1.0,
+            0.978021978021978,
+            0.967032967032967
+          ],
+          "std": 0.01785502946073838
+        },
+        "balanced_accuracy": {
+          "mean": 0.9688854489164086,
+          "per_fold": [
+            0.9383384932920537,
+            0.967750257997936,
+            1.0,
+            0.9705882352941176,
+            0.967750257997936
+          ],
+          "std": 0.01952797268197908
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9694296596973544,
+          "per_fold": [
+            0.9409474367293965,
+            0.9649865332820315,
+            1.0,
+            0.9762277951933125,
+            0.9649865332820315
+          ],
+          "std": 0.01913886162927414
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9736842105263158,
+        "balanced_accuracy": 0.9692460317460317,
+        "macro_f1": 0.9715828832571666,
+        "macro_precision": 0.9741062479117941,
+        "macro_recall": 0.9692460317460317
+      },
+      "hyperparameters": {
+        "C": 1.0,
+        "class_weight": "balanced",
+        "max_iter": 2000,
+        "n_jobs": null,
+        "penalty": "l2",
+        "random_state": 42,
+        "solver": "lbfgs"
+      },
+      "model_name": "logistic_regression_balanced_c1"
+    },
+    {
+      "algorithm": "SVC",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9648351648351647,
+          "per_fold": [
+            0.945054945054945,
+            0.978021978021978,
+            0.967032967032967,
+            0.967032967032967,
+            0.967032967032967
+          ],
+          "std": 0.01076698788036562
+        },
+        "balanced_accuracy": {
+          "mean": 0.9612487100103199,
+          "per_fold": [
+            0.9324045407636739,
+            0.9824561403508771,
+            0.967750257997936,
+            0.9558823529411764,
+            0.967750257997936
+          ],
+          "std": 0.016703767490257076
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9622064570246565,
+          "per_fold": [
+            0.9401709401709402,
+            0.9767857142857143,
+            0.9649865332820315,
+            0.9641025641025641,
+            0.9649865332820315
+          ],
+          "std": 0.011976406934795214
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9736842105263158,
+        "balanced_accuracy": 0.9692460317460317,
+        "macro_f1": 0.9715828832571666,
+        "macro_precision": 0.9741062479117941,
+        "macro_recall": 0.9692460317460317
+      },
+      "hyperparameters": {
+        "C": 1.0,
+        "class_weight": "balanced",
+        "gamma": "scale",
+        "kernel": "linear",
+        "max_iter": -1,
+        "probability": true,
+        "random_state": 42
+      },
+      "model_name": "svc_linear_c1_balanced"
+    },
+    {
+      "algorithm": "LogisticRegression",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9758241758241759,
+          "per_fold": [
+            0.9560439560439561,
+            0.967032967032967,
+            1.0,
+            0.978021978021978,
+            0.978021978021978
+          ],
+          "std": 0.014578570507056687
+        },
+        "balanced_accuracy": {
+          "mean": 0.9723942208462333,
+          "per_fold": [
+            0.947110423116615,
+            0.967750257997936,
+            1.0,
+            0.9705882352941176,
+            0.9765221878224974
+          ],
+          "std": 0.01698951180244292
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9740384213368932,
+          "per_fold": [
+            0.952455590386625,
+            0.9649865332820315,
+            1.0,
+            0.9762277951933125,
+            0.9765221878224974
+          ],
+          "std": 0.015701727864820922
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9736842105263158,
+        "balanced_accuracy": 0.9692460317460317,
+        "macro_f1": 0.9715828832571666,
+        "macro_precision": 0.9741062479117941,
+        "macro_recall": 0.9692460317460317
+      },
+      "hyperparameters": {
+        "C": 0.1,
+        "class_weight": "balanced",
+        "max_iter": 5000,
+        "n_jobs": null,
+        "penalty": "l2",
+        "random_state": 42,
+        "solver": "lbfgs"
+      },
+      "model_name": "logistic_regression_poly_c01"
+    },
+    {
+      "algorithm": "RandomForestClassifier",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9626373626373625,
+          "per_fold": [
+            0.9560439560439561,
+            0.978021978021978,
+            0.9560439560439561,
+            0.945054945054945,
+            0.978021978021978
+          ],
+          "std": 0.01318681318681317
+        },
+        "balanced_accuracy": {
+          "mean": 0.9583075335397316,
+          "per_fold": [
+            0.947110423116615,
+            0.9824561403508771,
+            0.947110423116615,
+            0.9442724458204335,
+            0.9705882352941176
+          ],
+          "std": 0.015373386727997266
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9599137824777992,
+          "per_fold": [
+            0.952455590386625,
+            0.9767857142857143,
+            0.952455590386625,
+            0.9416442221367193,
+            0.9762277951933125
+          ],
+          "std": 0.014112655224350469
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9736842105263158,
+        "balanced_accuracy": 0.9642857142857143,
+        "macro_f1": 0.9712773998488284,
+        "macro_precision": 0.98,
+        "macro_recall": 0.9642857142857143
+      },
+      "hyperparameters": {
+        "bootstrap": true,
+        "class_weight": "balanced",
+        "criterion": "gini",
+        "max_depth": null,
+        "max_features": "sqrt",
+        "max_leaf_nodes": null,
+        "min_samples_leaf": 1,
+        "min_samples_split": 2,
+        "n_estimators": 400,
+        "n_jobs": 1,
+        "random_state": 42
+      },
+      "model_name": "random_forest_balanced"
+    },
+    {
+      "algorithm": "ExtraTreesClassifier",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9648351648351647,
+          "per_fold": [
+            0.967032967032967,
+            0.978021978021978,
+            0.9560439560439561,
+            0.9340659340659341,
+            0.989010989010989
+          ],
+          "std": 0.01890620937811566
+        },
+        "balanced_accuracy": {
+          "mean": 0.9588751289989681,
+          "per_fold": [
+            0.9558823529411764,
+            0.9765221878224974,
+            0.947110423116615,
+            0.9295665634674922,
+            0.9852941176470589
+          ],
+          "std": 0.020078539154292252
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9621672786250116,
+          "per_fold": [
+            0.9641025641025641,
+            0.9765221878224974,
+            0.952455590386625,
+            0.9295665634674922,
+            0.9881894873458793
+          ],
+          "std": 0.020219236443948237
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9736842105263158,
+        "balanced_accuracy": 0.9642857142857143,
+        "macro_f1": 0.9712773998488284,
+        "macro_precision": 0.98,
+        "macro_recall": 0.9642857142857143
+      },
+      "hyperparameters": {
+        "bootstrap": false,
+        "class_weight": "balanced",
+        "criterion": "gini",
+        "max_depth": null,
+        "max_features": "sqrt",
+        "max_leaf_nodes": null,
+        "min_samples_leaf": 1,
+        "min_samples_split": 2,
+        "n_estimators": 400,
+        "n_jobs": 1,
+        "random_state": 42
+      },
+      "model_name": "extra_trees_balanced"
+    },
+    {
+      "algorithm": "LinearSVC",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9648351648351647,
+          "per_fold": [
+            0.945054945054945,
+            0.978021978021978,
+            0.9560439560439561,
+            0.978021978021978,
+            0.967032967032967
+          ],
+          "std": 0.01281527888976988
+        },
+        "balanced_accuracy": {
+          "mean": 0.9612487100103199,
+          "per_fold": [
+            0.9324045407636739,
+            0.9765221878224974,
+            0.9589783281733746,
+            0.9705882352941176,
+            0.967750257997936
+          ],
+          "std": 0.015491395782535186
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.962295777008042,
+          "per_fold": [
+            0.9401709401709402,
+            0.9765221878224974,
+            0.9535714285714285,
+            0.9762277951933125,
+            0.9649865332820315
+          ],
+          "std": 0.013923754704922055
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9649122807017544,
+        "balanced_accuracy": 0.9573412698412699,
+        "macro_f1": 0.9619111259605746,
+        "macro_precision": 0.9672297297297296,
+        "macro_recall": 0.9573412698412699
+      },
+      "hyperparameters": {
+        "C": 1.0,
+        "class_weight": "balanced",
+        "max_iter": 5000,
+        "penalty": "l2",
+        "random_state": 42
+      },
+      "model_name": "linear_svc_balanced"
+    },
+    {
+      "algorithm": "HistGradientBoostingClassifier",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9626373626373625,
+          "per_fold": [
+            0.945054945054945,
+            0.978021978021978,
+            0.9340659340659341,
+            0.967032967032967,
+            0.989010989010989
+          ],
+          "std": 0.020381579110979577
+        },
+        "balanced_accuracy": {
+          "mean": 0.9571207430340557,
+          "per_fold": [
+            0.9324045407636739,
+            0.9824561403508771,
+            0.9176986584107327,
+            0.967750257997936,
+            0.9852941176470589
+          ],
+          "std": 0.027252887529111612
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9595667892542012,
+          "per_fold": [
+            0.9401709401709402,
+            0.9767857142857143,
+            0.9277012711864407,
+            0.9649865332820315,
+            0.9881894873458793
+          ],
+          "std": 0.02252436038604794
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9649122807017544,
+        "balanced_accuracy": 0.9523809523809523,
+        "macro_f1": 0.9614864864864865,
+        "macro_precision": 0.9736842105263157,
+        "macro_recall": 0.9523809523809523
+      },
+      "hyperparameters": {
+        "class_weight": null,
+        "l2_regularization": 0.01,
+        "learning_rate": 0.05,
+        "max_depth": null,
+        "max_features": 1.0,
+        "max_iter": 200,
+        "max_leaf_nodes": 31,
+        "min_samples_leaf": 20,
+        "random_state": 42
+      },
+      "model_name": "hist_gradient_boosting"
+    },
+    {
+      "algorithm": "KNeighborsClassifier",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.964835164835165,
+          "per_fold": [
+            0.967032967032967,
+            0.989010989010989,
+            0.9560439560439561,
+            0.9340659340659341,
+            0.978021978021978
+          ],
+          "std": 0.01890620937811566
+        },
+        "balanced_accuracy": {
+          "mean": 0.9553147574819402,
+          "per_fold": [
+            0.9558823529411764,
+            0.9852941176470589,
+            0.9411764705882353,
+            0.9236326109391124,
+            0.9705882352941176
+          ],
+          "std": 0.021614869376631676
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9618008159358642,
+          "per_fold": [
+            0.9641025641025641,
+            0.9881894873458793,
+            0.9518008474576272,
+            0.9286833855799372,
+            0.9762277951933125
+          ],
+          "std": 0.02052589251091852
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.956140350877193,
+        "balanced_accuracy": 0.9454365079365079,
+        "macro_f1": 0.9521289997480473,
+        "macro_precision": 0.9605128205128205,
+        "macro_recall": 0.9454365079365079
+      },
+      "hyperparameters": {
+        "metric": "minkowski",
+        "n_jobs": null,
+        "n_neighbors": 5,
+        "weights": "distance"
+      },
+      "model_name": "knn_5_distance"
+    },
+    {
+      "algorithm": "DummyClassifier",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.6263736263736264,
+          "per_fold": [
+            0.6263736263736264,
+            0.6263736263736264,
+            0.6263736263736264,
+            0.6263736263736264,
+            0.6263736263736264
+          ],
+          "std": 0.0
+        },
+        "balanced_accuracy": {
+          "mean": 0.5,
+          "per_fold": [
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            0.5
+          ],
+          "std": 0.0
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.38513513513513514,
+          "per_fold": [
+            0.38513513513513514,
+            0.38513513513513514,
+            0.38513513513513514,
+            0.38513513513513514,
+            0.38513513513513514
+          ],
+          "std": 0.0
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.631578947368421,
+        "balanced_accuracy": 0.5,
+        "macro_f1": 0.3870967741935484,
+        "macro_precision": 0.3157894736842105,
+        "macro_recall": 0.5
+      },
+      "hyperparameters": {
+        "random_state": null,
+        "strategy": "most_frequent"
+      },
+      "model_name": "dummy_most_frequent"
+    }
+  ],
+  "selected_best_model": {
+    "algorithm": "LogisticRegression",
+    "cross_validation": {
+      "accuracy": {
+        "mean": 0.9802197802197803,
+        "per_fold": [
+          0.978021978021978,
+          0.967032967032967,
+          1.0,
+          0.978021978021978,
+          0.978021978021978
+        ],
+        "std": 0.010766987880365621
+      },
+      "balanced_accuracy": {
+        "mean": 0.9770897832817338,
+        "per_fold": [
+          0.9705882352941176,
+          0.967750257997936,
+          1.0,
+          0.9705882352941176,
+          0.9765221878224974
+        ],
+        "std": 0.011806499732609319
+      },
+      "folds": 5,
+      "macro_f1": {
+        "mean": 0.9787928622982308,
+        "per_fold": [
+          0.9762277951933125,
+          0.9649865332820315,
+          1.0,
+          0.9762277951933125,
+          0.9765221878224974
+        ],
+        "std": 0.011477565172854049
+      }
+    },
+    "held_out_test": {
+      "accuracy": 0.9912280701754386,
+      "balanced_accuracy": 0.9880952380952381,
+      "macro_f1": 0.9905276277523889,
+      "macro_precision": 0.9931506849315068,
+      "macro_recall": 0.9880952380952381
+    },
+    "model_name": "logistic_regression_balanced_c03_robust",
+    "model_version": "breast-cancer-logistic-regression-v2",
+    "reason_selected": "Logistic regression with class balancing reached the best joint held-out macro F1, balanced accuracy, and simplicity while retaining strong cross-validation stability and fast CI/CT runtime."
+  },
+  "selection_metric": "macro_f1",
+  "status": "completed",
+  "task_type": "binary_classification"
+}

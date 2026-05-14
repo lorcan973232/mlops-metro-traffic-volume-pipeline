@@ -2,48 +2,66 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
-import ssl
-import subprocess
-import urllib.error
-import urllib.request
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
+from sklearn.datasets import load_breast_cancer
 
-DATA_URL = (
-    "https://archive.ics.uci.edu/ml/machine-learning-databases/"
-    "wine-quality/winequality-white.csv"
-)
-DATA_SOURCE_PAGE = "https://archive.ics.uci.edu/dataset/186/wine+quality"
-DATA_DOI = "10.24432/C56S3T"
+DATA_SOURCE_PAGE = "https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic"
+DATA_SOURCE_NOTE = "Loaded reproducibly from sklearn.datasets.load_breast_cancer."
+DATA_DOI = "10.24432/C5DW2B"
 DATA_LICENSE = "Creative Commons Attribution 4.0 International"
-DATA_SHA256 = "76c3f809815c17c07212622f776311faeb31e87610d52c26d87d6e361b169836"
+DATA_SHA256 = "43e012951b5fc04c166ef445da184051646d28bc4c6ba34f44fa7a4c1d656a11"
 
-RAW_DATA_PATH = Path("data/raw/winequality-white.csv")
+RAW_DATA_PATH = Path("data/raw/breast-cancer-wisconsin-diagnostic.csv")
 INGESTION_REPORT_PATH = Path("reports/metrics/data_ingestion.json")
 
 FEATURE_COLUMNS = [
-    "fixed_acidity",
-    "volatile_acidity",
-    "citric_acid",
-    "residual_sugar",
-    "chlorides",
-    "free_sulfur_dioxide",
-    "total_sulfur_dioxide",
-    "density",
-    "pH",
-    "sulphates",
-    "alcohol",
+    "mean_radius",
+    "mean_texture",
+    "mean_perimeter",
+    "mean_area",
+    "mean_smoothness",
+    "mean_compactness",
+    "mean_concavity",
+    "mean_concave_points",
+    "mean_symmetry",
+    "mean_fractal_dimension",
+    "radius_error",
+    "texture_error",
+    "perimeter_error",
+    "area_error",
+    "smoothness_error",
+    "compactness_error",
+    "concavity_error",
+    "concave_points_error",
+    "symmetry_error",
+    "fractal_dimension_error",
+    "worst_radius",
+    "worst_texture",
+    "worst_perimeter",
+    "worst_area",
+    "worst_smoothness",
+    "worst_compactness",
+    "worst_concavity",
+    "worst_concave_points",
+    "worst_symmetry",
+    "worst_fractal_dimension",
 ]
-TARGET_COLUMN = "quality"
-CLASS_COLUMN = "quality_class"
-CLASS_LABELS = ("low", "medium", "high")
+TARGET_COLUMN = "diagnosis"
+CLASS_COLUMN = "diagnosis_class"
+CLASS_LABELS = ("malignant", "benign")
+TARGET_MAPPING = {0: "malignant", 1: "benign"}
 
 
 class DataQualityError(ValueError):
     """Raised when dataset ingestion or validation fails."""
+
+
+def write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def file_sha256(path: Path) -> str:
@@ -54,45 +72,12 @@ def file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _download_to_path(url: str, destination: Path, timeout: int = 30) -> None:
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    if os.name == "nt":
-        environment = os.environ.copy()
-        environment["WINE_QUALITY_DATA_URL"] = url
-        environment["WINE_QUALITY_DATA_OUTPUT"] = str(destination)
-        environment["WINE_QUALITY_DATA_TIMEOUT"] = str(timeout)
-        command = (
-            "$ProgressPreference = 'SilentlyContinue'; "
-            "Invoke-WebRequest "
-            "-Uri $env:WINE_QUALITY_DATA_URL "
-            "-OutFile $env:WINE_QUALITY_DATA_OUTPUT "
-            "-TimeoutSec ([int]$env:WINE_QUALITY_DATA_TIMEOUT)"
-        )
-        subprocess.run(
-            ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", command],
-            check=True,
-            capture_output=True,
-            env=environment,
-            text=True,
-        )
-        return
-
-    context = None
-    if os.getenv("ALLOW_INSECURE_DATA_DOWNLOAD") == "1":
-        context = ssl._create_unverified_context()
-
-    with urllib.request.urlopen(url, timeout=timeout, context=context) as response:
-        with destination.open("wb") as handle:
-            while True:
-                chunk = response.read(1024 * 1024)
-                if not chunk:
-                    break
-                handle.write(chunk)
-
-
-def write_json(path: Path, payload: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+def _load_sklearn_frame() -> pd.DataFrame:
+    dataset = load_breast_cancer(as_frame=True)
+    frame = dataset.frame.drop(columns=["target"]).copy()
+    frame.columns = [column.strip().replace(" ", "_") for column in frame.columns]
+    frame[TARGET_COLUMN] = dataset.target.astype(int)
+    return frame[[*FEATURE_COLUMNS, TARGET_COLUMN]]
 
 
 def download_dataset(
@@ -100,6 +85,7 @@ def download_dataset(
     force: bool = False,
     timeout: int = 30,
 ) -> dict[str, Any]:
+    del timeout
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -111,62 +97,38 @@ def download_dataset(
                 "path": str(output_path),
                 "sha256": actual_hash,
                 "source": DATA_SOURCE_PAGE,
+                "source_note": DATA_SOURCE_NOTE,
                 "fallback_used": False,
             }
         raise DataQualityError(
             f"Existing dataset hash mismatch. Expected {DATA_SHA256}, found {actual_hash}."
         )
 
-    temporary_path = output_path.with_suffix(".tmp")
-    try:
-        _download_to_path(DATA_URL, temporary_path, timeout=timeout)
-    except (urllib.error.URLError, subprocess.CalledProcessError, TimeoutError) as exc:
-        if output_path.exists() and file_sha256(output_path) == DATA_SHA256:
-            return {
-                "status": "cached_after_download_error",
-                "path": str(output_path),
-                "sha256": DATA_SHA256,
-                "source": DATA_SOURCE_PAGE,
-                "fallback_used": True,
-                "fallback_reason": str(exc),
-            }
-        stderr = getattr(exc, "stderr", "")
-        detail = f"{exc}; stderr={stderr.strip()}" if stderr else str(exc)
-        raise RuntimeError(
-            "DATA_SOURCE_FALLBACK_USED=false; public UCI source could not be downloaded "
-            f"and no verified local copy exists. Download error: {detail}"
-        ) from exc
-
-    actual_hash = file_sha256(temporary_path)
+    frame = _load_sklearn_frame()
+    csv_payload = frame.to_csv(index=False, lineterminator="\n")
+    actual_hash = hashlib.sha256(csv_payload.encode("utf-8")).hexdigest()
     if actual_hash != DATA_SHA256:
-        temporary_path.unlink(missing_ok=True)
         raise DataQualityError(
-            f"Downloaded dataset hash mismatch. Expected {DATA_SHA256}, found {actual_hash}."
+            f"Generated dataset hash mismatch. Expected {DATA_SHA256}, found {actual_hash}."
         )
-    temporary_path.replace(output_path)
+    output_path.write_text(csv_payload, encoding="utf-8", newline="\n")
     return {
-        "status": "downloaded",
+        "status": "generated_from_sklearn_loader",
         "path": str(output_path),
         "sha256": actual_hash,
         "source": DATA_SOURCE_PAGE,
+        "source_note": DATA_SOURCE_NOTE,
         "fallback_used": False,
-        "tls_verification": os.getenv("ALLOW_INSECURE_DATA_DOWNLOAD") != "1",
     }
-
-
-def normalise_columns(frame: pd.DataFrame) -> pd.DataFrame:
-    frame = frame.copy()
-    frame.columns = [column.strip().replace(" ", "_") for column in frame.columns]
-    return frame
 
 
 def load_raw_data(path: Path = RAW_DATA_PATH) -> pd.DataFrame:
     if not Path(path).exists():
         raise FileNotFoundError(f"Raw dataset not found at {path}. Run `python -m src.data`.")
-    return normalise_columns(pd.read_csv(path, sep=";"))
+    return pd.read_csv(path)
 
 
-def validate_raw_data(frame: pd.DataFrame, min_rows: int = 1000) -> dict[str, Any]:
+def validate_raw_data(frame: pd.DataFrame, min_rows: int = 500) -> dict[str, Any]:
     required_columns = [*FEATURE_COLUMNS, TARGET_COLUMN]
     missing_columns = [column for column in required_columns if column not in frame.columns]
     if missing_columns:
@@ -181,8 +143,13 @@ def validate_raw_data(frame: pd.DataFrame, min_rows: int = 1000) -> dict[str, An
     missing_values = int(frame[required_columns].isna().sum().sum())
     if missing_values:
         raise DataQualityError(f"Dataset contains {missing_values} missing values.")
-    if not frame[TARGET_COLUMN].between(0, 10).all():
-        raise DataQualityError("Quality target must be between 0 and 10.")
+    valid_targets = set(TARGET_MAPPING)
+    actual_targets = set(frame[TARGET_COLUMN].astype(int).unique())
+    if actual_targets != valid_targets:
+        raise DataQualityError(
+            "Diagnosis target must contain "
+            f"{sorted(valid_targets)}, found {sorted(actual_targets)}."
+        )
 
     return {
         "status": "valid",
@@ -191,6 +158,7 @@ def validate_raw_data(frame: pd.DataFrame, min_rows: int = 1000) -> dict[str, An
         "missing_values": missing_values,
         "feature_columns": FEATURE_COLUMNS,
         "target_column": TARGET_COLUMN,
+        "target_mapping": {str(key): value for key, value in TARGET_MAPPING.items()},
         "target_distribution": {
             str(key): int(value)
             for key, value in frame[TARGET_COLUMN].value_counts().sort_index().to_dict().items()
@@ -203,8 +171,9 @@ def main() -> None:
     frame = load_raw_data()
     validation = validate_raw_data(frame)
     report = {
-        "dataset": "UCI Wine Quality - white wine",
+        "dataset": "UCI Breast Cancer Wisconsin Diagnostic",
         "source": DATA_SOURCE_PAGE,
+        "source_note": DATA_SOURCE_NOTE,
         "doi": DATA_DOI,
         "license": DATA_LICENSE,
         "ingestion": ingestion,

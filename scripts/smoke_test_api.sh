@@ -38,7 +38,7 @@ PY
 
 curl -fsS "${API_URL}/predict" \
   -H "Content-Type: application/json" \
-  -d '{"features":{"fixed_acidity":7.0,"volatile_acidity":0.27,"citric_acid":0.36,"residual_sugar":20.7,"chlorides":0.045,"free_sulfur_dioxide":45.0,"total_sulfur_dioxide":170.0,"density":1.001,"pH":3.0,"sulphates":0.45,"alcohol":8.8}}' \
+  -d '{"features":{"mean_radius":17.99,"mean_texture":10.38,"mean_perimeter":122.8,"mean_area":1001.0,"mean_smoothness":0.1184,"mean_compactness":0.2776,"mean_concavity":0.3001,"mean_concave_points":0.1471,"mean_symmetry":0.2419,"mean_fractal_dimension":0.07871,"radius_error":1.095,"texture_error":0.9053,"perimeter_error":8.589,"area_error":153.4,"smoothness_error":0.006399,"compactness_error":0.04904,"concavity_error":0.05373,"concave_points_error":0.01587,"symmetry_error":0.03003,"fractal_dimension_error":0.006193,"worst_radius":25.38,"worst_texture":17.33,"worst_perimeter":184.6,"worst_area":2019.0,"worst_smoothness":0.1622,"worst_compactness":0.6656,"worst_concavity":0.7119,"worst_concave_points":0.2654,"worst_symmetry":0.4601,"worst_fractal_dimension":0.1189}}' \
   -o "${PREDICT_RESPONSE}"
 "${PYTHON_CMD}" - "${PREDICT_RESPONSE}" <<'PY'
 import json
@@ -47,12 +47,12 @@ from pathlib import Path
 
 payload = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 prediction = payload.get("prediction")
-if prediction not in {"low", "medium", "high"}:
+if prediction not in {"malignant", "benign"}:
     raise SystemExit(f"Invalid prediction response: {payload}")
 if not payload.get("model_version"):
     raise SystemExit(f"Prediction response does not expose model_version: {payload}")
 probabilities = payload.get("probabilities", {})
-missing = {"low", "medium", "high"} - set(probabilities)
+missing = {"malignant", "benign"} - set(probabilities)
 if missing:
     raise SystemExit(f"Prediction response missing probabilities for: {sorted(missing)}")
 print(json.dumps(payload, indent=2, sort_keys=True))

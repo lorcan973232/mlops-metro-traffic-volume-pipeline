@@ -1,22 +1,40 @@
 {
   "class_distribution": {
-    "high": 1060,
-    "low": 1640,
-    "medium": 2198
+    "benign": 357,
+    "malignant": 212
   },
   "data_quality": {
     "expected_feature_schema": [
-      "fixed_acidity",
-      "volatile_acidity",
-      "citric_acid",
-      "residual_sugar",
-      "chlorides",
-      "free_sulfur_dioxide",
-      "total_sulfur_dioxide",
-      "density",
-      "pH",
-      "sulphates",
-      "alcohol"
+      "mean_radius",
+      "mean_texture",
+      "mean_perimeter",
+      "mean_area",
+      "mean_smoothness",
+      "mean_compactness",
+      "mean_concavity",
+      "mean_concave_points",
+      "mean_symmetry",
+      "mean_fractal_dimension",
+      "radius_error",
+      "texture_error",
+      "perimeter_error",
+      "area_error",
+      "smoothness_error",
+      "compactness_error",
+      "concavity_error",
+      "concave_points_error",
+      "symmetry_error",
+      "fractal_dimension_error",
+      "worst_radius",
+      "worst_texture",
+      "worst_perimeter",
+      "worst_area",
+      "worst_smoothness",
+      "worst_compactness",
+      "worst_concavity",
+      "worst_concave_points",
+      "worst_symmetry",
+      "worst_fractal_dimension"
     ],
     "missing_columns": [],
     "missing_values": 0,
@@ -24,105 +42,257 @@
     "status": "passed",
     "unexpected_columns": []
   },
-  "dataset_name": "UCI Wine Quality - white wine",
-  "dataset_source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
+  "dataset_name": "UCI Breast Cancer Wisconsin Diagnostic",
+  "dataset_source": "https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic",
   "feature_schema": [
-    "fixed_acidity",
-    "volatile_acidity",
-    "citric_acid",
-    "residual_sugar",
-    "chlorides",
-    "free_sulfur_dioxide",
-    "total_sulfur_dioxide",
-    "density",
-    "pH",
-    "sulphates",
-    "alcohol"
+    "mean_radius",
+    "mean_texture",
+    "mean_perimeter",
+    "mean_area",
+    "mean_smoothness",
+    "mean_compactness",
+    "mean_concavity",
+    "mean_concave_points",
+    "mean_symmetry",
+    "mean_fractal_dimension",
+    "radius_error",
+    "texture_error",
+    "perimeter_error",
+    "area_error",
+    "smoothness_error",
+    "compactness_error",
+    "concavity_error",
+    "concave_points_error",
+    "symmetry_error",
+    "fractal_dimension_error",
+    "worst_radius",
+    "worst_texture",
+    "worst_perimeter",
+    "worst_area",
+    "worst_smoothness",
+    "worst_compactness",
+    "worst_concavity",
+    "worst_concave_points",
+    "worst_symmetry",
+    "worst_fractal_dimension"
   ],
   "feature_summary": {
-    "alcohol": {
-      "max": 14.2,
-      "mean": 10.514267047774602,
-      "min": 8.0,
-      "std": 1.230620567757318
+    "area_error": {
+      "max": 542.2,
+      "mean": 40.337079086116,
+      "min": 6.802,
+      "std": 45.49100551613181
     },
-    "chlorides": {
-      "max": 0.346,
-      "mean": 0.04577235606369946,
-      "min": 0.009,
-      "std": 0.021847968093728798
+    "compactness_error": {
+      "max": 0.1354,
+      "mean": 0.025478138840070295,
+      "min": 0.002252,
+      "std": 0.017908179325677388
     },
-    "citric_acid": {
-      "max": 1.66,
-      "mean": 0.33419150673744386,
+    "concave_points_error": {
+      "max": 0.05279,
+      "mean": 0.011796137082601054,
       "min": 0.0,
-      "std": 0.12101980420298249
+      "std": 0.006170285174046869
     },
-    "density": {
-      "max": 1.03898,
-      "mean": 0.9940273764801959,
-      "min": 0.98711,
-      "std": 0.0029909069169369337
+    "concavity_error": {
+      "max": 0.396,
+      "mean": 0.03189371634446397,
+      "min": 0.0,
+      "std": 0.03018606032298841
     },
-    "fixed_acidity": {
-      "max": 14.2,
-      "mean": 6.854787668436097,
-      "min": 3.8,
-      "std": 0.843868227687513
+    "fractal_dimension_error": {
+      "max": 0.02984,
+      "mean": 0.0037949038664323374,
+      "min": 0.0008948,
+      "std": 0.002646070967089195
     },
-    "free_sulfur_dioxide": {
-      "max": 289.0,
-      "mean": 35.30808493262556,
-      "min": 2.0,
-      "std": 17.00713732523259
+    "mean_area": {
+      "max": 2501.0,
+      "mean": 654.8891036906855,
+      "min": 143.5,
+      "std": 351.914129181653
     },
-    "pH": {
-      "max": 3.82,
-      "mean": 3.1882666394446715,
-      "min": 2.72,
-      "std": 0.1510005996150668
+    "mean_compactness": {
+      "max": 0.3454,
+      "mean": 0.10434098418277679,
+      "min": 0.01938,
+      "std": 0.052812757932512194
     },
-    "residual_sugar": {
-      "max": 65.8,
-      "mean": 6.391414863209474,
-      "min": 0.6,
-      "std": 5.072057784014881
+    "mean_concave_points": {
+      "max": 0.2012,
+      "mean": 0.04891914586994728,
+      "min": 0.0,
+      "std": 0.038802844859153605
     },
-    "sulphates": {
-      "max": 1.08,
-      "mean": 0.48984687627603113,
-      "min": 0.22,
-      "std": 0.1141258339488323
+    "mean_concavity": {
+      "max": 0.4268,
+      "mean": 0.0887993158172232,
+      "min": 0.0,
+      "std": 0.07971980870789348
     },
-    "total_sulfur_dioxide": {
-      "max": 440.0,
-      "mean": 138.36065741118824,
-      "min": 9.0,
-      "std": 42.49806455414291
+    "mean_fractal_dimension": {
+      "max": 0.09744,
+      "mean": 0.06279760984182776,
+      "min": 0.04996,
+      "std": 0.007060362795084459
     },
-    "volatile_acidity": {
-      "max": 1.1,
-      "mean": 0.27824111882400976,
-      "min": 0.08,
-      "std": 0.10079454842486534
+    "mean_perimeter": {
+      "max": 188.5,
+      "mean": 91.96903339191564,
+      "min": 43.79,
+      "std": 24.298981038754906
+    },
+    "mean_radius": {
+      "max": 28.11,
+      "mean": 14.127291739894552,
+      "min": 6.981,
+      "std": 3.5240488262120775
+    },
+    "mean_smoothness": {
+      "max": 0.1634,
+      "mean": 0.0963602811950791,
+      "min": 0.05263,
+      "std": 0.01406412813767362
+    },
+    "mean_symmetry": {
+      "max": 0.304,
+      "mean": 0.18116186291739894,
+      "min": 0.106,
+      "std": 0.027414281336035715
+    },
+    "mean_texture": {
+      "max": 39.28,
+      "mean": 19.289648506151142,
+      "min": 9.71,
+      "std": 4.301035768166949
+    },
+    "perimeter_error": {
+      "max": 21.98,
+      "mean": 2.8660592267135327,
+      "min": 0.757,
+      "std": 2.0218545540421076
+    },
+    "radius_error": {
+      "max": 2.873,
+      "mean": 0.40517205623901575,
+      "min": 0.1115,
+      "std": 0.2773127329861039
+    },
+    "smoothness_error": {
+      "max": 0.03113,
+      "mean": 0.007040978910369069,
+      "min": 0.001713,
+      "std": 0.0030025179438390656
+    },
+    "symmetry_error": {
+      "max": 0.07895,
+      "mean": 0.02054229876977153,
+      "min": 0.007882,
+      "std": 0.008266371528798399
+    },
+    "texture_error": {
+      "max": 4.885,
+      "mean": 1.2168534270650264,
+      "min": 0.3602,
+      "std": 0.5516483926172023
+    },
+    "worst_area": {
+      "max": 4254.0,
+      "mean": 880.5831282952548,
+      "min": 185.2,
+      "std": 569.356992669949
+    },
+    "worst_compactness": {
+      "max": 1.058,
+      "mean": 0.25426504393673116,
+      "min": 0.02729,
+      "std": 0.157336488913742
+    },
+    "worst_concave_points": {
+      "max": 0.291,
+      "mean": 0.11460622319859401,
+      "min": 0.0,
+      "std": 0.06573234119594207
+    },
+    "worst_concavity": {
+      "max": 1.252,
+      "mean": 0.27218848330404216,
+      "min": 0.0,
+      "std": 0.2086242806081323
+    },
+    "worst_fractal_dimension": {
+      "max": 0.2075,
+      "mean": 0.0839458172231986,
+      "min": 0.05504,
+      "std": 0.018061267348893986
+    },
+    "worst_perimeter": {
+      "max": 251.2,
+      "mean": 107.26121265377857,
+      "min": 50.41,
+      "std": 33.602542269036356
+    },
+    "worst_radius": {
+      "max": 36.04,
+      "mean": 16.269189806678387,
+      "min": 7.93,
+      "std": 4.833241580469323
+    },
+    "worst_smoothness": {
+      "max": 0.2226,
+      "mean": 0.13236859402460457,
+      "min": 0.07117,
+      "std": 0.022832429404835465
+    },
+    "worst_symmetry": {
+      "max": 0.6638,
+      "mean": 0.2900755711775044,
+      "min": 0.1565,
+      "std": 0.061867467537518685
+    },
+    "worst_texture": {
+      "max": 49.54,
+      "mean": 25.677223198594024,
+      "min": 12.02,
+      "std": 6.146257623038319
     }
   },
-  "model_path": "models\\wine_quality_classifier.joblib",
-  "model_version": "wine-quality-random-forest-v1",
+  "model_path": "models\\breast_cancer_classifier.joblib",
+  "model_version": "breast-cancer-logistic-regression-v2",
   "monitoring_mode": "offline_simulated_monitoring",
   "prediction_request_schema": {
     "features": [
-      "fixed_acidity",
-      "volatile_acidity",
-      "citric_acid",
-      "residual_sugar",
-      "chlorides",
-      "free_sulfur_dioxide",
-      "total_sulfur_dioxide",
-      "density",
-      "pH",
-      "sulphates",
-      "alcohol"
+      "mean_radius",
+      "mean_texture",
+      "mean_perimeter",
+      "mean_area",
+      "mean_smoothness",
+      "mean_compactness",
+      "mean_concavity",
+      "mean_concave_points",
+      "mean_symmetry",
+      "mean_fractal_dimension",
+      "radius_error",
+      "texture_error",
+      "perimeter_error",
+      "area_error",
+      "smoothness_error",
+      "compactness_error",
+      "concavity_error",
+      "concave_points_error",
+      "symmetry_error",
+      "fractal_dimension_error",
+      "worst_radius",
+      "worst_texture",
+      "worst_perimeter",
+      "worst_area",
+      "worst_smoothness",
+      "worst_compactness",
+      "worst_concavity",
+      "worst_concave_points",
+      "worst_symmetry",
+      "worst_fractal_dimension"
     ]
   },
   "production_claim": "simulated_only",
@@ -131,7 +301,7 @@
   "response_status": "simulated_batch_available",
   "retraining_recommended": false,
   "retraining_required": false,
-  "rows": 4898,
+  "rows": 569,
   "status": "monitored",
-  "timestamp_utc": "2026-05-14T17:33:36+00:00"
+  "timestamp_utc": "2026-05-14T22:17:25+00:00"
 }

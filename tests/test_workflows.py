@@ -121,7 +121,7 @@ def test_workflows_do_not_hardcode_credentials() -> None:
 
 
 def test_docker_workflow_has_verified_dataset_build_context() -> None:
-    raw_dataset = Path("data/raw/winequality-white.csv")
+    raw_dataset = Path("data/raw/breast-cancer-wisconsin-diagnostic.csv")
     dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
     dockerignore = Path(".dockerignore").read_text(encoding="utf-8")
     gitignore = Path(".gitignore").read_text(encoding="utf-8")
@@ -129,23 +129,22 @@ def test_docker_workflow_has_verified_dataset_build_context() -> None:
     assert raw_dataset.exists()
     assert "COPY data/raw/ data/raw/" in dockerfile
     assert "data/raw/*.csv" not in dockerignore
-    assert "!data/raw/winequality-white.csv" in gitignore
+    assert "!data/raw/breast-cancer-wisconsin-diagnostic.csv" in gitignore
 
 
 def test_smoke_test_uses_valid_prediction_feature_names() -> None:
     smoke_script = Path("scripts/smoke_test_api.sh").read_text(encoding="utf-8")
     for feature_name in [
-        "fixed_acidity",
-        "volatile_acidity",
-        "citric_acid",
-        "residual_sugar",
-        "chlorides",
-        "free_sulfur_dioxide",
-        "total_sulfur_dioxide",
-        "density",
-        "pH",
-        "sulphates",
-        "alcohol",
+        "mean_radius",
+        "mean_texture",
+        "mean_perimeter",
+        "mean_area",
+        "mean_smoothness",
+        "worst_radius",
+        "worst_texture",
+        "worst_perimeter",
+        "worst_area",
+        "worst_concave_points",
     ]:
         assert feature_name in smoke_script
 

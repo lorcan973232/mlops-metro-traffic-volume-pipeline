@@ -16,7 +16,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.schemas import PredictionRequestExample
-from src.data import DATA_SOURCE_PAGE, FEATURE_COLUMNS, write_json
+from src.data import CLASS_LABELS, DATA_SOURCE_PAGE, FEATURE_COLUMNS, TARGET_COLUMN, write_json
 from src.model_registry import MODEL_METADATA_PATH, load_model_metadata
 from src.preprocess import CLASS_COLUMN, PROCESSED_DATA_PATH, preprocess_dataset
 
@@ -45,7 +45,7 @@ def validate_monitoring_schema(frame: pd.DataFrame) -> dict[str, Any]:
     unexpected_columns = [
         column
         for column in frame.columns
-        if column not in {*FEATURE_COLUMNS, CLASS_COLUMN, "quality"}
+        if column not in {*FEATURE_COLUMNS, CLASS_COLUMN, TARGET_COLUMN}
     ]
     non_numeric_columns = [
         column
@@ -79,10 +79,10 @@ def load_metadata() -> dict[str, Any]:
         return load_model_metadata()
     return {
         "model_version": "metadata_unavailable",
-        "dataset_name": "UCI Wine Quality - white wine",
+        "dataset_name": "UCI Breast Cancer Wisconsin Diagnostic",
         "dataset_source": DATA_SOURCE_PAGE,
         "feature_schema": FEATURE_COLUMNS,
-        "model_path": "models/wine_quality_classifier.joblib",
+        "model_path": "models/breast_cancer_classifier.joblib",
         "metric_summary": {},
         "quality_gate": {"passed": None},
     }
@@ -104,7 +104,7 @@ def offline_monitor(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any
             "No live production telemetry is available in this student artefact; monitoring "
             "uses the selected public dataset schema and deterministic batch checks."
         ),
-        "dataset_name": metadata.get("dataset_name", "UCI Wine Quality - white wine"),
+        "dataset_name": metadata.get("dataset_name", "UCI Breast Cancer Wisconsin Diagnostic"),
         "dataset_source": metadata.get("dataset_source", DATA_SOURCE_PAGE),
         "model_version": metadata.get("model_version"),
         "model_path": metadata.get("model_path"),
@@ -228,7 +228,7 @@ def api_monitor(api_url: str) -> dict[str, Any]:
         )
         prediction_value = prediction.get("prediction")
         model_version = prediction.get("model_version") or health.get("model_version")
-        schema_ok = prediction_value in {"low", "medium", "high"} and bool(model_version)
+        schema_ok = prediction_value in set(CLASS_LABELS) and bool(model_version)
         response_status = (
             "passed" if health_status == 200 and predict_status == 200 and schema_ok else "failed"
         )
@@ -250,7 +250,7 @@ def api_monitor(api_url: str) -> dict[str, Any]:
         "monitoring_mode": "api_aware_monitoring",
         "production_claim": "api_check_only",
         "api_url": base_url,
-        "dataset_name": metadata.get("dataset_name", "UCI Wine Quality - white wine"),
+        "dataset_name": metadata.get("dataset_name", "UCI Breast Cancer Wisconsin Diagnostic"),
         "dataset_source": metadata.get("dataset_source", DATA_SOURCE_PAGE),
         "feature_schema": FEATURE_COLUMNS,
         "prediction_request_schema": prediction_payload,

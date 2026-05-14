@@ -9,42 +9,40 @@ import pandas as pd
 
 from src.data import (
     CLASS_COLUMN,
-    CLASS_LABELS,
     FEATURE_COLUMNS,
     RAW_DATA_PATH,
     TARGET_COLUMN,
+    TARGET_MAPPING,
     download_dataset,
     load_raw_data,
     validate_raw_data,
     write_json,
 )
 
-PROCESSED_DATA_PATH = Path("data/processed/winequality-white-processed.csv")
+PROCESSED_DATA_PATH = Path("data/processed/breast-cancer-wisconsin-diagnostic-processed.csv")
 PREPROCESS_REPORT_PATH = Path("reports/metrics/preprocessing.json")
 
 
-def map_quality_to_class(values: pd.Series | list[int] | int | float) -> pd.Series | str:
+def map_diagnosis_to_class(values: pd.Series | list[int] | int | float) -> pd.Series | str:
     scalar_input = np.isscalar(values)
     series = pd.Series([values] if scalar_input else values)
     numeric = pd.to_numeric(series, errors="coerce")
     if numeric.isna().any():
-        raise ValueError("Quality values must be numeric.")
-    labels = np.select(
-        [numeric <= 5, numeric == 6, numeric >= 7],
-        [CLASS_LABELS[0], CLASS_LABELS[1], CLASS_LABELS[2]],
-        default="invalid",
-    )
-    if "invalid" in labels:
-        raise ValueError("Quality values must map to low, medium, or high.")
+        raise ValueError("Diagnosis values must be numeric.")
+    numeric = numeric.astype(int)
+    unknown = sorted(set(numeric.unique()) - set(TARGET_MAPPING))
+    if unknown:
+        raise ValueError(f"Diagnosis values must map to malignant or benign: {unknown}.")
+    labels = numeric.map(TARGET_MAPPING)
     if scalar_input:
-        return str(labels[0])
-    return pd.Series(labels, index=series.index, name=CLASS_COLUMN)
+        return str(labels.iloc[0])
+    return pd.Series(labels.to_numpy(), index=series.index, name=CLASS_COLUMN)
 
 
 def preprocess_frame(raw_frame: pd.DataFrame) -> pd.DataFrame:
     validate_raw_data(raw_frame)
     processed = raw_frame[[*FEATURE_COLUMNS, TARGET_COLUMN]].copy()
-    processed[CLASS_COLUMN] = map_quality_to_class(processed[TARGET_COLUMN])
+    processed[CLASS_COLUMN] = map_diagnosis_to_class(processed[TARGET_COLUMN])
     return processed
 
 
@@ -65,7 +63,7 @@ def preprocess_dataset(
         "feature_columns": FEATURE_COLUMNS,
         "target_column": TARGET_COLUMN,
         "class_column": CLASS_COLUMN,
-        "class_mapping": {"<=5": "low", "6": "medium", ">=7": "high"},
+        "class_mapping": {str(key): value for key, value in TARGET_MAPPING.items()},
         "class_distribution": {
             str(key): int(value)
             for key, value in processed[CLASS_COLUMN].value_counts().sort_index().to_dict().items()
@@ -82,4 +80,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

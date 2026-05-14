@@ -1,22 +1,19 @@
 {
+  "baseline_model": "DummyClassifier(strategy='most_frequent')",
   "created_by": "python -m src.evaluate",
-  "dataset": {
-    "doi": "10.24432/C56S3T",
-    "name": "UCI Wine Quality - white wine",
-    "processed_path": "data\\processed\\winequality-white-processed.csv",
-    "raw_sha256": "76c3f809815c17c07212622f776311faeb31e87610d52c26d87d6e361b169836",
-    "source": "https://archive.ics.uci.edu/dataset/186/wine+quality"
-  },
   "metric_summary": {
-    "accuracy": 0.6877551020408164,
-    "macro_f1": 0.6885325803364882
+    "accuracy": 0.631578947368421,
+    "balanced_accuracy": 0.5,
+    "macro_f1": 0.3870967741935484,
+    "weighted_f1": 0.48896434634974534
   },
-  "model_version": "wine-quality-random-forest-v1",
+  "model_version": "dummy-most-frequent-baseline",
   "quality_thresholds": {
     "max_baseline_regression": 0.02,
-    "min_accuracy": 0.5,
-    "min_macro_f1": 0.35
+    "min_accuracy": 0.94,
+    "min_balanced_accuracy": 0.94,
+    "min_macro_f1": 0.94,
+    "min_weighted_f1": 0.94
   },
-  "source": "first_verified_local_evaluation",
-  "status": "baseline_established"
+  "status": "baseline_evaluated"
 }

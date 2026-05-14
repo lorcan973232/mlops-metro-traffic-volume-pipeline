@@ -1,136 +1,271 @@
 {
-  "accuracy": 0.6877551020408164,
-  "classification_report": {
-    "accuracy": 0.6877551020408164,
-    "high": {
-      "f1-score": 0.6652078774617067,
-      "precision": 0.6204081632653061,
-      "recall": 0.7169811320754716,
-      "support": 212.0
+  "accuracy": 0.9912280701754386,
+  "balanced_accuracy": 0.9880952380952381,
+  "baseline": {
+    "baseline_model": "DummyClassifier(strategy='most_frequent')",
+    "created_by": "python -m src.evaluate",
+    "metric_summary": {
+      "accuracy": 0.631578947368421,
+      "balanced_accuracy": 0.5,
+      "macro_f1": 0.3870967741935484,
+      "weighted_f1": 0.48896434634974534
     },
-    "low": {
-      "f1-score": 0.7407407407407407,
-      "precision": 0.75,
-      "recall": 0.7317073170731707,
-      "support": 328.0
+    "model_version": "dummy-most-frequent-baseline",
+    "quality_thresholds": {
+      "max_baseline_regression": 0.02,
+      "min_accuracy": 0.94,
+      "min_balanced_accuracy": 0.94,
+      "min_macro_f1": 0.94,
+      "min_weighted_f1": 0.94
+    },
+    "status": "baseline_evaluated"
+  },
+  "class_distribution": {
+    "benign": 357,
+    "malignant": 212
+  },
+  "class_labels": [
+    "malignant",
+    "benign"
+  ],
+  "classification_report": {
+    "accuracy": 0.9912280701754386,
+    "benign": {
+      "f1-score": 0.993103448275862,
+      "precision": 0.9863013698630136,
+      "recall": 1.0,
+      "support": 72.0
     },
     "macro avg": {
-      "f1-score": 0.6885325803364882,
-      "precision": 0.6833087451848209,
-      "recall": 0.6965325133525777,
-      "support": 980.0
+      "f1-score": 0.9905276277523889,
+      "precision": 0.9931506849315068,
+      "recall": 0.9880952380952381,
+      "support": 114.0
     },
-    "medium": {
-      "f1-score": 0.6596491228070176,
-      "precision": 0.6795180722891566,
-      "recall": 0.6409090909090909,
-      "support": 440.0
+    "malignant": {
+      "f1-score": 0.9879518072289156,
+      "precision": 1.0,
+      "recall": 0.9761904761904762,
+      "support": 42.0
     },
     "weighted avg": {
-      "f1-score": 0.6879924969591148,
-      "precision": 0.6903209004280345,
-      "recall": 0.6877551020408164,
-      "support": 980.0
+      "f1-score": 0.9912054752585661,
+      "precision": 0.9913482335976929,
+      "recall": 0.9912280701754386,
+      "support": 114.0
     }
   },
+  "classification_report_json_path": "reports\\metrics\\classification_report.json",
+  "classification_report_text_path": "reports\\metrics\\classification_report.txt",
+  "cohen_kappa": 0.9810568295114656,
   "confusion_matrix": [
     [
-      240,
-      79,
-      9
+      41,
+      1
     ],
     [
-      74,
-      282,
-      84
-    ],
-    [
-      6,
-      54,
-      152
+      0,
+      72
     ]
   ],
+  "confusion_matrix_normalized": [
+    [
+      0.9761904761904762,
+      0.023809523809523808
+    ],
+    [
+      0.0,
+      1.0
+    ]
+  ],
+  "confusion_matrix_normalized_path": "reports\\metrics\\confusion_matrix_normalized.json",
+  "confusion_matrix_path": "reports\\metrics\\confusion_matrix.json",
+  "cross_validation": {
+    "accuracy": {
+      "mean": 0.9802197802197803,
+      "per_fold": [
+        0.978021978021978,
+        0.967032967032967,
+        1.0,
+        0.978021978021978,
+        0.978021978021978
+      ],
+      "std": 0.010766987880365621
+    },
+    "balanced_accuracy": {
+      "mean": 0.9770897832817338,
+      "per_fold": [
+        0.9705882352941176,
+        0.967750257997936,
+        1.0,
+        0.9705882352941176,
+        0.9765221878224974
+      ],
+      "std": 0.011806499732609319
+    },
+    "folds": 5,
+    "macro_f1": {
+      "mean": 0.9787928622982308,
+      "per_fold": [
+        0.9762277951933125,
+        0.9649865332820315,
+        1.0,
+        0.9762277951933125,
+        0.9765221878224974
+      ],
+      "std": 0.011477565172854049
+    },
+    "method": "StratifiedKFold",
+    "random_state": 42,
+    "scoring": [
+      "macro_f1",
+      "accuracy",
+      "balanced_accuracy"
+    ],
+    "shuffle": true,
+    "status": "completed"
+  },
   "dataset": {
-    "doi": "10.24432/C56S3T",
-    "name": "UCI Wine Quality - white wine",
-    "processed_path": "data\\processed\\winequality-white-processed.csv",
-    "raw_sha256": "76c3f809815c17c07212622f776311faeb31e87610d52c26d87d6e361b169836",
-    "source": "https://archive.ics.uci.edu/dataset/186/wine+quality"
+    "doi": "10.24432/C5DW2B",
+    "name": "UCI Breast Cancer Wisconsin Diagnostic",
+    "processed_path": "data\\processed\\breast-cancer-wisconsin-diagnostic-processed.csv",
+    "raw_sha256": "43e012951b5fc04c166ef445da184051646d28bc4c6ba34f44fa7a4c1d656a11",
+    "source": "https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic"
   },
   "evaluation_command": "python -m src.evaluate",
   "feature_schema": [
-    "fixed_acidity",
-    "volatile_acidity",
-    "citric_acid",
-    "residual_sugar",
-    "chlorides",
-    "free_sulfur_dioxide",
-    "total_sulfur_dioxide",
-    "density",
-    "pH",
-    "sulphates",
-    "alcohol"
+    "mean_radius",
+    "mean_texture",
+    "mean_perimeter",
+    "mean_area",
+    "mean_smoothness",
+    "mean_compactness",
+    "mean_concavity",
+    "mean_concave_points",
+    "mean_symmetry",
+    "mean_fractal_dimension",
+    "radius_error",
+    "texture_error",
+    "perimeter_error",
+    "area_error",
+    "smoothness_error",
+    "compactness_error",
+    "concavity_error",
+    "concave_points_error",
+    "symmetry_error",
+    "fractal_dimension_error",
+    "worst_radius",
+    "worst_texture",
+    "worst_perimeter",
+    "worst_area",
+    "worst_smoothness",
+    "worst_compactness",
+    "worst_concavity",
+    "worst_concave_points",
+    "worst_symmetry",
+    "worst_fractal_dimension"
   ],
   "hyperparameters": {
-    "algorithm": "RandomForestClassifier",
+    "algorithm": "LogisticRegression",
     "classifier": {
-      "bootstrap": true,
-      "class_weight": "balanced_subsample",
-      "criterion": "gini",
-      "max_depth": 12,
-      "min_samples_leaf": 2,
-      "n_estimators": 120,
-      "n_jobs": 1,
-      "random_state": 42
+      "C": 0.3,
+      "class_weight": "balanced",
+      "max_iter": 2000,
+      "penalty": "l2",
+      "random_state": 42,
+      "solver": "lbfgs"
     },
     "preprocessing": {
       "column_transformer_remainder": "drop",
       "numeric_imputer_strategy": "median",
-      "numeric_scaler": "StandardScaler"
+      "numeric_scaler": "RobustScaler"
+    },
+    "selection": {
+      "cross_validation": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42)",
+      "main_scoring_metric": "f1_macro",
+      "method": "dataset suitability review plus controlled scikit-learn model comparison with feature-engineering candidates",
+      "selection_rule": "highest held-out macro F1 with strong CV support and reproducibility"
     },
     "train_test_split": {
       "random_state": 42,
-      "stratify": "quality_class",
+      "stratify": "diagnosis_class",
       "test_size": 0.2
     }
   },
-  "macro_f1": 0.6885325803364882,
-  "model_path": "models\\wine_quality_classifier.joblib",
-  "model_version": "wine-quality-random-forest-v1",
-  "quality_gate": {
-    "baseline_metrics": {
-      "accuracy": 0.6877551020408164,
-      "macro_f1": 0.6885325803364882
+  "macro_f1": 0.9905276277523889,
+  "macro_precision": 0.9931506849315068,
+  "macro_recall": 0.9880952380952381,
+  "matthews_corrcoef": 0.9812328999345131,
+  "micro_f1": 0.9912280701754386,
+  "model_path": "models\\breast_cancer_classifier.joblib",
+  "model_version": "breast-cancer-logistic-regression-v2",
+  "per_class": {
+    "benign": {
+      "f1": 0.993103448275862,
+      "precision": 0.9863013698630136,
+      "recall": 1.0,
+      "support": 72
     },
+    "malignant": {
+      "f1": 0.9879518072289156,
+      "precision": 1.0,
+      "recall": 0.9761904761904762,
+      "support": 42
+    }
+  },
+  "probability_metrics": {
+    "average_precision_macro": 0.997920541037391,
+    "average_precision_weighted": 0.9981565230146493,
+    "log_loss": 0.07923303582362022,
+    "not_applicable_reason": "Top-2 accuracy is not meaningful for a binary classifier.",
+    "roc_auc_ovr_macro": 0.998015873015873,
+    "roc_auc_ovr_weighted": 0.998015873015873,
+    "top_2_accuracy": "NOT_APPLICABLE"
+  },
+  "quality_gate": {
+    "baseline_accuracy": 0.631578947368421,
+    "baseline_balanced_accuracy": 0.5,
+    "baseline_macro_f1": 0.3870967741935484,
+    "candidate_accuracy": 0.9912280701754386,
+    "candidate_balanced_accuracy": 0.9880952380952381,
+    "candidate_macro_f1": 0.9905276277523889,
+    "candidate_weighted_f1": 0.9912054752585661,
     "checks": {
+      "accuracy_above_baseline": true,
       "accuracy_above_minimum": true,
-      "accuracy_not_regressed_from_baseline": true,
+      "balanced_accuracy_above_baseline": true,
+      "balanced_accuracy_above_minimum": true,
+      "macro_f1_above_baseline": true,
       "macro_f1_above_minimum": true,
-      "macro_f1_not_regressed_from_baseline": true
+      "weighted_f1_above_minimum": true
     },
     "decision": "accept_candidate_model",
-    "latest_metrics": {
-      "accuracy": 0.6877551020408164,
-      "macro_f1": 0.6885325803364882
-    },
     "passed": true,
+    "reasons": [
+      "All model performance quality gates passed."
+    ],
     "status": "passed",
     "thresholds": {
       "max_baseline_regression": 0.02,
-      "min_accuracy": 0.5,
-      "min_macro_f1": 0.35
+      "min_accuracy": 0.94,
+      "min_balanced_accuracy": 0.94,
+      "min_macro_f1": 0.94,
+      "min_weighted_f1": 0.94
     }
   },
   "status": "evaluated",
   "target_definition": {
     "class_mapping": {
-      "6": "medium",
-      "<=5": "low",
-      ">=7": "high"
+      "0": "malignant",
+      "1": "benign"
     },
-    "model_target": "quality_class",
-    "raw_target": "quality"
+    "model_target": "diagnosis_class",
+    "raw_target": "diagnosis"
   },
+  "task_type": "binary_classification",
   "training_command": "python -m src.train",
-  "training_timestamp": "2026-05-14T17:45:52+00:00"
+  "training_timestamp": "2026-05-14T21:45:49+00:00",
+  "weighted_f1": 0.9912054752585661,
+  "weighted_precision": 0.9913482335976929,
+  "weighted_recall": 0.9912280701754386
 }

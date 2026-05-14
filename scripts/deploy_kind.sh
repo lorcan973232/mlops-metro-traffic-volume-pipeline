@@ -26,6 +26,9 @@ kind load docker-image "${IMAGE_NAME}" --name "${CLUSTER_NAME}"
 echo "Applying Kind manifests from deployment/kind/"
 kubectl apply -f deployment/kind/
 
+echo "Restarting deployment so Kind uses the freshly loaded local image"
+kubectl rollout restart deployment/mlops-flask-api
+
 echo "Waiting for rollout"
 kubectl rollout status deployment/mlops-flask-api --timeout=180s
 

@@ -72,6 +72,9 @@ jobs:
       - name: kubectl apply Kind manifests
         run: kubectl apply -f deployment/kind/
 
+      - name: Restart deployment for freshly loaded Kind image
+        run: kubectl rollout restart deployment/mlops-flask-api
+
       - name: kubectl rollout status
         run: kubectl rollout status deployment/mlops-flask-api --timeout=180s
 

@@ -1,31 +1,48 @@
 {
-  "class_column": "quality_class",
+  "class_column": "diagnosis_class",
   "class_distribution": {
-    "high": 1060,
-    "low": 1640,
-    "medium": 2198
+    "benign": 357,
+    "malignant": 212
   },
   "class_mapping": {
-    "6": "medium",
-    "<=5": "low",
-    ">=7": "high"
+    "0": "malignant",
+    "1": "benign"
   },
   "feature_columns": [
-    "fixed_acidity",
-    "volatile_acidity",
-    "citric_acid",
-    "residual_sugar",
-    "chlorides",
-    "free_sulfur_dioxide",
-    "total_sulfur_dioxide",
-    "density",
-    "pH",
-    "sulphates",
-    "alcohol"
+    "mean_radius",
+    "mean_texture",
+    "mean_perimeter",
+    "mean_area",
+    "mean_smoothness",
+    "mean_compactness",
+    "mean_concavity",
+    "mean_concave_points",
+    "mean_symmetry",
+    "mean_fractal_dimension",
+    "radius_error",
+    "texture_error",
+    "perimeter_error",
+    "area_error",
+    "smoothness_error",
+    "compactness_error",
+    "concavity_error",
+    "concave_points_error",
+    "symmetry_error",
+    "fractal_dimension_error",
+    "worst_radius",
+    "worst_texture",
+    "worst_perimeter",
+    "worst_area",
+    "worst_smoothness",
+    "worst_compactness",
+    "worst_concavity",
+    "worst_concave_points",
+    "worst_symmetry",
+    "worst_fractal_dimension"
   ],
-  "input": "data\\raw\\winequality-white.csv",
-  "output": "data\\processed\\winequality-white-processed.csv",
-  "rows": 4898,
+  "input": "data\\raw\\breast-cancer-wisconsin-diagnostic.csv",
+  "output": "data\\processed\\breast-cancer-wisconsin-diagnostic-processed.csv",
+  "rows": 569,
   "status": "processed",
-  "target_column": "quality"
+  "target_column": "diagnosis"
 }

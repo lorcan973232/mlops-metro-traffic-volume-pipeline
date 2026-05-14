@@ -1,81 +1,116 @@
 {
   "api_url": "http://127.0.0.1:8080",
-  "dataset_name": "UCI Wine Quality - white wine",
-  "dataset_source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
+  "dataset_name": "UCI Breast Cancer Wisconsin Diagnostic",
+  "dataset_source": "https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic",
   "error": null,
-  "expected_model_version": "wine-quality-random-forest-v1",
+  "expected_model_version": "breast-cancer-logistic-regression-v2",
   "feature_schema": [
-    "fixed_acidity",
-    "volatile_acidity",
-    "citric_acid",
-    "residual_sugar",
-    "chlorides",
-    "free_sulfur_dioxide",
-    "total_sulfur_dioxide",
-    "density",
-    "pH",
-    "sulphates",
-    "alcohol"
+    "mean_radius",
+    "mean_texture",
+    "mean_perimeter",
+    "mean_area",
+    "mean_smoothness",
+    "mean_compactness",
+    "mean_concavity",
+    "mean_concave_points",
+    "mean_symmetry",
+    "mean_fractal_dimension",
+    "radius_error",
+    "texture_error",
+    "perimeter_error",
+    "area_error",
+    "smoothness_error",
+    "compactness_error",
+    "concavity_error",
+    "concave_points_error",
+    "symmetry_error",
+    "fractal_dimension_error",
+    "worst_radius",
+    "worst_texture",
+    "worst_perimeter",
+    "worst_area",
+    "worst_smoothness",
+    "worst_compactness",
+    "worst_concavity",
+    "worst_concave_points",
+    "worst_symmetry",
+    "worst_fractal_dimension"
   ],
   "health": {
     "response": {
       "class_labels": [
-        "low",
-        "medium",
-        "high"
+        "malignant",
+        "benign"
       ],
       "dataset": {
-        "doi": "10.24432/C56S3T",
-        "name": "UCI Wine Quality - white wine",
-        "processed_path": "data/processed/winequality-white-processed.csv",
-        "raw_sha256": "76c3f809815c17c07212622f776311faeb31e87610d52c26d87d6e361b169836",
-        "source": "https://archive.ics.uci.edu/dataset/186/wine+quality"
+        "doi": "10.24432/C5DW2B",
+        "name": "UCI Breast Cancer Wisconsin Diagnostic",
+        "processed_path": "data/processed/breast-cancer-wisconsin-diagnostic-processed.csv",
+        "raw_sha256": "43e012951b5fc04c166ef445da184051646d28bc4c6ba34f44fa7a4c1d656a11",
+        "source": "https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic"
       },
-      "feature_count": 11,
+      "feature_count": 30,
       "model_loaded": true,
-      "model_path": "models/wine_quality_classifier.joblib",
-      "model_version": "wine-quality-random-forest-v1",
+      "model_path": "models/breast_cancer_classifier.joblib",
+      "model_version": "breast-cancer-logistic-regression-v2",
       "status": "healthy"
     },
     "status_code": 200
   },
-  "model_version": "wine-quality-random-forest-v1",
+  "model_version": "breast-cancer-logistic-regression-v2",
   "monitoring_mode": "api_aware_monitoring",
   "predict": {
     "response": {
-      "model_version": "wine-quality-random-forest-v1",
-      "prediction": "low",
+      "model_version": "breast-cancer-logistic-regression-v2",
+      "prediction": "malignant",
       "predictions": [
         {
-          "prediction": "low",
+          "prediction": "malignant",
           "probabilities": {
-            "high": 0.07989542535588882,
-            "low": 0.688847437306355,
-            "medium": 0.23125713733775607
+            "benign": 6.476962456369861e-07,
+            "malignant": 0.9999993523037544
           }
         }
       ],
       "probabilities": {
-        "high": 0.07989542535588882,
-        "low": 0.688847437306355,
-        "medium": 0.23125713733775607
+        "benign": 6.476962456369861e-07,
+        "malignant": 0.9999993523037544
       }
     },
     "status_code": 200
   },
   "prediction_request_schema": {
     "features": {
-      "alcohol": 8.8,
-      "chlorides": 0.045,
-      "citric_acid": 0.36,
-      "density": 1.001,
-      "fixed_acidity": 7.0,
-      "free_sulfur_dioxide": 45.0,
-      "pH": 3.0,
-      "residual_sugar": 20.7,
-      "sulphates": 0.45,
-      "total_sulfur_dioxide": 170.0,
-      "volatile_acidity": 0.27
+      "area_error": 153.4,
+      "compactness_error": 0.04904,
+      "concave_points_error": 0.01587,
+      "concavity_error": 0.05373,
+      "fractal_dimension_error": 0.006193,
+      "mean_area": 1001.0,
+      "mean_compactness": 0.2776,
+      "mean_concave_points": 0.1471,
+      "mean_concavity": 0.3001,
+      "mean_fractal_dimension": 0.07871,
+      "mean_perimeter": 122.8,
+      "mean_radius": 17.99,
+      "mean_smoothness": 0.1184,
+      "mean_symmetry": 0.2419,
+      "mean_texture": 10.38,
+      "perimeter_error": 8.589,
+      "radius_error": 1.095,
+      "smoothness_error": 0.006399,
+      "symmetry_error": 0.03003,
+      "texture_error": 0.9053,
+      "worst_area": 2019.0,
+      "worst_compactness": 0.6656,
+      "worst_concave_points": 0.2654,
+      "worst_concavity": 0.7119,
+      "worst_fractal_dimension": 0.1189,
+      "worst_perimeter": 184.6,
+      "worst_radius": 25.38,
+      "worst_smoothness": 0.1622,
+      "worst_symmetry": 0.4601,
+      "worst_texture": 17.33
     }
   },
   "prediction_response_schema_valid": true,
@@ -85,5 +120,5 @@
   "retraining_recommended": false,
   "retraining_required": false,
   "status": "monitored",
-  "timestamp_utc": "2026-05-14T17:33:45+00:00"
+  "timestamp_utc": "2026-05-14T22:17:29+00:00"
 }

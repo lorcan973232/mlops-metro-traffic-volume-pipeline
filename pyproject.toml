@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mlops-wine-quality-pipeline"
 version = "0.1.0"
-description = "MLOps artefact for UCI Wine Quality classification."
+description = "MLOps artefact for UCI Breast Cancer diagnostic classification."
 requires-python = ">=3.11,<3.13"
 
 [tool.setuptools]

@@ -1,68 +1,94 @@
 {
+  "class_distribution": {
+    "benign": 357,
+    "malignant": 212
+  },
   "class_labels": [
-    "low",
-    "medium",
-    "high"
+    "malignant",
+    "benign"
   ],
   "dataset": {
-    "doi": "10.24432/C56S3T",
-    "name": "UCI Wine Quality - white wine",
-    "processed_path": "data\\processed\\winequality-white-processed.csv",
-    "raw_sha256": "76c3f809815c17c07212622f776311faeb31e87610d52c26d87d6e361b169836",
-    "source": "https://archive.ics.uci.edu/dataset/186/wine+quality"
+    "doi": "10.24432/C5DW2B",
+    "name": "UCI Breast Cancer Wisconsin Diagnostic",
+    "processed_path": "data\\processed\\breast-cancer-wisconsin-diagnostic-processed.csv",
+    "raw_sha256": "43e012951b5fc04c166ef445da184051646d28bc4c6ba34f44fa7a4c1d656a11",
+    "source": "https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic"
   },
   "feature_columns": [
-    "fixed_acidity",
-    "volatile_acidity",
-    "citric_acid",
-    "residual_sugar",
-    "chlorides",
-    "free_sulfur_dioxide",
-    "total_sulfur_dioxide",
-    "density",
-    "pH",
-    "sulphates",
-    "alcohol"
+    "mean_radius",
+    "mean_texture",
+    "mean_perimeter",
+    "mean_area",
+    "mean_smoothness",
+    "mean_compactness",
+    "mean_concavity",
+    "mean_concave_points",
+    "mean_symmetry",
+    "mean_fractal_dimension",
+    "radius_error",
+    "texture_error",
+    "perimeter_error",
+    "area_error",
+    "smoothness_error",
+    "compactness_error",
+    "concavity_error",
+    "concave_points_error",
+    "symmetry_error",
+    "fractal_dimension_error",
+    "worst_radius",
+    "worst_texture",
+    "worst_perimeter",
+    "worst_area",
+    "worst_smoothness",
+    "worst_compactness",
+    "worst_concavity",
+    "worst_concave_points",
+    "worst_symmetry",
+    "worst_fractal_dimension"
   ],
   "hyperparameters": {
-    "algorithm": "RandomForestClassifier",
+    "algorithm": "LogisticRegression",
     "classifier": {
-      "bootstrap": true,
-      "class_weight": "balanced_subsample",
-      "criterion": "gini",
-      "max_depth": 12,
-      "min_samples_leaf": 2,
-      "n_estimators": 120,
-      "n_jobs": 1,
-      "random_state": 42
+      "C": 0.3,
+      "class_weight": "balanced",
+      "max_iter": 2000,
+      "penalty": "l2",
+      "random_state": 42,
+      "solver": "lbfgs"
     },
     "preprocessing": {
       "column_transformer_remainder": "drop",
       "numeric_imputer_strategy": "median",
-      "numeric_scaler": "StandardScaler"
+      "numeric_scaler": "RobustScaler"
+    },
+    "selection": {
+      "cross_validation": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42)",
+      "main_scoring_metric": "f1_macro",
+      "method": "dataset suitability review plus controlled scikit-learn model comparison with feature-engineering candidates",
+      "selection_rule": "highest held-out macro F1 with strong CV support and reproducibility"
     },
     "train_test_split": {
       "random_state": 42,
-      "stratify": "quality_class",
+      "stratify": "diagnosis_class",
       "test_size": 0.2
     }
   },
-  "model_path": "models\\wine_quality_classifier.joblib",
-  "model_version": "wine-quality-random-forest-v1",
+  "model_path": "models\\breast_cancer_classifier.joblib",
+  "model_version": "breast-cancer-logistic-regression-v2",
   "random_state": 42,
   "status": "trained",
   "target_definition": {
     "class_mapping": {
-      "6": "medium",
-      "<=5": "low",
-      ">=7": "high"
+      "0": "malignant",
+      "1": "benign"
     },
-    "model_target": "quality_class",
-    "raw_target": "quality"
+    "model_target": "diagnosis_class",
+    "raw_target": "diagnosis"
   },
-  "test_rows": 980,
+  "task_type": "binary_classification",
+  "test_rows": 114,
   "test_size": 0.2,
   "training_command": "python -m src.train",
-  "training_rows": 3918,
-  "training_timestamp": "2026-05-14T17:45:52+00:00"
+  "training_rows": 455,
+  "training_timestamp": "2026-05-14T21:45:49+00:00"
 }

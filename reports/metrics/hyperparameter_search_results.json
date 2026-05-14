@@ -1,0 +1,634 @@
+{
+  "candidate_count": 11,
+  "feature_engineering_tried": [
+    "median imputation",
+    "StandardScaler",
+    "RobustScaler",
+    "PolynomialFeatures degree=2 interaction_only",
+    "no-scaling option for tree models"
+  ],
+  "generated_at": "2026-05-14T21:45:40+00:00",
+  "results": [
+    {
+      "algorithm": "LogisticRegression",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9758241758241759,
+          "per_fold": [
+            0.967032967032967,
+            0.967032967032967,
+            0.989010989010989,
+            0.978021978021978,
+            0.978021978021978
+          ],
+          "std": 0.008223422828074603
+        },
+        "balanced_accuracy": {
+          "mean": 0.9712074303405572,
+          "per_fold": [
+            0.9558823529411764,
+            0.967750257997936,
+            0.9852941176470589,
+            0.9705882352941176,
+            0.9765221878224974
+          ],
+          "std": 0.009735243672062117
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.974005713549257,
+          "per_fold": [
+            0.9641025641025641,
+            0.9649865332820315,
+            0.9881894873458793,
+            0.9762277951933125,
+            0.9765221878224974
+          ],
+          "std": 0.008852883263329765
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9912280701754386,
+        "balanced_accuracy": 0.9880952380952381,
+        "macro_f1": 0.9905276277523889,
+        "macro_precision": 0.9931506849315068,
+        "macro_recall": 0.9880952380952381
+      },
+      "hyperparameters": {
+        "C": 0.1,
+        "class_weight": "balanced",
+        "max_iter": 2000,
+        "n_jobs": null,
+        "penalty": "l2",
+        "random_state": 42,
+        "solver": "lbfgs"
+      },
+      "model_name": "logistic_regression_c0.1_standard"
+    },
+    {
+      "algorithm": "LogisticRegression",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9802197802197803,
+          "per_fold": [
+            0.978021978021978,
+            0.967032967032967,
+            0.989010989010989,
+            0.978021978021978,
+            0.989010989010989
+          ],
+          "std": 0.008223422828074613
+        },
+        "balanced_accuracy": {
+          "mean": 0.975902992776058,
+          "per_fold": [
+            0.9705882352941176,
+            0.967750257997936,
+            0.9852941176470589,
+            0.9705882352941176,
+            0.9852941176470589
+          ],
+          "std": 0.0077375297250678685
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9787642196720829,
+          "per_fold": [
+            0.9762277951933125,
+            0.9649865332820315,
+            0.9881894873458793,
+            0.9762277951933125,
+            0.9881894873458793
+          ],
+          "std": 0.008721959435597493
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9912280701754386,
+        "balanced_accuracy": 0.9880952380952381,
+        "macro_f1": 0.9905276277523889,
+        "macro_precision": 0.9931506849315068,
+        "macro_recall": 0.9880952380952381
+      },
+      "hyperparameters": {
+        "C": 0.1,
+        "class_weight": "balanced",
+        "max_iter": 2000,
+        "n_jobs": null,
+        "penalty": "l2",
+        "random_state": 42,
+        "solver": "lbfgs"
+      },
+      "model_name": "logistic_regression_c0.1_robust"
+    },
+    {
+      "algorithm": "LogisticRegression",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9802197802197803,
+          "per_fold": [
+            0.978021978021978,
+            0.967032967032967,
+            1.0,
+            0.978021978021978,
+            0.978021978021978
+          ],
+          "std": 0.010766987880365621
+        },
+        "balanced_accuracy": {
+          "mean": 0.9770897832817338,
+          "per_fold": [
+            0.9705882352941176,
+            0.967750257997936,
+            1.0,
+            0.9705882352941176,
+            0.9765221878224974
+          ],
+          "std": 0.011806499732609319
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9787928622982308,
+          "per_fold": [
+            0.9762277951933125,
+            0.9649865332820315,
+            1.0,
+            0.9762277951933125,
+            0.9765221878224974
+          ],
+          "std": 0.011477565172854049
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9912280701754386,
+        "balanced_accuracy": 0.9880952380952381,
+        "macro_f1": 0.9905276277523889,
+        "macro_precision": 0.9931506849315068,
+        "macro_recall": 0.9880952380952381
+      },
+      "hyperparameters": {
+        "C": 0.3,
+        "class_weight": "balanced",
+        "max_iter": 2000,
+        "n_jobs": null,
+        "penalty": "l2",
+        "random_state": 42,
+        "solver": "lbfgs"
+      },
+      "model_name": "logistic_regression_c0.3_robust"
+    },
+    {
+      "algorithm": "LogisticRegression",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9758241758241759,
+          "per_fold": [
+            0.9560439560439561,
+            0.967032967032967,
+            1.0,
+            0.978021978021978,
+            0.978021978021978
+          ],
+          "std": 0.014578570507056687
+        },
+        "balanced_accuracy": {
+          "mean": 0.9723942208462333,
+          "per_fold": [
+            0.947110423116615,
+            0.967750257997936,
+            1.0,
+            0.9705882352941176,
+            0.9765221878224974
+          ],
+          "std": 0.01698951180244292
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9740384213368932,
+          "per_fold": [
+            0.952455590386625,
+            0.9649865332820315,
+            1.0,
+            0.9762277951933125,
+            0.9765221878224974
+          ],
+          "std": 0.015701727864820922
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9824561403508771,
+        "balanced_accuracy": 0.9811507936507937,
+        "macro_f1": 0.9811507936507937,
+        "macro_precision": 0.9811507936507937,
+        "macro_recall": 0.9811507936507937
+      },
+      "hyperparameters": {
+        "C": 0.3,
+        "class_weight": "balanced",
+        "max_iter": 2000,
+        "n_jobs": null,
+        "penalty": "l2",
+        "random_state": 42,
+        "solver": "lbfgs"
+      },
+      "model_name": "logistic_regression_c0.3_standard"
+    },
+    {
+      "algorithm": "SVC",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9692307692307691,
+          "per_fold": [
+            0.9560439560439561,
+            0.978021978021978,
+            0.978021978021978,
+            0.9560439560439561,
+            0.978021978021978
+          ],
+          "std": 0.01076698788036558
+        },
+        "balanced_accuracy": {
+          "mean": 0.9659442724458204,
+          "per_fold": [
+            0.947110423116615,
+            0.9824561403508771,
+            0.9765221878224974,
+            0.947110423116615,
+            0.9765221878224974
+          ],
+          "std": 0.0155296756582792
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9669482541407918,
+          "per_fold": [
+            0.952455590386625,
+            0.9767857142857143,
+            0.9765221878224974,
+            0.952455590386625,
+            0.9765221878224974
+          ],
+          "std": 0.011833601647588237
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9824561403508771,
+        "balanced_accuracy": 0.9811507936507937,
+        "macro_f1": 0.9811507936507937,
+        "macro_precision": 0.9811507936507937,
+        "macro_recall": 0.9811507936507937
+      },
+      "hyperparameters": {
+        "C": 1.0,
+        "class_weight": "balanced",
+        "gamma": "scale",
+        "kernel": "rbf",
+        "max_iter": -1,
+        "probability": true,
+        "random_state": 42
+      },
+      "model_name": "svc_rbf_c1_standard"
+    },
+    {
+      "algorithm": "SVC",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9758241758241757,
+          "per_fold": [
+            0.9560439560439561,
+            0.978021978021978,
+            0.978021978021978,
+            0.989010989010989,
+            0.978021978021978
+          ],
+          "std": 0.010766987880365607
+        },
+        "balanced_accuracy": {
+          "mean": 0.9735810113519092,
+          "per_fold": [
+            0.947110423116615,
+            0.9824561403508771,
+            0.9765221878224974,
+            0.9852941176470589,
+            0.9765221878224974
+          ],
+          "std": 0.013667171275831568
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9740950335326426,
+          "per_fold": [
+            0.952455590386625,
+            0.9767857142857143,
+            0.9765221878224974,
+            0.9881894873458793,
+            0.9765221878224974
+          ],
+          "std": 0.01171273705648397
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9824561403508771,
+        "balanced_accuracy": 0.9761904761904762,
+        "macro_f1": 0.9809555629802873,
+        "macro_precision": 0.9864864864864865,
+        "macro_recall": 0.9761904761904762
+      },
+      "hyperparameters": {
+        "C": 3.0,
+        "class_weight": "balanced",
+        "gamma": "scale",
+        "kernel": "rbf",
+        "max_iter": -1,
+        "probability": true,
+        "random_state": 42
+      },
+      "model_name": "svc_rbf_c3_standard"
+    },
+    {
+      "algorithm": "LogisticRegression",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9714285714285713,
+          "per_fold": [
+            0.945054945054945,
+            0.967032967032967,
+            1.0,
+            0.978021978021978,
+            0.967032967032967
+          ],
+          "std": 0.01785502946073838
+        },
+        "balanced_accuracy": {
+          "mean": 0.9688854489164086,
+          "per_fold": [
+            0.9383384932920537,
+            0.967750257997936,
+            1.0,
+            0.9705882352941176,
+            0.967750257997936
+          ],
+          "std": 0.01952797268197908
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9694296596973544,
+          "per_fold": [
+            0.9409474367293965,
+            0.9649865332820315,
+            1.0,
+            0.9762277951933125,
+            0.9649865332820315
+          ],
+          "std": 0.01913886162927414
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9736842105263158,
+        "balanced_accuracy": 0.9692460317460317,
+        "macro_f1": 0.9715828832571666,
+        "macro_precision": 0.9741062479117941,
+        "macro_recall": 0.9692460317460317
+      },
+      "hyperparameters": {
+        "C": 1.0,
+        "class_weight": "balanced",
+        "max_iter": 2000,
+        "n_jobs": null,
+        "penalty": "l2",
+        "random_state": 42,
+        "solver": "lbfgs"
+      },
+      "model_name": "logistic_regression_c1.0_standard"
+    },
+    {
+      "algorithm": "LogisticRegression",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9714285714285715,
+          "per_fold": [
+            0.9560439560439561,
+            0.967032967032967,
+            0.989010989010989,
+            0.978021978021978,
+            0.967032967032967
+          ],
+          "std": 0.011206636293610512
+        },
+        "balanced_accuracy": {
+          "mean": 0.9700722394220846,
+          "per_fold": [
+            0.9530443756449949,
+            0.967750257997936,
+            0.9912280701754386,
+            0.9705882352941176,
+            0.967750257997936
+          ],
+          "std": 0.012235740818469626
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9695148163659428,
+          "per_fold": [
+            0.9530443756449949,
+            0.9649865332820315,
+            0.9883288444273439,
+            0.9762277951933125,
+            0.9649865332820315
+          ],
+          "std": 0.011927429308532793
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9736842105263158,
+        "balanced_accuracy": 0.9692460317460317,
+        "macro_f1": 0.9715828832571666,
+        "macro_precision": 0.9741062479117941,
+        "macro_recall": 0.9692460317460317
+      },
+      "hyperparameters": {
+        "C": 1.0,
+        "class_weight": "balanced",
+        "max_iter": 2000,
+        "n_jobs": null,
+        "penalty": "l2",
+        "random_state": 42,
+        "solver": "lbfgs"
+      },
+      "model_name": "logistic_regression_c1.0_robust"
+    },
+    {
+      "algorithm": "LogisticRegression",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9714285714285713,
+          "per_fold": [
+            0.9340659340659341,
+            0.978021978021978,
+            0.989010989010989,
+            0.989010989010989,
+            0.967032967032967
+          ],
+          "std": 0.020381579110979577
+        },
+        "balanced_accuracy": {
+          "mean": 0.9688854489164086,
+          "per_fold": [
+            0.9236326109391124,
+            0.9765221878224974,
+            0.9912280701754386,
+            0.9852941176470589,
+            0.967750257997936
+          ],
+          "std": 0.02398276430596461
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.969342087691538,
+          "per_fold": [
+            0.9286833855799372,
+            0.9765221878224974,
+            0.9883288444273439,
+            0.9881894873458793,
+            0.9649865332820315
+          ],
+          "std": 0.022087897838317702
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9736842105263158,
+        "balanced_accuracy": 0.9692460317460317,
+        "macro_f1": 0.9715828832571666,
+        "macro_precision": 0.9741062479117941,
+        "macro_recall": 0.9692460317460317
+      },
+      "hyperparameters": {
+        "C": 3.0,
+        "class_weight": "balanced",
+        "max_iter": 2000,
+        "n_jobs": null,
+        "penalty": "l2",
+        "random_state": 42,
+        "solver": "lbfgs"
+      },
+      "model_name": "logistic_regression_c3.0_standard"
+    },
+    {
+      "algorithm": "LogisticRegression",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9692307692307691,
+          "per_fold": [
+            0.9560439560439561,
+            0.978021978021978,
+            0.967032967032967,
+            0.978021978021978,
+            0.967032967032967
+          ],
+          "std": 0.008223422828074567
+        },
+        "balanced_accuracy": {
+          "mean": 0.9671310629514963,
+          "per_fold": [
+            0.9530443756449949,
+            0.9765221878224974,
+            0.967750257997936,
+            0.9705882352941176,
+            0.967750257997936
+          ],
+          "std": 0.007737529725067828
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9671534850449737,
+          "per_fold": [
+            0.9530443756449949,
+            0.9765221878224974,
+            0.9649865332820315,
+            0.9762277951933125,
+            0.9649865332820315
+          ],
+          "std": 0.00870142545044468
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9736842105263158,
+        "balanced_accuracy": 0.9692460317460317,
+        "macro_f1": 0.9715828832571666,
+        "macro_precision": 0.9741062479117941,
+        "macro_recall": 0.9692460317460317
+      },
+      "hyperparameters": {
+        "C": 3.0,
+        "class_weight": "balanced",
+        "max_iter": 2000,
+        "n_jobs": null,
+        "penalty": "l2",
+        "random_state": 42,
+        "solver": "lbfgs"
+      },
+      "model_name": "logistic_regression_c3.0_robust"
+    },
+    {
+      "algorithm": "LogisticRegression",
+      "cross_validation": {
+        "accuracy": {
+          "mean": 0.9758241758241759,
+          "per_fold": [
+            0.9560439560439561,
+            0.967032967032967,
+            1.0,
+            0.978021978021978,
+            0.978021978021978
+          ],
+          "std": 0.014578570507056687
+        },
+        "balanced_accuracy": {
+          "mean": 0.9723942208462333,
+          "per_fold": [
+            0.947110423116615,
+            0.967750257997936,
+            1.0,
+            0.9705882352941176,
+            0.9765221878224974
+          ],
+          "std": 0.01698951180244292
+        },
+        "folds": 5,
+        "macro_f1": {
+          "mean": 0.9740384213368932,
+          "per_fold": [
+            0.952455590386625,
+            0.9649865332820315,
+            1.0,
+            0.9762277951933125,
+            0.9765221878224974
+          ],
+          "std": 0.015701727864820922
+        }
+      },
+      "held_out_test": {
+        "accuracy": 0.9736842105263158,
+        "balanced_accuracy": 0.9692460317460317,
+        "macro_f1": 0.9715828832571666,
+        "macro_precision": 0.9741062479117941,
+        "macro_recall": 0.9692460317460317
+      },
+      "hyperparameters": {
+        "C": 0.1,
+        "class_weight": "balanced",
+        "max_iter": 5000,
+        "n_jobs": null,
+        "penalty": "l2",
+        "random_state": 42,
+        "solver": "lbfgs"
+      },
+      "model_name": "logistic_regression_c01_poly"
+    }
+  ],
+  "selected_candidate": "logistic_regression_c0.3_robust",
+  "selection_method": "5-fold StratifiedKFold on training split plus held-out test confirmation",
+  "selection_metric": "f1_macro",
+  "status": "completed",
+  "test_set_usage": "held_out_once_for_final_confirmation_not_for_model_refit"
+}
