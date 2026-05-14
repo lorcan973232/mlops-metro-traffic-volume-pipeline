@@ -105,6 +105,7 @@ def evaluate_model(
         "model_version": metrics["model_version"],
         "model_path": metrics["model_path"],
         "dataset": metrics["dataset"],
+        "feature_schema": metrics["feature_schema"],
         "metric_summary": _metric_summary(metrics),
         "training_timestamp": metrics["training_timestamp"],
         "training_command": metrics["training_command"],

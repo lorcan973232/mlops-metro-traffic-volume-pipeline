@@ -7,6 +7,19 @@
     "source": "https://archive.ics.uci.edu/dataset/186/wine+quality"
   },
   "evaluation_command": "python -m src.evaluate",
+  "feature_schema": [
+    "fixed_acidity",
+    "volatile_acidity",
+    "citric_acid",
+    "residual_sugar",
+    "chlorides",
+    "free_sulfur_dioxide",
+    "total_sulfur_dioxide",
+    "density",
+    "pH",
+    "sulphates",
+    "alcohol"
+  ],
   "metric_summary": {
     "accuracy": 0.6877551020408164,
     "macro_f1": 0.6885325803364882
@@ -15,5 +28,5 @@
   "model_version": "wine-quality-random-forest-v1",
   "status": "latest_evaluation",
   "training_command": "python -m src.train",
-  "training_timestamp": "2026-05-14T13:46:19+00:00"
+  "training_timestamp": "2026-05-14T14:25:43+00:00"
 }
