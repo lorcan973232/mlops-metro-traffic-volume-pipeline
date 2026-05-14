@@ -37,7 +37,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Download and validate UCI Wine Quality data
+      - name: Generate and validate UCI Breast Cancer Diagnostic data
         run: python -m src.data
 
       - name: Upload ingestion report
@@ -70,14 +70,13 @@ jobs:
           python -m src.preprocess
 
       - name: Verify processed data output
-        run: test -s data/processed/winequality-white-processed.csv
+        run: test -s data/processed/breast-cancer-wisconsin-diagnostic-processed.csv
 
       - name: Upload preprocessing artefacts
         uses: actions/upload-artifact@v4
         with:
           name: preprocessing-artifacts
           path: |
-            data/processed/winequality-white-processed.csv
+            data/processed/breast-cancer-wisconsin-diagnostic-processed.csv
             reports/metrics/data_ingestion.json
             reports/metrics/preprocessing.json
-

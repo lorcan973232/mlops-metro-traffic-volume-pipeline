@@ -31,7 +31,10 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
                     "status": "healthy",
                     "model_loaded": True,
                     "model_version": bundle.get("model_version", "unknown"),
-                    "model_path": bundle.get("model_path", "models/breast_cancer_classifier.joblib"),
+                    "model_path": bundle.get(
+                        "model_path",
+                        "models/breast_cancer_classifier.joblib",
+                    ),
                     "dataset": bundle.get("dataset", {}),
                     "feature_count": len(bundle["feature_columns"]),
                     "class_labels": list(bundle["class_labels"]),
