@@ -379,7 +379,7 @@ Windows PowerShell smoke test:
 powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:8080
 ```
 
-The API loads `models/wine_quality_classifier.joblib`. If the model file is missing, `/health` returns an unhealthy response and `/predict` fails clearly instead of pretending a model is loaded.
+The API loads `models/wine_quality_classifier.joblib`. If the model file is missing, `/health` returns an unhealthy response and `/predict` fails clearly without claiming a model is loaded.
 
 ## Docker
 
@@ -568,7 +568,7 @@ Generated reports:
 - `reports/metrics/model_registry.json`
 - `reports/metrics/model_metadata.json`
 
-Current generated reports should be refreshed before final artefact submission with:
+Current generated monitoring reports were regenerated on 14 May 2026 during offline, drift, and API-aware monitoring verification and are committed as artefact evidence. Refresh them before any future artefact demonstration with:
 
 ```bash
 python -m src.evaluate
@@ -592,21 +592,21 @@ Monitoring reports include `retraining_required`, `retraining_recommended`, `rea
 
 | Artefact requirement | File/path | Local command | GitHub Actions workflow | Quality gate or test | Status | Remaining action |
 | --- | --- | --- | --- | --- | --- | --- |
-| Public dataset ingestion | `src/data.py`, `data/raw/.gitkeep` | `python -m src.data` | `ci.yml`, `data-preprocessing.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | SHA-256, schema validation, `tests/test_data.py` | Implemented and locally verified | None |
-| Data preprocessing | `src/preprocess.py`, `data/processed/.gitkeep` | `python -m src.preprocess` | `ci.yml`, `data-preprocessing.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | deterministic class mapping, `tests/test_data.py` | Implemented and locally verified | None |
-| Model training | `src/train.py`, `models/.gitkeep` | `python -m src.train` | `ci.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | model file exists, `tests/test_model.py` | Implemented and locally verified | None |
-| Model evaluation | `src/evaluate.py`, `reports/metrics/.gitkeep` | `python -m src.evaluate` | `ci.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | accuracy, macro F1, baseline regression quality gate | Implemented and locally verified | None |
+| Public dataset ingestion | `src/data.py`, `data/raw/winequality-white.csv` | `python -m src.data` | `ci.yml`, `data-preprocessing.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | SHA-256, schema validation, `tests/test_data.py` | Implemented, locally verified, and GitHub-verified | None |
+| Data preprocessing | `src/preprocess.py`, `data/processed/winequality-white-processed.csv` | `python -m src.preprocess` | `ci.yml`, `data-preprocessing.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | deterministic class mapping, `tests/test_data.py` | Implemented, locally verified, and GitHub-verified | None |
+| Model training | `src/train.py`, `models/wine_quality_classifier.joblib` | `python -m src.train` | `ci.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | model file exists, `tests/test_model.py` | Implemented, locally verified, and GitHub-verified | None |
+| Model evaluation | `src/evaluate.py`, `reports/metrics/latest_metrics.json`, `reports/metrics/quality_gate_report.json` | `python -m src.evaluate` | `ci.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | accuracy, macro F1, baseline regression quality gate | Implemented, locally verified, and GitHub-verified | None |
 | Model metadata and registry | `src/model_registry.py` | `python -m src.model_registry` | `ci.yml`, `train-and-evaluate.yml`, `continuous-training.yml`, `monitoring.yml` | metadata includes version, dataset, schema, metrics, path | Implemented and locally verified | None |
 | Local prediction | `src/predict.py` | `python -m src.predict` | `ci.yml`, `train-and-evaluate.yml` | saved model schema matches API schema | Implemented and locally verified | None |
 | Flask API | `app/main.py`, `app/model_loader.py`, `app/schemas.py` | `python -m app.main`; `scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:8080` | `docker-build.yml`, `deploy.yml` | `tests/test_api.py`, smoke scripts | Implemented and locally verified | None |
-| Docker containerisation | `Dockerfile`, `.dockerignore` | `docker build -t mlops-flask-api:latest .` | `docker-build.yml` | container `/health` and `/predict` smoke test | Implemented and locally verified | None |
-| Kind Kubernetes deployment | `deployment/kind/deployment.yaml`, `deployment/kind/service.yaml`, `deployment/kind/README.md` | `scripts/deploy_kind.sh` or `scripts/deploy_kind.ps1` | `deploy.yml` | rollout status and smoke test | Implemented and locally verified | None |
+| Docker containerisation | `Dockerfile`, `.dockerignore` | `docker build -t mlops-flask-api:latest .` | `docker-build.yml` | container `/health` and `/predict` smoke test | Implemented and GitHub Actions verified | None for repository; local use requires Docker installed and running |
+| Kind Kubernetes deployment | `deployment/kind/deployment.yaml`, `deployment/kind/service.yaml`, `deployment/kind/README.md` | `scripts/deploy_kind.sh` or `scripts/deploy_kind.ps1` | `deploy.yml` | rollout status and smoke test | Implemented and GitHub Actions verified | None for repository; local use requires Docker, Kind, and kubectl installed |
 | CI workflow | `.github/workflows/ci.yml` | `pytest`; `ruff check .` | `ci.yml` | compile, ruff, pytest, ML path, monitoring | Implemented, locally YAML-validated, and GitHub-verified | None |
 | Data workflow | `.github/workflows/data-preprocessing.yml` | `python -m src.data`; `python -m src.preprocess` | `data-preprocessing.yml` | data validation and processed output check | Implemented, locally YAML-validated, and GitHub-verified | None |
 | Train/evaluate workflow | `.github/workflows/train-and-evaluate.yml` | `python -m src.train`; `python -m src.evaluate` | `train-and-evaluate.yml` | model and metrics artefacts | Implemented, locally YAML-validated, and GitHub-verified | None |
 | Continuous Training | `.github/workflows/continuous-training.yml` | `python -m src.evaluate` | `continuous-training.yml` | `quality_gate_report.json` must pass | Implemented, quality-gated, and GitHub-verified | None |
-| Docker build workflow | `.github/workflows/docker-build.yml` | `docker build -t mlops-flask-api:latest .` | `docker-build.yml` | Docker smoke test | Implemented and verified locally and in GitHub Actions | None |
-| Kind deployment workflow | `.github/workflows/deploy.yml` | `kubectl rollout status deployment/mlops-flask-api --timeout=180s` | `deploy.yml` | rollout plus `/health` and `/predict` smoke test | Implemented and verified locally and in GitHub Actions | None |
+| Docker build workflow | `.github/workflows/docker-build.yml` | `docker build -t mlops-flask-api:latest .` | `docker-build.yml` | Docker smoke test | Implemented and verified in GitHub Actions | None for repository; local use requires Docker installed and running |
+| Kind deployment workflow | `.github/workflows/deploy.yml` | `kubectl rollout status deployment/mlops-flask-api --timeout=180s` | `deploy.yml` | rollout plus `/health` and `/predict` smoke test | Implemented and verified in GitHub Actions, including push and Docker workflow triggers | None for repository; local use requires Docker, Kind, and kubectl installed |
 | Continuous Monitoring | `scripts/monitor.py`, `scripts/check_drift.py`, `reports/monitoring/.gitkeep` | `python scripts/monitor.py`; `python scripts/check_drift.py`; `python scripts/monitor.py --api-url http://127.0.0.1:8080` | `monitoring.yml` | schema checks, PSI drift report, API-aware monitoring, retraining flag | Implemented and locally verified offline and against Kind API | None |
 | Setup verification | `scripts/setup_local.sh`, `scripts/setup_local.ps1`, `scripts/check_setup.sh`, `scripts/check_setup.ps1`, `scripts/env_paths.sh` | `scripts/check_setup.sh`; `powershell -ExecutionPolicy Bypass -File scripts/check_setup.ps1` | `ci.yml` uses `--python-only` | dependency and tooling checks | Implemented and verified with PowerShell and Git Bash | None |
 | Smoke tests | `scripts/smoke_test_api.sh`, `scripts/smoke_test_api.ps1` | `scripts/smoke_test_api.sh http://127.0.0.1:8080`; `scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:8080` | `docker-build.yml`, `deploy.yml` | `/health`, `/predict`, model version, probabilities | Implemented and verified against Docker and Kind APIs | None |
@@ -648,27 +648,34 @@ Run from the repository root. There are no hidden manual steps; each item maps t
 
 ## GitHub Publication Steps
 
-1. Create a repository in the student's personal GitHub account.
-2. Set the repository visibility to public.
-3. Add the remote without inventing a URL:
+Current public repository: <https://github.com/lorcan973232/mlops-wine-quality-pipeline>
+
+Publication status:
+
+- Remote `origin` points to `https://github.com/lorcan973232/mlops-wine-quality-pipeline.git`.
+- GitHub repository visibility is `PUBLIC`.
+- Default branch is `main`.
+- The repository must remain public until 21 June 2026.
+
+Use these commands to recheck publication state:
+
+```bash
+git remote -v
+git branch -M main
+git push -u origin main
+gh repo view --json nameWithOwner,url,visibility,isPrivate,defaultBranchRef
+gh workflow list
+gh run list --branch main --limit 12
+```
+
+If publishing a fresh copy, authenticate first and create the repository from the local source:
 
 ```bash
 gh auth login
-gh repo create <repo-name> --public --source=. --remote=origin --push
+gh repo create mlops-wine-quality-pipeline --public --source=. --remote=origin --push
 ```
 
-Or use an existing public repository:
-
-```bash
-git remote add origin <PERSONAL_PUBLIC_GITHUB_REPOSITORY_URL>
-git branch -M main
-git push -u origin main
-```
-
-4. Confirm the public URL in this README is correct.
-5. Keep the repository public until 21 June 2026.
-6. Check the Actions tab and run manual workflows where required.
-7. Confirm workflow badges display correctly after replacing placeholders.
+After future changes, push to `main`, then check the Actions tab and run manual workflows where required.
 
 ## Academic Integrity and AI Assistance Note
 
@@ -677,7 +684,7 @@ This repository is implementation evidence for the artefact only. Any AI-assiste
 ## Honest Limitations and Setup Blockers
 
 - This repository is not the full assignment submission. The report and video must be produced separately.
-- Monitoring is simulated unless `python scripts/monitor.py --api-url <API_URL>` is run against a live local, Docker, or Kind API.
+- Monitoring is simulated unless `python scripts/monitor.py --api-url http://127.0.0.1:8080` is run against a live local, Docker, or Kind API.
 - Local Docker and Kind verification requires Docker Desktop, Kind, kubectl, and a working Docker daemon.
 - On Windows, use Git Bash or PowerShell. If plain `bash` resolves to the WSL stub without a Linux distribution, run the `.ps1` scripts or call Git Bash directly.
 - If Docker, Kind, or kubectl are missing, local deployment verification is `BLOCKED_BY_LOCAL_SETUP`.
