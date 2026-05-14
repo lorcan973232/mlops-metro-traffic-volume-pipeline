@@ -8,17 +8,17 @@
 
 Public GitHub repository: <https://github.com/lorcan973232/mlops-wine-quality-pipeline>
 
-Workflow badge placeholders to replace after the repository is pushed:
+Workflow badge URLs:
 
-| Workflow | Badge placeholder |
+| Workflow | Badge URL |
 | --- | --- |
-| CI | `https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg` |
-| Data Preprocessing | `https://github.com/<OWNER>/<REPO>/actions/workflows/data-preprocessing.yml/badge.svg` |
-| Train and Evaluate | `https://github.com/<OWNER>/<REPO>/actions/workflows/train-and-evaluate.yml/badge.svg` |
-| Continuous Training | `https://github.com/<OWNER>/<REPO>/actions/workflows/continuous-training.yml/badge.svg` |
-| Docker Build | `https://github.com/<OWNER>/<REPO>/actions/workflows/docker-build.yml/badge.svg` |
-| Deploy Kind | `https://github.com/<OWNER>/<REPO>/actions/workflows/deploy.yml/badge.svg` |
-| Monitoring | `https://github.com/<OWNER>/<REPO>/actions/workflows/monitoring.yml/badge.svg` |
+| CI | `https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/ci.yml/badge.svg` |
+| Data Preprocessing | `https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/data-preprocessing.yml/badge.svg` |
+| Train and Evaluate | `https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/train-and-evaluate.yml/badge.svg` |
+| Continuous Training | `https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/continuous-training.yml/badge.svg` |
+| Docker Build | `https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/docker-build.yml/badge.svg` |
+| Deploy Kind | `https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/deploy.yml/badge.svg` |
+| Monitoring | `https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/monitoring.yml/badge.svg` |
 
 This repository is the artefact section only. It does not contain the report, video, slides, speaker notes, or presentation material. This repository alone is insufficient for final assignment submission because the report and video must be completed separately.
 
