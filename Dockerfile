@@ -14,6 +14,7 @@ RUN pip install --no-cache-dir \
 
 COPY app/ app/
 COPY src/ src/
+COPY data/raw/ data/raw/
 COPY models/ models/
 COPY reports/ reports/
 

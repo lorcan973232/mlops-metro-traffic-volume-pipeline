@@ -8,6 +8,7 @@ venv/
 *.log
 
 data/raw/*.csv
+!data/raw/winequality-white.csv
 data/processed/*.csv
 models/*.joblib
 

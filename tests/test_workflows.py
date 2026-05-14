@@ -120,6 +120,18 @@ def test_workflows_do_not_hardcode_credentials() -> None:
     assert not any(fragment in workflow_text for fragment in forbidden_fragments)
 
 
+def test_docker_workflow_has_verified_dataset_build_context() -> None:
+    raw_dataset = Path("data/raw/winequality-white.csv")
+    dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
+    dockerignore = Path(".dockerignore").read_text(encoding="utf-8")
+    gitignore = Path(".gitignore").read_text(encoding="utf-8")
+
+    assert raw_dataset.exists()
+    assert "COPY data/raw/ data/raw/" in dockerfile
+    assert "data/raw/*.csv" not in dockerignore
+    assert "!data/raw/winequality-white.csv" in gitignore
+
+
 def test_smoke_test_uses_valid_prediction_feature_names() -> None:
     smoke_script = Path("scripts/smoke_test_api.sh").read_text(encoding="utf-8")
     for feature_name in [
