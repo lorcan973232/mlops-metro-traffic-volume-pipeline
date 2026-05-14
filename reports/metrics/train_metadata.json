@@ -24,6 +24,29 @@
     "sulphates",
     "alcohol"
   ],
+  "hyperparameters": {
+    "algorithm": "RandomForestClassifier",
+    "classifier": {
+      "bootstrap": true,
+      "class_weight": "balanced_subsample",
+      "criterion": "gini",
+      "max_depth": 12,
+      "min_samples_leaf": 2,
+      "n_estimators": 120,
+      "n_jobs": 1,
+      "random_state": 42
+    },
+    "preprocessing": {
+      "column_transformer_remainder": "drop",
+      "numeric_imputer_strategy": "median",
+      "numeric_scaler": "StandardScaler"
+    },
+    "train_test_split": {
+      "random_state": 42,
+      "stratify": "quality_class",
+      "test_size": 0.2
+    }
+  },
   "model_path": "models\\wine_quality_classifier.joblib",
   "model_version": "wine-quality-random-forest-v1",
   "random_state": 42,
@@ -38,7 +61,8 @@
     "raw_target": "quality"
   },
   "test_rows": 980,
+  "test_size": 0.2,
   "training_command": "python -m src.train",
   "training_rows": 3918,
-  "training_timestamp": "2026-05-14T17:26:01+00:00"
+  "training_timestamp": "2026-05-14T17:45:52+00:00"
 }

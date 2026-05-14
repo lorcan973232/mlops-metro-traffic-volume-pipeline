@@ -34,6 +34,29 @@ MODEL_VERSION = "wine-quality-random-forest-v1"
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
 TRAINING_COMMAND = "python -m src.train"
+MODEL_HYPERPARAMETERS: dict[str, Any] = {
+    "algorithm": "RandomForestClassifier",
+    "classifier": {
+        "n_estimators": 120,
+        "max_depth": 12,
+        "min_samples_leaf": 2,
+        "class_weight": "balanced_subsample",
+        "random_state": RANDOM_STATE,
+        "n_jobs": 1,
+        "criterion": "gini",
+        "bootstrap": True,
+    },
+    "train_test_split": {
+        "test_size": TEST_SIZE,
+        "random_state": RANDOM_STATE,
+        "stratify": CLASS_COLUMN,
+    },
+    "preprocessing": {
+        "numeric_imputer_strategy": "median",
+        "numeric_scaler": "StandardScaler",
+        "column_transformer_remainder": "drop",
+    },
+}
 
 
 def build_pipeline() -> Pipeline:
@@ -108,6 +131,7 @@ def train_model(
         },
         "random_state": RANDOM_STATE,
         "test_size": TEST_SIZE,
+        "hyperparameters": MODEL_HYPERPARAMETERS,
         "training_timestamp": training_timestamp,
         "training_command": TRAINING_COMMAND,
         "model_path": str(model_path),
@@ -129,6 +153,8 @@ def main() -> None:
         "feature_columns": bundle["feature_columns"],
         "class_labels": list(bundle["class_labels"]),
         "random_state": bundle["random_state"],
+        "test_size": bundle["test_size"],
+        "hyperparameters": bundle["hyperparameters"],
         "training_timestamp": bundle["training_timestamp"],
         "training_command": TRAINING_COMMAND,
         "training_rows": bundle["training_rows"],

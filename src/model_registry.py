@@ -48,6 +48,7 @@ def register_model(
         "dataset_hash": metrics["dataset"].get("raw_sha256"),
         "feature_schema": metrics["feature_schema"],
         "target_definition": metrics["target_definition"],
+        "hyperparameters": metrics.get("hyperparameters", {}),
         "training_timestamp": metrics["training_timestamp"],
         "metric_summary": {
             "accuracy": metrics["accuracy"],
@@ -92,6 +93,7 @@ def model_registry_summary(
             "metrics_path": registry_record["metrics_path"],
             "training_timestamp": metadata["training_timestamp"],
             "metric_summary": metadata["metric_summary"],
+            "hyperparameters": metadata.get("hyperparameters", {}),
             "quality_gate_passed": metadata["quality_gate"]["passed"],
         },
     }

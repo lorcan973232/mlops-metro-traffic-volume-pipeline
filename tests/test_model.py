@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 
 from src.data import FEATURE_COLUMNS
-from src.train import build_pipeline
+from src.train import MODEL_HYPERPARAMETERS, RANDOM_STATE, TEST_SIZE, build_pipeline
 
 
 def test_model_pipeline_fits_and_predicts_with_selected_schema() -> None:
@@ -25,3 +25,20 @@ def test_model_pipeline_fits_and_predicts_with_selected_schema() -> None:
     assert len(predictions) == len(frame)
     assert set(predictions).issubset({"low", "medium", "high"})
 
+
+def test_model_hyperparameters_are_explicit_and_reproducible() -> None:
+    classifier = MODEL_HYPERPARAMETERS["classifier"]
+    split = MODEL_HYPERPARAMETERS["train_test_split"]
+    preprocessing = MODEL_HYPERPARAMETERS["preprocessing"]
+
+    assert MODEL_HYPERPARAMETERS["algorithm"] == "RandomForestClassifier"
+    assert classifier["n_estimators"] == 120
+    assert classifier["max_depth"] == 12
+    assert classifier["min_samples_leaf"] == 2
+    assert classifier["class_weight"] == "balanced_subsample"
+    assert classifier["random_state"] == RANDOM_STATE
+    assert split["test_size"] == TEST_SIZE
+    assert split["random_state"] == RANDOM_STATE
+    assert split["stratify"] == "quality_class"
+    assert preprocessing["numeric_imputer_strategy"] == "median"
+    assert preprocessing["numeric_scaler"] == "StandardScaler"
