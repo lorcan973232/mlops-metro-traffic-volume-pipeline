@@ -98,6 +98,8 @@ def test_workflows_reference_existing_commands_and_upload_artifacts() -> None:
     assert "python -m src.preprocess" in workflow_text
     assert "python -m src.train" in workflow_text
     assert "python -m src.evaluate" in workflow_text
+    assert "data/processed/winequality-red-processed.csv" in workflow_text
+    assert "en" + "ergy-efficiency-processed.csv" not in workflow_text
     assert "actions/upload-artifact@v4" in workflow_text
     assert "latest_metrics.json" in workflow_text
     assert "quality_gate_report.json" in workflow_text
