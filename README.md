@@ -142,6 +142,7 @@ PowerShell:
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/setup_local.ps1
 powershell -ExecutionPolicy Bypass -File scripts/check_setup.ps1
+.\.venv\Scripts\Activate.ps1
 ```
 
 Bash or Git Bash:
@@ -149,9 +150,15 @@ Bash or Git Bash:
 ```bash
 bash scripts/setup_local.sh
 bash scripts/check_setup.sh
+source .venv/bin/activate 2>/dev/null || source .venv/Scripts/activate
 ```
 
+If the environment is not activated, run the verification commands with
+`.\.venv\Scripts\python.exe` on Windows or `.venv/bin/python` on Linux/macOS.
+
 ## Core Verification Commands
+
+Run these after activating `.venv`, or replace `python` with the `.venv` Python path shown above.
 
 ```powershell
 python -m compileall app src tests

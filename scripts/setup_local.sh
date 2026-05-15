@@ -35,4 +35,11 @@ Optional local tooling for full artefact verification:
 After installation, run:
   scripts/check_setup.sh
   make full-local-verify
+
+Activate the project environment before running README commands:
+  source .venv/bin/activate 2>/dev/null || source .venv/Scripts/activate
+
+Or call Python directly:
+  .venv/bin/python -m pytest -q
+  .venv/Scripts/python.exe -m pytest -q
 GUIDANCE
