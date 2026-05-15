@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Breast Cancer Diagnostic Classifier</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="predictor-card" aria-labelledby="page-title">
+        <header class="hero">
+          <div class="icon-badge" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="img" focusable="false">
+              <circle cx="32" cy="32" r="24"></circle>
+              <path d="M32 18v28M18 32h28"></path>
+              <path d="M22 22c7 5 13 5 20 0M22 42c7-5 13-5 20 0"></path>
+            </svg>
+          </div>
+          <p class="eyebrow">MLOps Flask Model UI</p>
+          <h1 id="page-title">Breast Cancer Diagnostic Classifier</h1>
+          <p class="subtitle">
+            Enter diagnostic cell-nuclei measurements to classify a sample as malignant or benign.
+          </p>
+          <p class="dataset-note">
+            Dataset: {{ model_status.dataset.name }}
+          </p>
+          <div class="status-row" aria-label="Model status">
+            <span class="status-pill {% if model_status.model_loaded %}is-ready{% else %}is-offline{% endif %}">
+              {% if model_status.model_loaded %}Model loaded{% else %}Model unavailable{% endif %}
+            </span>
+            <span class="version">Version: {{ model_status.model_version }}</span>
+          </div>
+        </header>
+
+        <form id="prediction-form" class="prediction-form" novalidate>
+          {% for group in feature_groups %}
+            <fieldset class="feature-group">
+              <legend>{{ group.name }}</legend>
+              <div class="form-grid">
+                {% for feature in group.features %}
+                  <label class="field">
+                    <span>{{ feature.label }}</span>
+                    <input
+                      type="number"
+                      step="any"
+                      inputmode="decimal"
+                      name="{{ feature.name }}"
+                      data-feature-input
+                      data-example-value="{{ feature.example }}"
+                      placeholder="e.g. {{ feature.example }}"
+                      required
+                    >
+                    <small>{{ feature.helper }}</small>
+                  </label>
+                {% endfor %}
+              </div>
+            </fieldset>
+          {% endfor %}
+
+          <div class="actions">
+            <button type="button" class="secondary-button" id="use-example">
+              Use Example
+            </button>
+            <button type="submit" class="primary-button">
+              Predict Diagnosis
+            </button>
+          </div>
+        </form>
+
+        <section id="result-panel" class="result-panel" hidden aria-live="polite">
+          <p class="result-label">Prediction</p>
+          <h2 id="prediction-value"></h2>
+          <p id="confidence-value" class="confidence"></p>
+          <div id="probability-list" class="probability-list"></div>
+          <p id="result-model-version" class="result-meta"></p>
+        </section>
+
+        <section id="error-panel" class="error-panel" hidden aria-live="assertive">
+          <p class="error-title">Prediction could not be completed</p>
+          <p id="error-message"></p>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      window.MODEL_UI_CONFIG = {
+        expectedFeatures: {{ feature_columns | tojson }},
+        examplePayload: {{ example_payload | tojson }},
+        modelVersion: {{ model_status.model_version | tojson }},
+        classLabels: {{ model_status.class_labels | tojson }}
+      };
+    </script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>

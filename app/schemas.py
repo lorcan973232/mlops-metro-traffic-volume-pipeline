@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 FEATURE_COLUMNS = [
     "mean_radius",
@@ -36,6 +37,45 @@ FEATURE_COLUMNS = [
 ]
 
 CLASS_LABELS = ("malignant", "benign")
+
+FEATURE_GROUPS = {
+    "Mean Measurements": [
+        "mean_radius",
+        "mean_texture",
+        "mean_perimeter",
+        "mean_area",
+        "mean_smoothness",
+        "mean_compactness",
+        "mean_concavity",
+        "mean_concave_points",
+        "mean_symmetry",
+        "mean_fractal_dimension",
+    ],
+    "Standard Error Measurements": [
+        "radius_error",
+        "texture_error",
+        "perimeter_error",
+        "area_error",
+        "smoothness_error",
+        "compactness_error",
+        "concavity_error",
+        "concave_points_error",
+        "symmetry_error",
+        "fractal_dimension_error",
+    ],
+    "Worst Measurements": [
+        "worst_radius",
+        "worst_texture",
+        "worst_perimeter",
+        "worst_area",
+        "worst_smoothness",
+        "worst_compactness",
+        "worst_concavity",
+        "worst_concave_points",
+        "worst_symmetry",
+        "worst_fractal_dimension",
+    ],
+}
 
 
 @dataclass(frozen=True)
@@ -73,6 +113,41 @@ class PredictionRequestExample:
 
     def as_payload(self) -> dict[str, dict[str, float]]:
         return {"features": self.__dict__.copy()}
+
+
+def feature_label(feature_name: str) -> str:
+    return feature_name.replace("_", " ").title()
+
+
+def feature_helper(feature_name: str) -> str:
+    if feature_name.startswith("mean_"):
+        return "Mean value from the diagnostic cell-nuclei measurements."
+    if feature_name.endswith("_error"):
+        return "Standard error measurement from the diagnostic sample."
+    if feature_name.startswith("worst_"):
+        return "Largest or most severe measurement observed in the sample."
+    return "Numeric diagnostic feature used by the trained model."
+
+
+def ui_feature_groups() -> list[dict[str, Any]]:
+    example = PredictionRequestExample().__dict__
+    grouped_features = []
+    for group_name, features in FEATURE_GROUPS.items():
+        grouped_features.append(
+            {
+                "name": group_name,
+                "features": [
+                    {
+                        "name": feature_name,
+                        "label": feature_label(feature_name),
+                        "helper": feature_helper(feature_name),
+                        "example": example[feature_name],
+                    }
+                    for feature_name in features
+                ],
+            }
+        )
+    return grouped_features
 
 
 def validate_prediction_payload(payload: object) -> list[dict[str, float]]:

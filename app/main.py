@@ -3,10 +3,16 @@ from __future__ import annotations
 from typing import Any
 
 import pandas as pd
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 
 from app.model_loader import load_model
-from app.schemas import FEATURE_COLUMNS, validate_prediction_payload
+from app.schemas import (
+    CLASS_LABELS,
+    FEATURE_COLUMNS,
+    PredictionRequestExample,
+    ui_feature_groups,
+    validate_prediction_payload,
+)
 
 
 def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
@@ -17,6 +23,39 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
         if app.config["MODEL_BUNDLE"] is None:
             app.config["MODEL_BUNDLE"] = load_model()
         return app.config["MODEL_BUNDLE"]
+
+    @app.get("/")
+    def index() -> str:
+        model_status: dict[str, Any] = {
+            "model_loaded": False,
+            "model_version": "unavailable",
+            "dataset": {"name": "UCI Breast Cancer Wisconsin Diagnostic"},
+            "class_labels": list(CLASS_LABELS),
+        }
+        try:
+            bundle = get_model_bundle()
+            model_status.update(
+                {
+                    "model_loaded": True,
+                    "model_version": bundle.get("model_version", "unknown"),
+                    "model_path": bundle.get(
+                        "model_path",
+                        "models/breast_cancer_classifier.joblib",
+                    ),
+                    "dataset": bundle.get("dataset", model_status["dataset"]),
+                    "class_labels": list(bundle.get("class_labels", CLASS_LABELS)),
+                }
+            )
+        except Exception as exc:  # pragma: no cover - defensive UI status path
+            model_status["error"] = str(exc)
+
+        return render_template(
+            "index.html",
+            feature_groups=ui_feature_groups(),
+            feature_columns=FEATURE_COLUMNS,
+            example_payload=PredictionRequestExample().as_payload()["features"],
+            model_status=model_status,
+        )
 
     @app.get("/health")
     def health() -> tuple[Any, int]:

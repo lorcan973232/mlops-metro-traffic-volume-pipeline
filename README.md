@@ -327,6 +327,59 @@ Example response:
 
 Invalid input returns a controlled 400 error from `app/schemas.py`.
 
+## Web UI Live Demo
+
+The Flask root page provides a polished card-based prediction interface inspired by the supplied reference layout, but adapted to this artefact's actual breast-cancer diagnostic model. It does not use bike-sharing fields or copy the bike-sharing task.
+
+UI characteristics:
+
+- White rounded prediction card on a light blue-grey background.
+- Large diagnostic icon, bold title, subtitle, model status, and model version.
+- Responsive two-column desktop form and single-column mobile form.
+- All 30 numeric input fields exactly match the trained model feature schema.
+- "Use Example" fills a valid diagnostic sample.
+- "Predict Diagnosis" sends JSON to `/predict` and renders prediction, model version, and class probabilities.
+- Friendly validation and API error panels avoid stack traces.
+
+Local UI:
+
+```bash
+python -m app.main
+# open http://127.0.0.1:8080/
+curl http://127.0.0.1:8080/
+curl http://127.0.0.1:8080/health
+bash scripts/smoke_test_api.sh http://127.0.0.1:8080
+```
+
+Docker UI:
+
+```bash
+docker build -t mlops-flask-api:latest .
+docker run --rm -d --name mlops-flask-ui-test -p 5001:8080 mlops-flask-api:latest
+# open http://127.0.0.1:5001/
+bash scripts/smoke_test_api.sh http://127.0.0.1:5001
+docker stop mlops-flask-ui-test
+```
+
+Kind UI after port-forward:
+
+```bash
+bash scripts/create_kind_cluster.sh
+bash scripts/deploy_kind.sh
+kubectl port-forward service/mlops-flask-api 8080:80
+# open http://127.0.0.1:8080/
+bash scripts/smoke_test_api.sh http://127.0.0.1:8080
+python scripts/monitor.py --api-url http://127.0.0.1:8080
+```
+
+PowerShell smoke-test equivalent:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:8080
+```
+
+Example input: click `Use Example` in the web page. Expected output for the bundled example is `malignant` with model version `breast-cancer-logistic-regression-v2` and probabilities for `malignant` and `benign`.
+
 ## Docker
 
 ```bash
@@ -465,12 +518,13 @@ The public repository URL is already documented above. Confirm GitHub visibility
 5. Run `pytest -q`.
 6. Run `python -m src.data`, `python -m src.preprocess`, `python -m src.model_selection`, `python -m src.train`, `python -m src.evaluate`.
 7. Show `reports/metrics/latest_metrics.json`, `classification_report.json`, `confusion_matrix.json`, `model_comparison.json`, and `quality_gate_report.json`.
-8. Run `python -m app.main` and smoke-test `/health` and `/predict`.
-9. Build and run Docker, then smoke-test the container.
-10. Deploy through Kind, show pods/services/rollout, then smoke-test the Kind API.
-11. Run `python scripts/monitor.py`, `python scripts/check_drift.py`, and `python scripts/monitor.py --api-url http://127.0.0.1:8080`.
-12. Show `.github/workflows/` for CI, data preprocessing, train/evaluate, CT, Docker, Kind deployment, and monitoring.
-13. Show no secrets are committed and no unsupported deployment path is implemented.
+8. Open `http://127.0.0.1:8080/`, click `Use Example`, and run a UI prediction.
+9. Show `/health` and explain that the UI calls `/predict`.
+10. Build and run Docker, open the same UI, then smoke-test the container.
+11. Deploy through Kind, show pods/services/rollout, open the same UI through port-forward, then smoke-test the Kind API.
+12. Run `python scripts/monitor.py`, `python scripts/check_drift.py`, and `python scripts/monitor.py --api-url http://127.0.0.1:8080`.
+13. Show `.github/workflows/` for CI, data preprocessing, train/evaluate, CT, Docker, Kind deployment, and monitoring.
+14. Show no secrets are committed and no unsupported deployment path is implemented.
 
 ## Traceability Matrix
 
@@ -482,6 +536,7 @@ The public repository URL is already documented above. Confirm GitHub visibility
 | Model training | `src/train.py`, `models/breast_cancer_classifier.joblib` | `python -m src.train` | `ci.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | saved model exists, `tests/test_model.py` | Implemented and locally verified | Rerun Actions after push |
 | Model evaluation | `src/evaluate.py`, `reports/metrics/latest_metrics.json` | `python -m src.evaluate` | `ci.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | full metrics and quality gate | Implemented and locally verified | Rerun Actions after push |
 | Flask API | `app/main.py`, `app/model_loader.py`, `app/schemas.py` | `python -m app.main`; smoke scripts | `ci.yml`, `docker-build.yml`, `deploy.yml` | `/health`, `/predict`, invalid payload tests | Implemented and locally verified | Rerun Actions after push |
+| Web UI | `app/templates/index.html`, `app/static/style.css`, `app/static/app.js` | `curl http://127.0.0.1:8080/`; open root URL | `ci.yml`, `docker-build.yml`, `deploy.yml` | `tests/test_ui.py`, root-page smoke checks | Implemented and locally verified | Rerun Actions after push |
 | Docker | `Dockerfile`, `.dockerignore` | `docker build -t mlops-flask-api:latest .` | `docker-build.yml` | container smoke tests | Implemented and locally verified | Rerun Actions after push |
 | Kind deployment | `deployment/kind/`, `scripts/deploy_kind.*` | `bash scripts/deploy_kind.sh`; smoke scripts | `deploy.yml` | rollout, pods/services, API smoke | Implemented and locally verified | Rerun Actions after push |
 | Continuous Integration | `.github/workflows/ci.yml` | `pytest -q`; `ruff check src tests` | `ci.yml` | lint, compile, tests, ML path | Implemented and locally verified | Rerun Actions after push |
