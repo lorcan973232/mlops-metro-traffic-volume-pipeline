@@ -8,9 +8,11 @@ venv/
 *.log
 
 data/raw/*.csv
-!data/raw/breast-cancer-wisconsin-diagnostic.csv
+data/raw/*.xlsx
+!data/raw/energy-efficiency.xlsx
 data/processed/*.csv
 models/*.joblib
+!models/energy_efficiency_heating_load_regressor.joblib
 
 .env
 .DS_Store

@@ -1,19 +1,17 @@
 {
-  "baseline_model": "DummyClassifier(strategy='most_frequent')",
+  "baseline_model": "DummyRegressor(strategy='mean')",
   "created_by": "python -m src.evaluate",
   "metric_summary": {
-    "accuracy": 0.631578947368421,
-    "balanced_accuracy": 0.5,
-    "macro_f1": 0.3870967741935484,
-    "weighted_f1": 0.48896434634974534
+    "mae": 9.272103050044418,
+    "r2": -0.0055245239100216725,
+    "rmse": 10.23758974168782
   },
-  "model_version": "dummy-most-frequent-baseline",
+  "model_version": "dummy-mean-baseline",
   "quality_thresholds": {
     "max_baseline_regression": 0.02,
-    "min_accuracy": 0.94,
-    "min_balanced_accuracy": 0.94,
-    "min_macro_f1": 0.94,
-    "min_weighted_f1": 0.94
+    "max_mae": 0.55,
+    "max_rmse": 0.75,
+    "min_r2": 0.98
   },
   "status": "baseline_evaluated"
 }

@@ -16,9 +16,15 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.schemas import PredictionRequestExample
-from src.data import CLASS_LABELS, DATA_SOURCE_PAGE, FEATURE_COLUMNS, TARGET_COLUMN, write_json
+from src.data import (
+    DATA_SOURCE_PAGE,
+    FEATURE_COLUMNS,
+    SECONDARY_TARGET_COLUMN,
+    TARGET_COLUMN,
+    write_json,
+)
 from src.model_registry import MODEL_METADATA_PATH, load_model_metadata
-from src.preprocess import CLASS_COLUMN, PROCESSED_DATA_PATH, preprocess_dataset
+from src.preprocess import PROCESSED_DATA_PATH, preprocess_dataset
 
 MONITORING_REPORT_PATH = Path("reports/monitoring/monitoring_report.json")
 API_MONITORING_REPORT_PATH = Path("reports/monitoring/api_monitoring_report.json")
@@ -41,12 +47,9 @@ def feature_summary(frame: pd.DataFrame) -> dict[str, dict[str, float]]:
 
 
 def validate_monitoring_schema(frame: pd.DataFrame) -> dict[str, Any]:
+    expected_columns = {*FEATURE_COLUMNS, TARGET_COLUMN, SECONDARY_TARGET_COLUMN}
     missing_columns = [column for column in FEATURE_COLUMNS if column not in frame.columns]
-    unexpected_columns = [
-        column
-        for column in frame.columns
-        if column not in {*FEATURE_COLUMNS, CLASS_COLUMN, TARGET_COLUMN}
-    ]
+    unexpected_columns = [column for column in frame.columns if column not in expected_columns]
     non_numeric_columns = [
         column
         for column in FEATURE_COLUMNS
@@ -59,13 +62,8 @@ def validate_monitoring_schema(frame: pd.DataFrame) -> dict[str, Any]:
         and not non_numeric_columns
         and missing_values == 0
     )
-    status = (
-        "passed"
-        if checks_passed
-        else "failed"
-    )
     return {
-        "status": status,
+        "status": "passed" if checks_passed else "failed",
         "expected_feature_schema": FEATURE_COLUMNS,
         "missing_columns": missing_columns,
         "unexpected_columns": unexpected_columns,
@@ -79,10 +77,10 @@ def load_metadata() -> dict[str, Any]:
         return load_model_metadata()
     return {
         "model_version": "metadata_unavailable",
-        "dataset_name": "UCI Breast Cancer Wisconsin Diagnostic",
+        "dataset_name": "UCI Energy Efficiency",
         "dataset_source": DATA_SOURCE_PAGE,
         "feature_schema": FEATURE_COLUMNS,
-        "model_path": "models/breast_cancer_classifier.joblib",
+        "model_path": "models/energy_efficiency_heating_load_regressor.joblib",
         "metric_summary": {},
         "quality_gate": {"passed": None},
     }
@@ -104,7 +102,7 @@ def offline_monitor(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any
             "No live production telemetry is available in this student artefact; monitoring "
             "uses the selected public dataset schema and deterministic batch checks."
         ),
-        "dataset_name": metadata.get("dataset_name", "UCI Breast Cancer Wisconsin Diagnostic"),
+        "dataset_name": metadata.get("dataset_name", "UCI Energy Efficiency"),
         "dataset_source": metadata.get("dataset_source", DATA_SOURCE_PAGE),
         "model_version": metadata.get("model_version"),
         "model_path": metadata.get("model_path"),
@@ -114,9 +112,11 @@ def offline_monitor(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any
         "rows": int(len(frame)),
         "data_quality": data_quality,
         "feature_summary": feature_summary(frame),
-        "class_distribution": {
-            str(key): int(value)
-            for key, value in frame[CLASS_COLUMN].value_counts().sort_index().to_dict().items()
+        "target_summary": {
+            "target": TARGET_COLUMN,
+            "min": float(frame[TARGET_COLUMN].min()),
+            "max": float(frame[TARGET_COLUMN].max()),
+            "mean": float(frame[TARGET_COLUMN].mean()),
         },
         "retraining_required": retraining_required,
         "retraining_recommended": retraining_required,
@@ -137,14 +137,8 @@ def _request_json(
 ) -> tuple[int, dict[str, Any]]:
     if os.name == "nt":
         return _request_json_with_powershell(url, method=method, payload=payload)
-
     body = None if payload is None else json.dumps(payload).encode("utf-8")
-    request = Request(
-        url,
-        data=body,
-        method=method,
-        headers={"Content-Type": "application/json"},
-    )
+    request = Request(url, data=body, method=method, headers={"Content-Type": "application/json"})
     with urlopen(request, timeout=10) as response:
         return int(response.status), json.loads(response.read().decode("utf-8"))
 
@@ -171,15 +165,10 @@ try {
       -Body $env:MONITOR_BODY `
       -TimeoutSec 10
   } else {
-    $response = Invoke-RestMethod `
-      -Uri $uri `
-      -Method Get `
-      -TimeoutSec 10
+    $response = Invoke-RestMethod -Uri $uri -Method Get -TimeoutSec 10
   }
-  [pscustomobject]@{
-    status_code = 200
-    body = ($response | ConvertTo-Json -Depth 10 -Compress)
-  } | ConvertTo-Json -Compress
+  $body = $response | ConvertTo-Json -Depth 10 -Compress
+  [pscustomobject]@{ status_code = 200; body = $body } | ConvertTo-Json -Compress
 } catch {
   if ($null -ne $_.Exception.Response) {
     $statusCode = [int]$_.Exception.Response.StatusCode
@@ -205,13 +194,9 @@ try {
         except json.JSONDecodeError as exc:
             raise URLError(completed.stderr or completed.stdout) from exc
         raise URLError(payload_out.get("error", "PowerShell request failed."))
-
     payload_out = json.loads(completed.stdout)
     body = payload_out.get("body", "{}")
-    if isinstance(body, str):
-        parsed_body = json.loads(body)
-    else:
-        parsed_body = body
+    parsed_body = json.loads(body) if isinstance(body, str) else body
     return int(payload_out["status_code"]), parsed_body
 
 
@@ -228,7 +213,7 @@ def api_monitor(api_url: str) -> dict[str, Any]:
         )
         prediction_value = prediction.get("prediction")
         model_version = prediction.get("model_version") or health.get("model_version")
-        schema_ok = prediction_value in set(CLASS_LABELS) and bool(model_version)
+        schema_ok = isinstance(prediction_value, int | float) and bool(model_version)
         response_status = (
             "passed" if health_status == 200 and predict_status == 200 and schema_ok else "failed"
         )
@@ -242,7 +227,6 @@ def api_monitor(api_url: str) -> dict[str, Any]:
         schema_ok = False
         response_status = "failed"
         error = str(exc)
-
     retraining_required = response_status != "passed"
     report = {
         "status": "monitored",
@@ -250,7 +234,7 @@ def api_monitor(api_url: str) -> dict[str, Any]:
         "monitoring_mode": "api_aware_monitoring",
         "production_claim": "api_check_only",
         "api_url": base_url,
-        "dataset_name": metadata.get("dataset_name", "UCI Breast Cancer Wisconsin Diagnostic"),
+        "dataset_name": metadata.get("dataset_name", "UCI Energy Efficiency"),
         "dataset_source": metadata.get("dataset_source", DATA_SOURCE_PAGE),
         "feature_schema": FEATURE_COLUMNS,
         "prediction_request_schema": prediction_payload,

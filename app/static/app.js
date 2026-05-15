@@ -6,7 +6,6 @@
   const errorPanel = document.querySelector("#error-panel");
   const predictionValue = document.querySelector("#prediction-value");
   const confidenceValue = document.querySelector("#confidence-value");
-  const probabilityList = document.querySelector("#probability-list");
   const resultModelVersion = document.querySelector("#result-model-version");
   const errorMessage = document.querySelector("#error-message");
 
@@ -43,44 +42,11 @@
     return payload;
   }
 
-  function formatPercent(value) {
-    return `${(Number(value) * 100).toFixed(2)}%`;
-  }
-
-  function renderProbabilities(probabilities) {
-    probabilityList.innerHTML = "";
-    for (const [label, probability] of Object.entries(probabilities || {})) {
-      const row = document.createElement("div");
-      row.className = "probability-row";
-
-      const labelElement = document.createElement("span");
-      labelElement.textContent = label;
-
-      const track = document.createElement("div");
-      track.className = "probability-track";
-
-      const fill = document.createElement("div");
-      fill.className = "probability-fill";
-      fill.style.width = formatPercent(probability);
-      track.appendChild(fill);
-
-      const valueElement = document.createElement("span");
-      valueElement.textContent = formatPercent(probability);
-
-      row.append(labelElement, track, valueElement);
-      probabilityList.appendChild(row);
-    }
-  }
-
   function renderPrediction(data) {
-    const probabilities = data.probabilities || {};
-    const confidence = probabilities[data.prediction];
-    predictionValue.textContent = data.prediction || "Unknown";
-    confidenceValue.textContent = Number.isFinite(confidence)
-      ? `Confidence: ${formatPercent(confidence)}`
-      : "Confidence unavailable";
+    const unit = data.unit || config.targetUnit || "load units";
+    predictionValue.textContent = `${Number(data.prediction).toFixed(2)} ${unit}`;
+    confidenceValue.textContent = "Regression estimate from the trained model.";
     resultModelVersion.textContent = `Model version: ${data.model_version || config.modelVersion}`;
-    renderProbabilities(probabilities);
     setPanelVisibility(true, false);
   }
 

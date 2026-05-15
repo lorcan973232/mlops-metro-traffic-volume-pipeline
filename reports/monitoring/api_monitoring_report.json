@@ -1,116 +1,67 @@
 {
   "api_url": "http://127.0.0.1:8080",
-  "dataset_name": "UCI Breast Cancer Wisconsin Diagnostic",
-  "dataset_source": "https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic",
+  "dataset_name": "UCI Energy Efficiency",
+  "dataset_source": "https://archive.ics.uci.edu/dataset/242/energy+efficiency",
   "error": null,
-  "expected_model_version": "breast-cancer-logistic-regression-v2",
+  "expected_model_version": "energy-efficiency-gradient-boosting-v1",
   "feature_schema": [
-    "mean_radius",
-    "mean_texture",
-    "mean_perimeter",
-    "mean_area",
-    "mean_smoothness",
-    "mean_compactness",
-    "mean_concavity",
-    "mean_concave_points",
-    "mean_symmetry",
-    "mean_fractal_dimension",
-    "radius_error",
-    "texture_error",
-    "perimeter_error",
-    "area_error",
-    "smoothness_error",
-    "compactness_error",
-    "concavity_error",
-    "concave_points_error",
-    "symmetry_error",
-    "fractal_dimension_error",
-    "worst_radius",
-    "worst_texture",
-    "worst_perimeter",
-    "worst_area",
-    "worst_smoothness",
-    "worst_compactness",
-    "worst_concavity",
-    "worst_concave_points",
-    "worst_symmetry",
-    "worst_fractal_dimension"
+    "relative_compactness",
+    "surface_area",
+    "wall_area",
+    "roof_area",
+    "overall_height",
+    "orientation",
+    "glazing_area",
+    "glazing_area_distribution"
   ],
   "health": {
     "response": {
-      "class_labels": [
-        "malignant",
-        "benign"
-      ],
       "dataset": {
-        "doi": "10.24432/C5DW2B",
-        "name": "UCI Breast Cancer Wisconsin Diagnostic",
-        "processed_path": "data/processed/breast-cancer-wisconsin-diagnostic-processed.csv",
-        "raw_sha256": "43e012951b5fc04c166ef445da184051646d28bc4c6ba34f44fa7a4c1d656a11",
-        "source": "https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic"
+        "doi": "10.24432/C51307",
+        "name": "UCI Energy Efficiency",
+        "processed_path": "data/processed/energy-efficiency-processed.csv",
+        "raw_sha256": "0089fcffc1415e41e2ff63730cca5280efe54fc43d722dfde1b0aaa808e35dc4",
+        "source": "https://archive.ics.uci.edu/dataset/242/energy+efficiency"
       },
-      "feature_count": 30,
+      "feature_count": 8,
       "model_loaded": true,
-      "model_path": "models/breast_cancer_classifier.joblib",
-      "model_version": "breast-cancer-logistic-regression-v2",
-      "status": "healthy"
+      "model_path": "models/energy_efficiency_heating_load_regressor.joblib",
+      "model_version": "energy-efficiency-gradient-boosting-v1",
+      "status": "healthy",
+      "target": "heating_load",
+      "target_unit": "heating load",
+      "task_type": "regression"
     },
     "status_code": 200
   },
-  "model_version": "breast-cancer-logistic-regression-v2",
+  "model_version": "energy-efficiency-gradient-boosting-v1",
   "monitoring_mode": "api_aware_monitoring",
   "predict": {
     "response": {
-      "model_version": "breast-cancer-logistic-regression-v2",
-      "prediction": "malignant",
+      "model_version": "energy-efficiency-gradient-boosting-v1",
+      "prediction": 39.156,
       "predictions": [
         {
-          "prediction": "malignant",
-          "probabilities": {
-            "benign": 6.476962456369861e-07,
-            "malignant": 0.9999993523037544
-          }
+          "prediction": 39.156,
+          "target": "heating_load",
+          "unit": "heating load"
         }
       ],
-      "probabilities": {
-        "benign": 6.476962456369861e-07,
-        "malignant": 0.9999993523037544
-      }
+      "target": "heating_load",
+      "unit": "heating load"
     },
     "status_code": 200
   },
   "prediction_request_schema": {
     "features": {
-      "area_error": 153.4,
-      "compactness_error": 0.04904,
-      "concave_points_error": 0.01587,
-      "concavity_error": 0.05373,
-      "fractal_dimension_error": 0.006193,
-      "mean_area": 1001.0,
-      "mean_compactness": 0.2776,
-      "mean_concave_points": 0.1471,
-      "mean_concavity": 0.3001,
-      "mean_fractal_dimension": 0.07871,
-      "mean_perimeter": 122.8,
-      "mean_radius": 17.99,
-      "mean_smoothness": 0.1184,
-      "mean_symmetry": 0.2419,
-      "mean_texture": 10.38,
-      "perimeter_error": 8.589,
-      "radius_error": 1.095,
-      "smoothness_error": 0.006399,
-      "symmetry_error": 0.03003,
-      "texture_error": 0.9053,
-      "worst_area": 2019.0,
-      "worst_compactness": 0.6656,
-      "worst_concave_points": 0.2654,
-      "worst_concavity": 0.7119,
-      "worst_fractal_dimension": 0.1189,
-      "worst_perimeter": 184.6,
-      "worst_radius": 25.38,
-      "worst_smoothness": 0.1622,
-      "worst_symmetry": 0.4601,
-      "worst_texture": 17.33
+      "glazing_area": 0.4,
+      "glazing_area_distribution": 5.0,
+      "orientation": 2.0,
+      "overall_height": 7.0,
+      "relative_compactness": 0.76,
+      "roof_area": 122.5,
+      "surface_area": 661.5,
+      "wall_area": 416.5
     }
   },
   "prediction_response_schema_valid": true,
@@ -120,5 +71,5 @@
   "retraining_recommended": false,
   "retraining_required": false,
   "status": "monitored",
-  "timestamp_utc": "2026-05-15T13:28:02+00:00"
+  "timestamp_utc": "2026-05-15T18:16:20+00:00"
 }

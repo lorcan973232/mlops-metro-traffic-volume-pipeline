@@ -1,16 +1,4 @@
 {
-  "class_labels": [
-    "malignant",
-    "benign"
-  ],
-  "matrix": [
-    [
-      41,
-      1
-    ],
-    [
-      0,
-      72
-    ]
-  ]
+  "reason": "The selected UCI Energy Efficiency task is regression, not classification.",
+  "status": "NOT_APPLICABLE"
 }

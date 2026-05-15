@@ -47,7 +47,7 @@ jobs:
         with:
           name: prepared-data
           path: |
-            data/processed/winequality-white-processed.csv
+            data/processed/energy-efficiency-processed.csv
             reports/metrics/data_ingestion.json
             reports/metrics/preprocessing.json
 

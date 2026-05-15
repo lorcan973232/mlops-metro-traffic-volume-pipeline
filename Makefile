@@ -1,5 +1,9 @@
 PYTHON ?= python
+ifeq ($(OS),Windows_NT)
+BASH ?= "C:/Program Files/Git/bin/bash.exe"
+else
 BASH ?= bash
+endif
 IMAGE_NAME ?= mlops-flask-api:latest
 KIND_CLUSTER_NAME ?= mlops-kind
 API_URL ?= http://127.0.0.1:8080

@@ -23,24 +23,18 @@ def predict(payload: dict, model_path: Path = MODEL_PATH) -> list[dict[str, obje
     frame = pd.DataFrame(records, columns=FEATURE_COLUMNS)
     model = bundle["model"]
     predictions = model.predict(frame)
-    probabilities = model.predict_proba(frame)
-    classes = list(model.classes_)
     return [
         {
-            "prediction": str(prediction),
-            "probabilities": {
-                str(label): float(probabilities[row_index][class_index])
-                for class_index, label in enumerate(classes)
-            },
+            "prediction": float(prediction),
+            "target": bundle.get("target_definition", {}).get("model_target", "heating_load"),
+            "unit": bundle.get("target_unit", "heating load"),
         }
-        for row_index, prediction in enumerate(predictions)
+        for prediction in predictions
     ]
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Run one local breast cancer diagnosis prediction."
-    )
+    parser = argparse.ArgumentParser(description="Run one local building heating-load prediction.")
     parser.add_argument("--payload-json", default=None)
     args = parser.parse_args()
     payload = (

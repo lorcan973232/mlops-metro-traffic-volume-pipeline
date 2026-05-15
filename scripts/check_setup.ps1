@@ -97,7 +97,7 @@ if ($pythonAvailable) {
     }
 
     $dependencyScript = @"
-required = ["flask", "joblib", "numpy", "pandas", "pytest", "sklearn", "yaml"]
+required = ["flask", "joblib", "numpy", "openpyxl", "pandas", "pytest", "sklearn", "yaml"]
 missing = []
 for package in required:
     try:

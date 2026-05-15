@@ -1,13 +1,13 @@
 {
-  "accuracy": 0.9912280701754386,
-  "balanced_accuracy": 0.9880952380952381,
-  "dataset_doi": "10.24432/C5DW2B",
-  "dataset_source": "https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic",
-  "macro_f1": 0.9905276277523889,
+  "dataset_doi": "10.24432/C51307",
+  "dataset_source": "https://archive.ics.uci.edu/dataset/242/energy+efficiency",
+  "mae": 0.2856033894786758,
   "metrics_path": "reports\\metrics\\metrics.json",
-  "model_path": "models\\breast_cancer_classifier.joblib",
-  "model_version": "breast-cancer-logistic-regression-v2",
+  "model_path": "models\\energy_efficiency_heating_load_regressor.joblib",
+  "model_version": "energy-efficiency-gradient-boosting-v1",
   "promotion_decision": "accepted",
   "quality_gate_passed": true,
-  "weighted_f1": 0.9912054752585661
+  "r2": 0.9984497713108541,
+  "rmse": 0.4019752121804286,
+  "task_type": "regression"
 }

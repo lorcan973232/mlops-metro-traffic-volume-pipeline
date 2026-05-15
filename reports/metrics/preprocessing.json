@@ -1,48 +1,24 @@
 {
-  "class_column": "diagnosis_class",
-  "class_distribution": {
-    "benign": 357,
-    "malignant": 212
-  },
-  "class_mapping": {
-    "0": "malignant",
-    "1": "benign"
-  },
   "feature_columns": [
-    "mean_radius",
-    "mean_texture",
-    "mean_perimeter",
-    "mean_area",
-    "mean_smoothness",
-    "mean_compactness",
-    "mean_concavity",
-    "mean_concave_points",
-    "mean_symmetry",
-    "mean_fractal_dimension",
-    "radius_error",
-    "texture_error",
-    "perimeter_error",
-    "area_error",
-    "smoothness_error",
-    "compactness_error",
-    "concavity_error",
-    "concave_points_error",
-    "symmetry_error",
-    "fractal_dimension_error",
-    "worst_radius",
-    "worst_texture",
-    "worst_perimeter",
-    "worst_area",
-    "worst_smoothness",
-    "worst_compactness",
-    "worst_concavity",
-    "worst_concave_points",
-    "worst_symmetry",
-    "worst_fractal_dimension"
+    "relative_compactness",
+    "surface_area",
+    "wall_area",
+    "roof_area",
+    "overall_height",
+    "orientation",
+    "glazing_area",
+    "glazing_area_distribution"
   ],
-  "input": "data\\raw\\breast-cancer-wisconsin-diagnostic.csv",
-  "output": "data\\processed\\breast-cancer-wisconsin-diagnostic-processed.csv",
-  "rows": 569,
+  "input": "data\\raw\\energy-efficiency.xlsx",
+  "output": "data\\processed\\energy-efficiency-processed.csv",
+  "preprocessing_steps": [
+    "validate official UCI schema",
+    "rename X1-X8/Y1-Y2 columns to readable names",
+    "cast categorical integer-coded fields for orientation and glazing distribution",
+    "save deterministic processed CSV"
+  ],
+  "rows": 768,
+  "secondary_target_column": "cooling_load",
   "status": "processed",
-  "target_column": "diagnosis"
+  "target_column": "heating_load"
 }

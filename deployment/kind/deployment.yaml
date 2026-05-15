@@ -22,7 +22,7 @@ spec:
           imagePullPolicy: Never
           env:
             - name: MODEL_PATH
-              value: models/breast_cancer_classifier.joblib
+              value: models/energy_efficiency_heating_load_regressor.joblib
           ports:
             - containerPort: 5000
               name: http

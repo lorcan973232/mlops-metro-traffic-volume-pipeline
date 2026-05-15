@@ -8,61 +8,67 @@ from typing import Any
 import joblib
 import pandas as pd
 from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.impute import SimpleImputer
-from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import RobustScaler
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from src.data import (
-    CLASS_COLUMN,
-    CLASS_LABELS,
     DATA_DOI,
     DATA_SHA256,
     DATA_SOURCE_PAGE,
+    DATASET_NAME,
     FEATURE_COLUMNS,
     RAW_DATA_PATH,
     TARGET_COLUMN,
-    TARGET_MAPPING,
+    TARGET_UNIT,
+    TASK_TYPE,
     file_sha256,
     write_json,
 )
 from src.preprocess import PROCESSED_DATA_PATH, preprocess_dataset
 
-MODEL_PATH = Path("models/breast_cancer_classifier.joblib")
+MODEL_PATH = Path("models/energy_efficiency_heating_load_regressor.joblib")
 TRAIN_METADATA_PATH = Path("reports/metrics/train_metadata.json")
-MODEL_VERSION = "breast-cancer-logistic-regression-v2"
+MODEL_VERSION = "energy-efficiency-gradient-boosting-v1"
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
 TRAINING_COMMAND = "python -m src.train"
+CATEGORICAL_FEATURES = ["orientation", "glazing_area_distribution"]
+NUMERIC_FEATURES = [feature for feature in FEATURE_COLUMNS if feature not in CATEGORICAL_FEATURES]
 MODEL_HYPERPARAMETERS: dict[str, Any] = {
-    "algorithm": "LogisticRegression",
-    "classifier": {
-        "C": 0.3,
-        "class_weight": "balanced",
-        "max_iter": 2000,
-        "penalty": "l2",
+    "algorithm": "GradientBoostingRegressor",
+    "regressor": {
+        "n_estimators": 800,
+        "learning_rate": 0.04,
+        "max_depth": 4,
+        "min_samples_leaf": 1,
+        "min_samples_split": 2,
+        "subsample": 1.0,
         "random_state": RANDOM_STATE,
-        "solver": "lbfgs",
     },
     "train_test_split": {
         "test_size": TEST_SIZE,
         "random_state": RANDOM_STATE,
-        "stratify": CLASS_COLUMN,
+        "shuffle": True,
     },
     "preprocessing": {
+        "categorical_features": CATEGORICAL_FEATURES,
+        "categorical_encoder": "OneHotEncoder(handle_unknown='ignore', sparse_output=False)",
+        "numeric_features": NUMERIC_FEATURES,
         "numeric_imputer_strategy": "median",
-        "numeric_scaler": "RobustScaler",
+        "numeric_scaler": "StandardScaler",
         "column_transformer_remainder": "drop",
     },
     "selection": {
         "method": (
-            "dataset suitability review plus controlled scikit-learn model comparison "
-            "with feature-engineering candidates"
+            "controlled scikit-learn model comparison for a compact public regression dataset"
         ),
-        "main_scoring_metric": "f1_macro",
-        "cross_validation": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42)",
-        "selection_rule": "highest held-out macro F1 with strong CV support and reproducibility",
+        "main_scoring_metric": "r2",
+        "secondary_metrics": ["rmse", "mae"],
+        "cross_validation": "KFold(n_splits=5, shuffle=True, random_state=42)",
+        "selection_rule": "highest held-out R2 with strong CV support and fast CI/CT runtime",
     },
 }
 
@@ -71,20 +77,26 @@ def build_pipeline() -> Pipeline:
     preprocessor = ColumnTransformer(
         transformers=[
             (
+                "categorical",
+                OneHotEncoder(handle_unknown="ignore", sparse_output=False),
+                CATEGORICAL_FEATURES,
+            ),
+            (
                 "numeric",
                 Pipeline(
                     steps=[
                         ("imputer", SimpleImputer(strategy="median")),
-                        ("scaler", RobustScaler()),
+                        ("scaler", StandardScaler()),
                     ]
                 ),
-                FEATURE_COLUMNS,
-            )
+                NUMERIC_FEATURES,
+            ),
         ],
         remainder="drop",
+        sparse_threshold=0,
     )
-    model = LogisticRegression(**MODEL_HYPERPARAMETERS["classifier"])
-    return Pipeline(steps=[("preprocessor", preprocessor), ("classifier", model)])
+    model = GradientBoostingRegressor(**MODEL_HYPERPARAMETERS["regressor"])
+    return Pipeline(steps=[("preprocessor", preprocessor), ("regressor", model)])
 
 
 def load_processed_data(path: Path = PROCESSED_DATA_PATH) -> pd.DataFrame:
@@ -99,13 +111,13 @@ def train_model(
 ) -> tuple[dict[str, Any], pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     data = load_processed_data(processed_path)
     x = data[FEATURE_COLUMNS]
-    y = data[CLASS_COLUMN]
+    y = data[TARGET_COLUMN]
     x_train, x_test, y_train, y_test = train_test_split(
         x,
         y,
         test_size=TEST_SIZE,
         random_state=RANDOM_STATE,
-        stratify=y,
+        shuffle=True,
     )
     pipeline = build_pipeline()
     pipeline.fit(x_train, y_train)
@@ -117,19 +129,18 @@ def train_model(
         "model_version": MODEL_VERSION,
         "model": pipeline,
         "feature_columns": FEATURE_COLUMNS,
-        "class_labels": CLASS_LABELS,
-        "task_type": "binary_classification",
+        "task_type": TASK_TYPE,
+        "target_unit": TARGET_UNIT,
         "dataset": {
-            "name": "UCI Breast Cancer Wisconsin Diagnostic",
+            "name": DATASET_NAME,
             "source": DATA_SOURCE_PAGE,
             "doi": DATA_DOI,
             "raw_sha256": raw_hash,
             "processed_path": str(processed_path),
         },
         "target_definition": {
-            "raw_target": TARGET_COLUMN,
-            "model_target": CLASS_COLUMN,
-            "class_mapping": {str(key): value for key, value in TARGET_MAPPING.items()},
+            "model_target": TARGET_COLUMN,
+            "description": "Predict building heating load from eight building design inputs.",
         },
         "random_state": RANDOM_STATE,
         "test_size": TEST_SIZE,
@@ -139,8 +150,10 @@ def train_model(
         "model_path": str(model_path),
         "training_rows": int(len(x_train)),
         "test_rows": int(len(x_test)),
-        "class_distribution": {
-            str(key): int(value) for key, value in y.value_counts().sort_index().to_dict().items()
+        "target_summary": {
+            "min": float(y.min()),
+            "max": float(y.max()),
+            "mean": float(y.mean()),
         },
     }
     joblib.dump(bundle, model_path)
@@ -156,8 +169,8 @@ def main() -> None:
         "dataset": bundle["dataset"],
         "target_definition": bundle["target_definition"],
         "feature_columns": bundle["feature_columns"],
-        "class_labels": list(bundle["class_labels"]),
         "task_type": bundle["task_type"],
+        "target_unit": bundle["target_unit"],
         "random_state": bundle["random_state"],
         "test_size": bundle["test_size"],
         "hyperparameters": bundle["hyperparameters"],
@@ -165,7 +178,7 @@ def main() -> None:
         "training_command": TRAINING_COMMAND,
         "training_rows": bundle["training_rows"],
         "test_rows": bundle["test_rows"],
-        "class_distribution": bundle["class_distribution"],
+        "target_summary": bundle["target_summary"],
     }
     write_json(TRAIN_METADATA_PATH, report)
     print(json.dumps(report, indent=2, sort_keys=True))

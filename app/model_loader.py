@@ -6,9 +6,9 @@ from typing import Any
 
 import joblib
 
-from app.schemas import CLASS_LABELS, FEATURE_COLUMNS
+from app.schemas import FEATURE_COLUMNS
 
-DEFAULT_MODEL_PATH = Path("models/breast_cancer_classifier.joblib")
+DEFAULT_MODEL_PATH = Path("models/energy_efficiency_heating_load_regressor.joblib")
 
 
 def load_model(model_path: str | Path | None = None) -> dict[str, Any]:
@@ -19,9 +19,7 @@ def load_model(model_path: str | Path | None = None) -> dict[str, Any]:
         )
     bundle = joblib.load(resolved_path)
     if bundle.get("feature_columns") != FEATURE_COLUMNS:
-        raise ValueError(
-            "Model feature schema is incompatible with the API prediction schema."
-        )
-    if tuple(bundle.get("class_labels", ())) != CLASS_LABELS:
-        raise ValueError("Model class labels are incompatible with the API schema.")
+        raise ValueError("Model feature schema is incompatible with the API prediction schema.")
+    if bundle.get("task_type") != "regression":
+        raise ValueError("Model task type is incompatible with the regression API schema.")
     return bundle

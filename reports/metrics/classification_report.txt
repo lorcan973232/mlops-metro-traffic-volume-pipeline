@@ -1,9 +1,1 @@
-              precision    recall  f1-score   support
-
-   malignant       1.00      0.98      0.99        42
-      benign       0.99      1.00      0.99        72
-
-    accuracy                           0.99       114
-   macro avg       0.99      0.99      0.99       114
-weighted avg       0.99      0.99      0.99       114
-
+NOT_APPLICABLE: The selected UCI Energy Efficiency task is regression, not classification.

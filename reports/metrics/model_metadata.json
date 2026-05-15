@@ -1,170 +1,145 @@
 {
-  "class_distribution": {
-    "benign": 357,
-    "malignant": 212
-  },
-  "class_labels": [
-    "malignant",
-    "benign"
-  ],
-  "classification_report_path": "reports\\metrics\\classification_report.json",
-  "confusion_matrix_normalized_path": "reports\\metrics\\confusion_matrix_normalized.json",
-  "confusion_matrix_path": "reports\\metrics\\confusion_matrix.json",
-  "cross_validation_method": "StratifiedKFold",
-  "dataset_hash": "43e012951b5fc04c166ef445da184051646d28bc4c6ba34f44fa7a4c1d656a11",
-  "dataset_name": "UCI Breast Cancer Wisconsin Diagnostic",
-  "dataset_source": "https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic",
+  "cross_validation_method": "KFold",
+  "dataset_hash": "0089fcffc1415e41e2ff63730cca5280efe54fc43d722dfde1b0aaa808e35dc4",
+  "dataset_name": "UCI Energy Efficiency",
+  "dataset_source": "https://archive.ics.uci.edu/dataset/242/energy+efficiency",
   "evaluation_command": "python -m src.evaluate",
   "feature_schema": [
-    "mean_radius",
-    "mean_texture",
-    "mean_perimeter",
-    "mean_area",
-    "mean_smoothness",
-    "mean_compactness",
-    "mean_concavity",
-    "mean_concave_points",
-    "mean_symmetry",
-    "mean_fractal_dimension",
-    "radius_error",
-    "texture_error",
-    "perimeter_error",
-    "area_error",
-    "smoothness_error",
-    "compactness_error",
-    "concavity_error",
-    "concave_points_error",
-    "symmetry_error",
-    "fractal_dimension_error",
-    "worst_radius",
-    "worst_texture",
-    "worst_perimeter",
-    "worst_area",
-    "worst_smoothness",
-    "worst_compactness",
-    "worst_concavity",
-    "worst_concave_points",
-    "worst_symmetry",
-    "worst_fractal_dimension"
+    "relative_compactness",
+    "surface_area",
+    "wall_area",
+    "roof_area",
+    "overall_height",
+    "orientation",
+    "glazing_area",
+    "glazing_area_distribution"
   ],
   "hyperparameters": {
-    "algorithm": "LogisticRegression",
-    "classifier": {
-      "C": 0.3,
-      "class_weight": "balanced",
-      "max_iter": 2000,
-      "penalty": "l2",
-      "random_state": 42,
-      "solver": "lbfgs"
-    },
+    "algorithm": "GradientBoostingRegressor",
     "preprocessing": {
+      "categorical_encoder": "OneHotEncoder(handle_unknown='ignore', sparse_output=False)",
+      "categorical_features": [
+        "orientation",
+        "glazing_area_distribution"
+      ],
       "column_transformer_remainder": "drop",
+      "numeric_features": [
+        "relative_compactness",
+        "surface_area",
+        "wall_area",
+        "roof_area",
+        "overall_height",
+        "glazing_area"
+      ],
       "numeric_imputer_strategy": "median",
-      "numeric_scaler": "RobustScaler"
+      "numeric_scaler": "StandardScaler"
+    },
+    "regressor": {
+      "learning_rate": 0.04,
+      "max_depth": 4,
+      "min_samples_leaf": 1,
+      "min_samples_split": 2,
+      "n_estimators": 800,
+      "random_state": 42,
+      "subsample": 1.0
     },
     "selection": {
-      "cross_validation": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42)",
-      "main_scoring_metric": "f1_macro",
-      "method": "dataset suitability review plus controlled scikit-learn model comparison with feature-engineering candidates",
-      "selection_rule": "highest held-out macro F1 with strong CV support and reproducibility"
+      "cross_validation": "KFold(n_splits=5, shuffle=True, random_state=42)",
+      "main_scoring_metric": "r2",
+      "method": "controlled scikit-learn model comparison for a compact public regression dataset",
+      "secondary_metrics": [
+        "rmse",
+        "mae"
+      ],
+      "selection_rule": "highest held-out R2 with strong CV support and fast CI/CT runtime"
     },
     "train_test_split": {
       "random_state": 42,
-      "stratify": "diagnosis_class",
+      "shuffle": true,
       "test_size": 0.2
     }
   },
   "metric_summary": {
-    "accuracy": 0.9912280701754386,
-    "balanced_accuracy": 0.9880952380952381,
-    "cohen_kappa": 0.9810568295114656,
-    "macro_f1": 0.9905276277523889,
-    "macro_precision": 0.9931506849315068,
-    "macro_recall": 0.9880952380952381,
-    "matthews_corrcoef": 0.9812328999345131,
-    "weighted_f1": 0.9912054752585661
+    "explained_variance": 0.9984578157723486,
+    "mae": 0.2856033894786758,
+    "max_error": 1.712076053073842,
+    "mean_absolute_percentage_error": 0.013062033221972814,
+    "median_absolute_error": 0.19730389260068293,
+    "mse": 0.1615840712075006,
+    "r2": 0.9984497713108541,
+    "rmse": 0.4019752121804286
   },
-  "model_path": "models\\breast_cancer_classifier.joblib",
-  "model_version": "breast-cancer-logistic-regression-v2",
-  "per_class_metrics": {
-    "benign": {
-      "f1": 0.993103448275862,
-      "precision": 0.9863013698630136,
-      "recall": 1.0,
-      "support": 72
-    },
-    "malignant": {
-      "f1": 0.9879518072289156,
-      "precision": 1.0,
-      "recall": 0.9761904761904762,
-      "support": 42
-    }
-  },
+  "model_path": "models\\energy_efficiency_heating_load_regressor.joblib",
+  "model_version": "energy-efficiency-gradient-boosting-v1",
   "preprocessing_steps": {
+    "categorical_encoder": "OneHotEncoder(handle_unknown='ignore', sparse_output=False)",
+    "categorical_features": [
+      "orientation",
+      "glazing_area_distribution"
+    ],
     "column_transformer_remainder": "drop",
+    "numeric_features": [
+      "relative_compactness",
+      "surface_area",
+      "wall_area",
+      "roof_area",
+      "overall_height",
+      "glazing_area"
+    ],
     "numeric_imputer_strategy": "median",
-    "numeric_scaler": "RobustScaler"
-  },
-  "probability_metrics": {
-    "average_precision_macro": 0.997920541037391,
-    "average_precision_weighted": 0.9981565230146493,
-    "log_loss": 0.07923303582362022,
-    "not_applicable_reason": "Top-2 accuracy is not meaningful for a binary classifier.",
-    "roc_auc_ovr_macro": 0.998015873015873,
-    "roc_auc_ovr_weighted": 0.998015873015873,
-    "top_2_accuracy": "NOT_APPLICABLE"
+    "numeric_scaler": "StandardScaler"
   },
   "quality_gate": {
-    "baseline_accuracy": 0.631578947368421,
-    "baseline_balanced_accuracy": 0.5,
-    "baseline_macro_f1": 0.3870967741935484,
-    "candidate_accuracy": 0.9912280701754386,
-    "candidate_balanced_accuracy": 0.9880952380952381,
-    "candidate_macro_f1": 0.9905276277523889,
-    "candidate_weighted_f1": 0.9912054752585661,
+    "baseline_mae": 9.272103050044418,
+    "baseline_r2": -0.0055245239100216725,
+    "baseline_rmse": 10.23758974168782,
+    "candidate_mae": 0.2856033894786758,
+    "candidate_r2": 0.9984497713108541,
+    "candidate_rmse": 0.4019752121804286,
     "checks": {
-      "accuracy_above_baseline": true,
-      "accuracy_above_minimum": true,
-      "balanced_accuracy_above_baseline": true,
-      "balanced_accuracy_above_minimum": true,
-      "macro_f1_above_baseline": true,
-      "macro_f1_above_minimum": true,
-      "weighted_f1_above_minimum": true
+      "mae_below_maximum": true,
+      "mae_better_than_baseline": true,
+      "r2_above_baseline": true,
+      "r2_above_minimum": true,
+      "rmse_below_maximum": true,
+      "rmse_better_than_baseline": true
     },
     "decision": "accept_candidate_model",
     "passed": true,
     "reasons": [
-      "All model performance quality gates passed."
+      "All regression model quality gates passed."
     ],
     "status": "passed",
     "thresholds": {
       "max_baseline_regression": 0.02,
-      "min_accuracy": 0.94,
-      "min_balanced_accuracy": 0.94,
-      "min_macro_f1": 0.94,
-      "min_weighted_f1": 0.94
+      "max_mae": 0.55,
+      "max_rmse": 0.75,
+      "min_r2": 0.98
     }
   },
   "random_state": 42,
+  "residual_summary": {
+    "max_residual": 1.712076053073842,
+    "mean_residual": 0.02895675401256166,
+    "min_residual": -1.0459904488458562,
+    "std_residual": 0.40093088881321753
+  },
   "scoring_metrics": [
-    "macro_f1",
-    "accuracy",
-    "balanced_accuracy"
+    "r2",
+    "rmse",
+    "mae"
   ],
   "target_definition": {
-    "class_mapping": {
-      "0": "malignant",
-      "1": "benign"
-    },
-    "model_target": "diagnosis_class",
-    "raw_target": "diagnosis"
+    "description": "Predict building heating load from eight building design inputs.",
+    "model_target": "heating_load"
   },
-  "task_type": "binary_classification",
+  "target_unit": "heating load",
+  "task_type": "regression",
   "train_test_split": {
     "random_state": 42,
-    "stratify": "diagnosis_class",
+    "shuffle": true,
     "test_size": 0.2
   },
   "training_command": "python -m src.train",
-  "training_timestamp": "2026-05-15T12:28:31+00:00"
+  "training_timestamp": "2026-05-15T17:30:50+00:00"
 }

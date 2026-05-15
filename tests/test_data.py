@@ -1,30 +1,41 @@
 from __future__ import annotations
 
 import pandas as pd
-from sklearn.datasets import load_breast_cancer
 
-from src.data import FEATURE_COLUMNS, TARGET_COLUMN, validate_raw_data
-from src.preprocess import CLASS_COLUMN, map_diagnosis_to_class, preprocess_frame
-
-
-def valid_raw_frame(rows: int = 569) -> pd.DataFrame:
-    dataset = load_breast_cancer(as_frame=True)
-    frame = dataset.frame.drop(columns=["target"]).copy()
-    frame.columns = [column.strip().replace(" ", "_") for column in frame.columns]
-    frame[TARGET_COLUMN] = dataset.target.astype(int)
-    return frame[[*FEATURE_COLUMNS, TARGET_COLUMN]].head(rows)
+from src.data import FEATURE_COLUMNS, SECONDARY_TARGET_COLUMN, TARGET_COLUMN, validate_raw_data
+from src.preprocess import preprocess_frame
 
 
-def test_raw_schema_validation_accepts_expected_breast_cancer_columns() -> None:
+def valid_raw_frame() -> pd.DataFrame:
+    return pd.DataFrame(
+        [
+            {
+                "relative_compactness": 0.98,
+                "surface_area": 514.5,
+                "wall_area": 294.0,
+                "roof_area": 110.25,
+                "overall_height": 7.0,
+                "orientation": 2,
+                "glazing_area": 0.0,
+                "glazing_area_distribution": 0,
+                "heating_load": 15.55,
+                "cooling_load": 21.33,
+            }
+        ]
+        * 700
+    )
+
+
+def test_raw_schema_validation_accepts_expected_energy_columns() -> None:
     report = validate_raw_data(valid_raw_frame())
     assert report["status"] == "valid"
     assert report["feature_columns"] == FEATURE_COLUMNS
     assert report["target_column"] == TARGET_COLUMN
-    assert report["target_mapping"] == {"0": "malignant", "1": "benign"}
+    assert report["secondary_target_column"] == SECONDARY_TARGET_COLUMN
 
 
-def test_preprocessing_adds_deterministic_diagnosis_classes() -> None:
-    assert map_diagnosis_to_class([0, 1]).tolist() == ["malignant", "benign"]
+def test_preprocessing_keeps_simple_regression_schema() -> None:
     processed = preprocess_frame(valid_raw_frame())
-    assert CLASS_COLUMN in processed.columns
-    assert set(processed[CLASS_COLUMN]) == {"malignant", "benign"}
+    assert [*FEATURE_COLUMNS, TARGET_COLUMN, SECONDARY_TARGET_COLUMN] == list(processed.columns)
+    assert processed["orientation"].dtype.kind in {"i", "u"}
+    assert processed["glazing_area_distribution"].dtype.kind in {"i", "u"}

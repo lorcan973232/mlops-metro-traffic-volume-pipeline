@@ -1,40 +1,14 @@
 {
-  "class_distribution": {
-    "benign": 357,
-    "malignant": 212
-  },
   "data_quality": {
     "expected_feature_schema": [
-      "mean_radius",
-      "mean_texture",
-      "mean_perimeter",
-      "mean_area",
-      "mean_smoothness",
-      "mean_compactness",
-      "mean_concavity",
-      "mean_concave_points",
-      "mean_symmetry",
-      "mean_fractal_dimension",
-      "radius_error",
-      "texture_error",
-      "perimeter_error",
-      "area_error",
-      "smoothness_error",
-      "compactness_error",
-      "concavity_error",
-      "concave_points_error",
-      "symmetry_error",
-      "fractal_dimension_error",
-      "worst_radius",
-      "worst_texture",
-      "worst_perimeter",
-      "worst_area",
-      "worst_smoothness",
-      "worst_compactness",
-      "worst_concavity",
-      "worst_concave_points",
-      "worst_symmetry",
-      "worst_fractal_dimension"
+      "relative_compactness",
+      "surface_area",
+      "wall_area",
+      "roof_area",
+      "overall_height",
+      "orientation",
+      "glazing_area",
+      "glazing_area_distribution"
     ],
     "missing_columns": [],
     "missing_values": 0,
@@ -42,257 +16,81 @@
     "status": "passed",
     "unexpected_columns": []
   },
-  "dataset_name": "UCI Breast Cancer Wisconsin Diagnostic",
-  "dataset_source": "https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic",
+  "dataset_name": "UCI Energy Efficiency",
+  "dataset_source": "https://archive.ics.uci.edu/dataset/242/energy+efficiency",
   "feature_schema": [
-    "mean_radius",
-    "mean_texture",
-    "mean_perimeter",
-    "mean_area",
-    "mean_smoothness",
-    "mean_compactness",
-    "mean_concavity",
-    "mean_concave_points",
-    "mean_symmetry",
-    "mean_fractal_dimension",
-    "radius_error",
-    "texture_error",
-    "perimeter_error",
-    "area_error",
-    "smoothness_error",
-    "compactness_error",
-    "concavity_error",
-    "concave_points_error",
-    "symmetry_error",
-    "fractal_dimension_error",
-    "worst_radius",
-    "worst_texture",
-    "worst_perimeter",
-    "worst_area",
-    "worst_smoothness",
-    "worst_compactness",
-    "worst_concavity",
-    "worst_concave_points",
-    "worst_symmetry",
-    "worst_fractal_dimension"
+    "relative_compactness",
+    "surface_area",
+    "wall_area",
+    "roof_area",
+    "overall_height",
+    "orientation",
+    "glazing_area",
+    "glazing_area_distribution"
   ],
   "feature_summary": {
-    "area_error": {
-      "max": 542.2,
-      "mean": 40.337079086116,
-      "min": 6.802,
-      "std": 45.49100551613181
-    },
-    "compactness_error": {
-      "max": 0.1354,
-      "mean": 0.025478138840070295,
-      "min": 0.002252,
-      "std": 0.017908179325677388
-    },
-    "concave_points_error": {
-      "max": 0.05279,
-      "mean": 0.011796137082601054,
+    "glazing_area": {
+      "max": 0.4,
+      "mean": 0.234375,
       "min": 0.0,
-      "std": 0.006170285174046869
+      "std": 0.13322056291470777
     },
-    "concavity_error": {
-      "max": 0.396,
-      "mean": 0.03189371634446397,
+    "glazing_area_distribution": {
+      "max": 5.0,
+      "mean": 2.8125,
       "min": 0.0,
-      "std": 0.03018606032298841
+      "std": 1.5509596642247505
     },
-    "fractal_dimension_error": {
-      "max": 0.02984,
-      "mean": 0.0037949038664323374,
-      "min": 0.0008948,
-      "std": 0.002646070967089195
+    "orientation": {
+      "max": 5.0,
+      "mean": 3.5,
+      "min": 2.0,
+      "std": 1.1187625870603635
     },
-    "mean_area": {
-      "max": 2501.0,
-      "mean": 654.8891036906855,
-      "min": 143.5,
-      "std": 351.914129181653
+    "overall_height": {
+      "max": 7.0,
+      "mean": 5.25,
+      "min": 3.5,
+      "std": 1.7511404367453496
     },
-    "mean_compactness": {
-      "max": 0.3454,
-      "mean": 0.10434098418277679,
-      "min": 0.01938,
-      "std": 0.052812757932512194
+    "relative_compactness": {
+      "max": 0.98,
+      "mean": 0.7641666666666667,
+      "min": 0.62,
+      "std": 0.10577747587475192
     },
-    "mean_concave_points": {
-      "max": 0.2012,
-      "mean": 0.04891914586994728,
-      "min": 0.0,
-      "std": 0.038802844859153605
+    "roof_area": {
+      "max": 220.5,
+      "mean": 176.60416666666666,
+      "min": 110.25,
+      "std": 45.16595022292048
     },
-    "mean_concavity": {
-      "max": 0.4268,
-      "mean": 0.0887993158172232,
-      "min": 0.0,
-      "std": 0.07971980870789348
+    "surface_area": {
+      "max": 808.5,
+      "mean": 671.7083333333334,
+      "min": 514.5,
+      "std": 88.08611605586836
     },
-    "mean_fractal_dimension": {
-      "max": 0.09744,
-      "mean": 0.06279760984182776,
-      "min": 0.04996,
-      "std": 0.007060362795084459
-    },
-    "mean_perimeter": {
-      "max": 188.5,
-      "mean": 91.96903339191564,
-      "min": 43.79,
-      "std": 24.298981038754906
-    },
-    "mean_radius": {
-      "max": 28.11,
-      "mean": 14.127291739894552,
-      "min": 6.981,
-      "std": 3.5240488262120775
-    },
-    "mean_smoothness": {
-      "max": 0.1634,
-      "mean": 0.0963602811950791,
-      "min": 0.05263,
-      "std": 0.01406412813767362
-    },
-    "mean_symmetry": {
-      "max": 0.304,
-      "mean": 0.18116186291739894,
-      "min": 0.106,
-      "std": 0.027414281336035715
-    },
-    "mean_texture": {
-      "max": 39.28,
-      "mean": 19.289648506151142,
-      "min": 9.71,
-      "std": 4.301035768166949
-    },
-    "perimeter_error": {
-      "max": 21.98,
-      "mean": 2.8660592267135327,
-      "min": 0.757,
-      "std": 2.0218545540421076
-    },
-    "radius_error": {
-      "max": 2.873,
-      "mean": 0.40517205623901575,
-      "min": 0.1115,
-      "std": 0.2773127329861039
-    },
-    "smoothness_error": {
-      "max": 0.03113,
-      "mean": 0.007040978910369069,
-      "min": 0.001713,
-      "std": 0.0030025179438390656
-    },
-    "symmetry_error": {
-      "max": 0.07895,
-      "mean": 0.02054229876977153,
-      "min": 0.007882,
-      "std": 0.008266371528798399
-    },
-    "texture_error": {
-      "max": 4.885,
-      "mean": 1.2168534270650264,
-      "min": 0.3602,
-      "std": 0.5516483926172023
-    },
-    "worst_area": {
-      "max": 4254.0,
-      "mean": 880.5831282952548,
-      "min": 185.2,
-      "std": 569.356992669949
-    },
-    "worst_compactness": {
-      "max": 1.058,
-      "mean": 0.25426504393673116,
-      "min": 0.02729,
-      "std": 0.157336488913742
-    },
-    "worst_concave_points": {
-      "max": 0.291,
-      "mean": 0.11460622319859401,
-      "min": 0.0,
-      "std": 0.06573234119594207
-    },
-    "worst_concavity": {
-      "max": 1.252,
-      "mean": 0.27218848330404216,
-      "min": 0.0,
-      "std": 0.2086242806081323
-    },
-    "worst_fractal_dimension": {
-      "max": 0.2075,
-      "mean": 0.0839458172231986,
-      "min": 0.05504,
-      "std": 0.018061267348893986
-    },
-    "worst_perimeter": {
-      "max": 251.2,
-      "mean": 107.26121265377857,
-      "min": 50.41,
-      "std": 33.602542269036356
-    },
-    "worst_radius": {
-      "max": 36.04,
-      "mean": 16.269189806678387,
-      "min": 7.93,
-      "std": 4.833241580469323
-    },
-    "worst_smoothness": {
-      "max": 0.2226,
-      "mean": 0.13236859402460457,
-      "min": 0.07117,
-      "std": 0.022832429404835465
-    },
-    "worst_symmetry": {
-      "max": 0.6638,
-      "mean": 0.2900755711775044,
-      "min": 0.1565,
-      "std": 0.061867467537518685
-    },
-    "worst_texture": {
-      "max": 49.54,
-      "mean": 25.677223198594024,
-      "min": 12.02,
-      "std": 6.146257623038319
+    "wall_area": {
+      "max": 416.5,
+      "mean": 318.5,
+      "min": 245.0,
+      "std": 43.6264814379949
     }
   },
-  "model_path": "models\\breast_cancer_classifier.joblib",
-  "model_version": "breast-cancer-logistic-regression-v2",
+  "model_path": "models\\energy_efficiency_heating_load_regressor.joblib",
+  "model_version": "energy-efficiency-gradient-boosting-v1",
   "monitoring_mode": "offline_simulated_monitoring",
   "prediction_request_schema": {
     "features": [
-      "mean_radius",
-      "mean_texture",
-      "mean_perimeter",
-      "mean_area",
-      "mean_smoothness",
-      "mean_compactness",
-      "mean_concavity",
-      "mean_concave_points",
-      "mean_symmetry",
-      "mean_fractal_dimension",
-      "radius_error",
-      "texture_error",
-      "perimeter_error",
-      "area_error",
-      "smoothness_error",
-      "compactness_error",
-      "concavity_error",
-      "concave_points_error",
-      "symmetry_error",
-      "fractal_dimension_error",
-      "worst_radius",
-      "worst_texture",
-      "worst_perimeter",
-      "worst_area",
-      "worst_smoothness",
-      "worst_compactness",
-      "worst_concavity",
-      "worst_concave_points",
-      "worst_symmetry",
-      "worst_fractal_dimension"
+      "relative_compactness",
+      "surface_area",
+      "wall_area",
+      "roof_area",
+      "overall_height",
+      "orientation",
+      "glazing_area",
+      "glazing_area_distribution"
     ]
   },
   "production_claim": "simulated_only",
@@ -301,7 +99,13 @@
   "response_status": "simulated_batch_available",
   "retraining_recommended": false,
   "retraining_required": false,
-  "rows": 569,
+  "rows": 768,
   "status": "monitored",
-  "timestamp_utc": "2026-05-15T13:27:59+00:00"
+  "target_summary": {
+    "max": 43.1,
+    "mean": 22.3071953125,
+    "min": 6.01,
+    "target": "heating_load"
+  },
+  "timestamp_utc": "2026-05-15T18:16:11+00:00"
 }

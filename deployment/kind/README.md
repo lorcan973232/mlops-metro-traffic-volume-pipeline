@@ -1,46 +1,34 @@
 # Kind Deployment
 
-This artefact uses Kind Kubernetes only for deployment evidence. It deploys the Flask prediction API image `mlops-flask-api:latest`, which serves the model at `models/breast_cancer_classifier.joblib`.
+This artefact uses Kind Kubernetes only for deployment evidence. It deploys the Flask
+prediction image `mlops-flask-api:latest`, which serves the UCI Energy Efficiency
+heating-load model at `models/energy_efficiency_heating_load_regressor.joblib`.
 
 Run from the repository root:
 
 ```bash
-docker build -t mlops-flask-api:latest .
-bash scripts/create_kind_cluster.sh
-kind load docker-image mlops-flask-api:latest --name mlops-kind
-kubectl apply -f deployment/kind/
-kubectl rollout restart deployment/mlops-flask-api
-kubectl rollout status deployment/mlops-flask-api --timeout=180s
+scripts/create_kind_cluster.sh
+scripts/deploy_kind.sh
 kubectl port-forward service/mlops-flask-api 8080:80
+scripts/smoke_test_api.sh http://127.0.0.1:8080
 ```
 
-In a second terminal:
-
-```bash
-bash scripts/smoke_test_api.sh http://127.0.0.1:8080
-```
-
-Windows PowerShell equivalent:
+PowerShell equivalents:
 
 ```powershell
-docker build -t mlops-flask-api:latest .
-powershell -ExecutionPolicy Bypass -File scripts/create_kind_cluster.ps1 -ClusterName mlops-kind -NodeImage kindest/node:v1.30.2
-kind load docker-image mlops-flask-api:latest --name mlops-kind
-kubectl apply -f deployment/kind/
-kubectl rollout restart deployment/mlops-flask-api
-kubectl rollout status deployment/mlops-flask-api --timeout=180s
+powershell -ExecutionPolicy Bypass -File scripts/create_kind_cluster.ps1
+powershell -ExecutionPolicy Bypass -File scripts/deploy_kind.ps1
 kubectl port-forward service/mlops-flask-api 8080:80
-```
-
-In a second PowerShell terminal:
-
-```powershell
 powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:8080
 ```
 
-Expected evidence:
+Open the live-demo UI at:
 
-- `/health` returns `status=healthy`, `model_loaded=true`, `model_version`, and `feature_count=30`.
-- `/predict` returns a `malignant` or `benign` prediction, class probabilities, and `model_version`.
+```text
+http://127.0.0.1:8080/
+```
 
-The smoke test uses the UCI Breast Cancer Wisconsin Diagnostic feature schema, including `mean_radius`, `mean_texture`, `mean_perimeter`, `mean_area`, `mean_smoothness`, `mean_concavity`, `worst_radius`, `worst_texture`, `worst_perimeter`, `worst_area`, and the remaining numeric diagnostic cell-nucleus measurements.
+The smoke test uses the real Energy Efficiency feature schema:
+`relative_compactness`, `surface_area`, `wall_area`, `roof_area`,
+`overall_height`, `orientation`, `glazing_area`, and
+`glazing_area_distribution`.

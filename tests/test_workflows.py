@@ -121,30 +121,28 @@ def test_workflows_do_not_hardcode_credentials() -> None:
 
 
 def test_docker_workflow_has_verified_dataset_build_context() -> None:
-    raw_dataset = Path("data/raw/breast-cancer-wisconsin-diagnostic.csv")
+    raw_dataset = Path("data/raw/energy-efficiency.xlsx")
     dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
     dockerignore = Path(".dockerignore").read_text(encoding="utf-8")
     gitignore = Path(".gitignore").read_text(encoding="utf-8")
 
     assert raw_dataset.exists()
     assert "COPY data/raw/ data/raw/" in dockerfile
-    assert "data/raw/*.csv" not in dockerignore
-    assert "!data/raw/breast-cancer-wisconsin-diagnostic.csv" in gitignore
+    assert "data/raw/*.xlsx" not in dockerignore
+    assert "!data/raw/energy-efficiency.xlsx" in gitignore
 
 
 def test_smoke_test_uses_valid_prediction_feature_names() -> None:
     smoke_script = Path("scripts/smoke_test_api.sh").read_text(encoding="utf-8")
     for feature_name in [
-        "mean_radius",
-        "mean_texture",
-        "mean_perimeter",
-        "mean_area",
-        "mean_smoothness",
-        "worst_radius",
-        "worst_texture",
-        "worst_perimeter",
-        "worst_area",
-        "worst_concave_points",
+        "relative_compactness",
+        "surface_area",
+        "wall_area",
+        "roof_area",
+        "overall_height",
+        "orientation",
+        "glazing_area",
+        "glazing_area_distribution",
     ]:
         assert feature_name in smoke_script
 

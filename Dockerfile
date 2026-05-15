@@ -2,12 +2,14 @@ FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV MODEL_PATH=models/breast_cancer_classifier.joblib
+ENV MODEL_PATH=models/energy_efficiency_heating_load_regressor.joblib
 
 WORKDIR /app
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir \
+    --default-timeout=120 \
+    --retries 10 \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
     -r requirements.txt

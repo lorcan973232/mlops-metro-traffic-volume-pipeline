@@ -4,129 +4,100 @@ from dataclasses import dataclass
 from typing import Any
 
 FEATURE_COLUMNS = [
-    "mean_radius",
-    "mean_texture",
-    "mean_perimeter",
-    "mean_area",
-    "mean_smoothness",
-    "mean_compactness",
-    "mean_concavity",
-    "mean_concave_points",
-    "mean_symmetry",
-    "mean_fractal_dimension",
-    "radius_error",
-    "texture_error",
-    "perimeter_error",
-    "area_error",
-    "smoothness_error",
-    "compactness_error",
-    "concavity_error",
-    "concave_points_error",
-    "symmetry_error",
-    "fractal_dimension_error",
-    "worst_radius",
-    "worst_texture",
-    "worst_perimeter",
-    "worst_area",
-    "worst_smoothness",
-    "worst_compactness",
-    "worst_concavity",
-    "worst_concave_points",
-    "worst_symmetry",
-    "worst_fractal_dimension",
+    "relative_compactness",
+    "surface_area",
+    "wall_area",
+    "roof_area",
+    "overall_height",
+    "orientation",
+    "glazing_area",
+    "glazing_area_distribution",
 ]
 
-CLASS_LABELS = ("malignant", "benign")
+TARGET_NAME = "heating_load"
+TARGET_LABEL = "Heating Load"
+TARGET_UNIT = "load units"
+
+FEATURE_OPTIONS: dict[str, list[dict[str, float | str]]] = {
+    "orientation": [
+        {"value": 2, "label": "2 - North"},
+        {"value": 3, "label": "3 - East"},
+        {"value": 4, "label": "4 - South"},
+        {"value": 5, "label": "5 - West"},
+    ],
+    "glazing_area": [
+        {"value": 0.0, "label": "0.00 - No glazing"},
+        {"value": 0.1, "label": "0.10 - Low glazing"},
+        {"value": 0.25, "label": "0.25 - Medium glazing"},
+        {"value": 0.4, "label": "0.40 - High glazing"},
+    ],
+    "glazing_area_distribution": [
+        {"value": 0, "label": "0 - No glazing"},
+        {"value": 1, "label": "1 - Uniform"},
+        {"value": 2, "label": "2 - North-facing"},
+        {"value": 3, "label": "3 - East-facing"},
+        {"value": 4, "label": "4 - South-facing"},
+        {"value": 5, "label": "5 - West-facing"},
+    ],
+}
 
 FEATURE_GROUPS = {
-    "Mean Measurements": [
-        "mean_radius",
-        "mean_texture",
-        "mean_perimeter",
-        "mean_area",
-        "mean_smoothness",
-        "mean_compactness",
-        "mean_concavity",
-        "mean_concave_points",
-        "mean_symmetry",
-        "mean_fractal_dimension",
+    "Building Shape": [
+        "relative_compactness",
+        "surface_area",
+        "wall_area",
+        "roof_area",
     ],
-    "Standard Error Measurements": [
-        "radius_error",
-        "texture_error",
-        "perimeter_error",
-        "area_error",
-        "smoothness_error",
-        "compactness_error",
-        "concavity_error",
-        "concave_points_error",
-        "symmetry_error",
-        "fractal_dimension_error",
-    ],
-    "Worst Measurements": [
-        "worst_radius",
-        "worst_texture",
-        "worst_perimeter",
-        "worst_area",
-        "worst_smoothness",
-        "worst_compactness",
-        "worst_concavity",
-        "worst_concave_points",
-        "worst_symmetry",
-        "worst_fractal_dimension",
+    "Building Setup": [
+        "overall_height",
+        "orientation",
+        "glazing_area",
+        "glazing_area_distribution",
     ],
 }
 
 
 @dataclass(frozen=True)
 class PredictionRequestExample:
-    mean_radius: float = 17.99
-    mean_texture: float = 10.38
-    mean_perimeter: float = 122.8
-    mean_area: float = 1001.0
-    mean_smoothness: float = 0.1184
-    mean_compactness: float = 0.2776
-    mean_concavity: float = 0.3001
-    mean_concave_points: float = 0.1471
-    mean_symmetry: float = 0.2419
-    mean_fractal_dimension: float = 0.07871
-    radius_error: float = 1.095
-    texture_error: float = 0.9053
-    perimeter_error: float = 8.589
-    area_error: float = 153.4
-    smoothness_error: float = 0.006399
-    compactness_error: float = 0.04904
-    concavity_error: float = 0.05373
-    concave_points_error: float = 0.01587
-    symmetry_error: float = 0.03003
-    fractal_dimension_error: float = 0.006193
-    worst_radius: float = 25.38
-    worst_texture: float = 17.33
-    worst_perimeter: float = 184.6
-    worst_area: float = 2019.0
-    worst_smoothness: float = 0.1622
-    worst_compactness: float = 0.6656
-    worst_concavity: float = 0.7119
-    worst_concave_points: float = 0.2654
-    worst_symmetry: float = 0.4601
-    worst_fractal_dimension: float = 0.1189
+    relative_compactness: float = 0.76
+    surface_area: float = 661.5
+    wall_area: float = 416.5
+    roof_area: float = 122.5
+    overall_height: float = 7.0
+    orientation: float = 2.0
+    glazing_area: float = 0.4
+    glazing_area_distribution: float = 5.0
 
     def as_payload(self) -> dict[str, dict[str, float]]:
         return {"features": self.__dict__.copy()}
 
 
 def feature_label(feature_name: str) -> str:
-    return feature_name.replace("_", " ").title()
+    labels = {
+        "relative_compactness": "Relative Compactness",
+        "surface_area": "Surface Area",
+        "wall_area": "Wall Area",
+        "roof_area": "Roof Area",
+        "overall_height": "Overall Height",
+        "orientation": "Orientation",
+        "glazing_area": "Glazing Area",
+        "glazing_area_distribution": "Glazing Distribution",
+    }
+    return labels[feature_name]
 
 
 def feature_helper(feature_name: str) -> str:
-    if feature_name.startswith("mean_"):
-        return "Mean value from the diagnostic cell-nuclei measurements."
-    if feature_name.endswith("_error"):
-        return "Standard error measurement from the diagnostic sample."
-    if feature_name.startswith("worst_"):
-        return "Largest or most severe measurement observed in the sample."
-    return "Numeric diagnostic feature used by the trained model."
+    helpers = {
+        "relative_compactness": "Building compactness score, dataset range 0.62 to 0.98.",
+        "surface_area": "Total external surface area, dataset range 514.5 to 808.5.",
+        "wall_area": "Wall area, dataset range 245.0 to 416.5.",
+        "roof_area": "Roof area, dataset range 110.25 to 220.5.",
+        "overall_height": "Building height, usually 3.5 or 7.0.",
+        "orientation": "Integer-coded building orientation from the UCI dataset.",
+        "glazing_area": "Window/glazing proportion from 0.0 to 0.4.",
+        "glazing_area_distribution": "Integer-coded window distribution from 0 to 5.",
+    }
+    return helpers[feature_name]
 
 
 def ui_feature_groups() -> list[dict[str, Any]]:
@@ -142,6 +113,7 @@ def ui_feature_groups() -> list[dict[str, Any]]:
                         "label": feature_label(feature_name),
                         "helper": feature_helper(feature_name),
                         "example": example[feature_name],
+                        "options": FEATURE_OPTIONS.get(feature_name),
                     }
                     for feature_name in features
                 ],
