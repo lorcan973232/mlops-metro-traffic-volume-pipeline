@@ -100,7 +100,14 @@ def test_workflows_reference_existing_commands_and_upload_artifacts() -> None:
     assert "python -m src.evaluate" in workflow_text
     assert "data/processed/winequality-red-processed.csv" in workflow_text
     assert "en" + "ergy-efficiency-processed.csv" not in workflow_text
-    assert "actions/upload-artifact@v4" in workflow_text
+    assert "actions/checkout@v6.0.2" in workflow_text
+    assert "actions/setup-python@v6.2.0" in workflow_text
+    assert "actions/upload-artifact@v7.0.1" in workflow_text
+    assert "actions/download-artifact@v8.0.1" in workflow_text
+    assert "actions/checkout@v4" not in workflow_text
+    assert "actions/setup-python@v5" not in workflow_text
+    assert "actions/upload-artifact@v4" not in workflow_text
+    assert "actions/download-artifact@v4" not in workflow_text
     assert "latest_metrics.json" in workflow_text
     assert "quality_gate_report.json" in workflow_text
     assert "mlops-flask-api:${{ github.sha }}" in workflow_text

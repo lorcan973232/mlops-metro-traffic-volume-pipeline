@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: "3.11"
 
@@ -32,7 +32,7 @@ jobs:
           python -m src.evaluate
 
       - name: Upload candidate model and metric reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ct-candidate
           path: |
@@ -45,10 +45,10 @@ jobs:
     needs: retrain-candidate
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
       - name: Download candidate artefacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8.0.1
         with:
           name: ct-candidate
           path: .
@@ -67,7 +67,7 @@ jobs:
           PY
 
       - name: Upload quality-gate report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ct-quality-gate
           path: reports/metrics/quality_gate_report.json
@@ -78,10 +78,10 @@ jobs:
     needs: quality-gate
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: "3.11"
 
@@ -91,7 +91,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Download accepted candidate
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8.0.1
         with:
           name: ct-candidate
           path: .
@@ -100,7 +100,7 @@ jobs:
         run: python -m src.model_registry
 
       - name: Upload promoted model and metadata
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: continuous-training-artifacts
           path: |

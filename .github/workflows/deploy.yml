@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
       - name: Build Docker image
         run: |
@@ -29,7 +29,7 @@ jobs:
         run: docker save mlops-flask-api:latest -o mlops-flask-api.tar
 
       - name: Upload image archive
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: deployment-image
           path: mlops-flask-api.tar
@@ -40,7 +40,7 @@ jobs:
     needs: build-image
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
       - name: Install Kind
         run: |
@@ -55,7 +55,7 @@ jobs:
           sudo mv kubectl /usr/local/bin/kubectl
 
       - name: Download image archive
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8.0.1
         with:
           name: deployment-image
           path: .
@@ -101,7 +101,7 @@ jobs:
 
       - name: Upload deployment logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: kind-deployment-logs
           path: |
