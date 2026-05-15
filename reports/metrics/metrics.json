@@ -264,7 +264,7 @@
   },
   "task_type": "binary_classification",
   "training_command": "python -m src.train",
-  "training_timestamp": "2026-05-14T21:45:49+00:00",
+  "training_timestamp": "2026-05-15T12:28:31+00:00",
   "weighted_f1": 0.9912054752585661,
   "weighted_precision": 0.9913482335976929,
   "weighted_recall": 0.9912280701754386
