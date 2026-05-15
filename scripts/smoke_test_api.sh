@@ -31,16 +31,18 @@ from pathlib import Path
 payload = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 if payload.get("status") != "healthy" or payload.get("model_loaded") is not True:
     raise SystemExit(f"Invalid health response: {payload}")
-if payload.get("task_type") != "regression":
-    raise SystemExit(f"Health response does not expose regression task type: {payload}")
+if payload.get("task_type") != "classification":
+    raise SystemExit(f"Health response does not expose classification task type: {payload}")
 if not payload.get("model_version"):
     raise SystemExit(f"Health response does not expose model_version: {payload}")
+if payload.get("feature_count") != 11:
+    raise SystemExit(f"Health response feature_count mismatch: {payload}")
 print(json.dumps(payload, indent=2, sort_keys=True))
 PY
 
 curl -fsS "${API_URL}/predict" \
   -H "Content-Type: application/json" \
-  -d '{"features":{"relative_compactness":0.76,"surface_area":661.5,"wall_area":416.5,"roof_area":122.5,"overall_height":7.0,"orientation":2,"glazing_area":0.4,"glazing_area_distribution":5}}' \
+  -d '{"features":{"fixed_acidity":7.4,"volatile_acidity":0.7,"citric_acid":0.0,"residual_sugar":1.9,"chlorides":0.076,"free_sulfur_dioxide":11.0,"total_sulfur_dioxide":34.0,"density":0.9978,"ph":3.51,"sulphates":0.56,"alcohol":9.4}}' \
   -o "${PREDICT_RESPONSE}"
 "${PYTHON_CMD}" - "${PREDICT_RESPONSE}" <<'PY'
 import json
@@ -49,13 +51,15 @@ from pathlib import Path
 
 payload = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 prediction = payload.get("prediction")
-if not isinstance(prediction, (int, float)):
-    raise SystemExit(f"Invalid regression prediction response: {payload}")
-if prediction <= 0:
-    raise SystemExit(f"Heating load prediction must be positive: {payload}")
+if prediction not in {0, 1}:
+    raise SystemExit(f"Invalid classification prediction response: {payload}")
+if payload.get("prediction_label") not in {"standard quality", "good quality"}:
+    raise SystemExit(f"Prediction label mismatch: {payload}")
 if not payload.get("model_version"):
     raise SystemExit(f"Prediction response does not expose model_version: {payload}")
-if payload.get("target") != "heating_load":
+if payload.get("target") != "quality_label":
     raise SystemExit(f"Prediction response target mismatch: {payload}")
+if "confidence" not in payload:
+    raise SystemExit(f"Prediction response does not expose confidence: {payload}")
 print(json.dumps(payload, indent=2, sort_keys=True))
 PY

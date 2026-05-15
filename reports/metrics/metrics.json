@@ -1,180 +1,285 @@
 {
+  "accuracy": 0.825,
+  "balanced_accuracy": 0.8237371953373366,
   "baseline": {
-    "baseline_model": "DummyRegressor(strategy='mean')",
+    "baseline_model": "DummyClassifier(strategy='most_frequent')",
     "created_by": "python -m src.evaluate",
     "metric_summary": {
-      "mae": 9.272103050044418,
-      "r2": -0.0055245239100216725,
-      "rmse": 10.23758974168782
+      "accuracy": 0.534375,
+      "balanced_accuracy": 0.5,
+      "f1_macro": 0.34826883910386963,
+      "f1_weighted": 0.37221232179226066,
+      "precision_macro": 0.2671875,
+      "precision_weighted": 0.285556640625,
+      "recall_macro": 0.5,
+      "recall_weighted": 0.534375,
+      "roc_auc": null
     },
-    "model_version": "dummy-mean-baseline",
+    "model_version": "dummy-most-frequent-baseline",
     "quality_thresholds": {
-      "max_baseline_regression": 0.02,
-      "max_mae": 0.55,
-      "max_rmse": 0.75,
-      "min_r2": 0.98
+      "min_accuracy": 0.8,
+      "min_baseline_accuracy_improvement": 0.2,
+      "min_cv_accuracy": 0.77,
+      "min_macro_f1": 0.8,
+      "min_weighted_f1": 0.8
     },
     "status": "baseline_evaluated"
   },
-  "cross_validation": {
-    "folds": 5,
-    "mae": {
-      "mean": 0.25835937478769483,
-      "per_fold": [
-        0.2547607543108132,
-        0.23449193980725633,
-        0.27454353415274757,
-        0.28154765547071653,
-        0.24645299019694067
-      ],
-      "std": 0.01745846437286545
+  "classification_report": {
+    "accuracy": 0.825,
+    "good quality": {
+      "f1-score": 0.8372093023255814,
+      "precision": 0.8323699421965318,
+      "recall": 0.8421052631578947,
+      "support": 171.0
     },
-    "method": "KFold",
-    "r2": {
-      "mean": 0.9984581530470245,
+    "macro avg": {
+      "f1-score": 0.8240100565681961,
+      "precision": 0.8243482364043884,
+      "recall": 0.8237371953373366,
+      "support": 320.0
+    },
+    "standard quality": {
+      "f1-score": 0.8108108108108109,
+      "precision": 0.8163265306122449,
+      "recall": 0.8053691275167785,
+      "support": 149.0
+    },
+    "weighted avg": {
+      "f1-score": 0.8249175047140165,
+      "precision": 0.8248997286775982,
+      "recall": 0.825,
+      "support": 320.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      120,
+      29
+    ],
+    [
+      27,
+      144
+    ]
+  ],
+  "confusion_matrix_labels": [
+    "standard quality",
+    "good quality"
+  ],
+  "cross_validation": {
+    "accuracy": {
+      "mean": 0.8100122549019607,
       "per_fold": [
-        0.998125222339314,
-        0.9989838762450118,
-        0.9983599027375533,
-        0.9985016095459114,
-        0.9983201543673317
+        0.83984375,
+        0.78515625,
+        0.79296875,
+        0.81640625,
+        0.8156862745098039
       ],
-      "std": 0.0002890719506428489
+      "std": 0.019345789260910167
+    },
+    "f1_macro": {
+      "mean": 0.808498079302489,
+      "per_fold": [
+        0.838758737230202,
+        0.783407940683311,
+        0.7925857983642894,
+        0.814638505029964,
+        0.8130994152046784
+      ],
+      "std": 0.01927329903780477
+    },
+    "f1_weighted": {
+      "mean": 0.8096307921962153,
+      "per_fold": [
+        0.8396887481757431,
+        0.7847761827572415,
+        0.7932124464954521,
+        0.81591128140839,
+        0.8145653021442495
+      ],
+      "std": 0.01925922291657906
+    },
+    "folds": 5,
+    "method": "StratifiedKFold",
+    "precision_macro": {
+      "mean": 0.8105688804201524,
+      "per_fold": [
+        0.8395320197044335,
+        0.784717074376081,
+        0.7924908424908425,
+        0.8169642857142857,
+        0.8191401798151197
+      ],
+      "std": 0.019740127408448598
+    },
+    "precision_weighted": {
+      "mean": 0.8107663436529755,
+      "per_fold": [
+        0.8397658174261083,
+        0.7849994015628861,
+        0.7946414262820511,
+        0.816650390625,
+        0.817774682368832
+      ],
+      "std": 0.01922839860382005
     },
     "random_state": 42,
-    "rmse": {
-      "mean": 0.39113102299786073,
+    "recall_macro": {
+      "mean": 0.8079624915659693,
       "per_fold": [
-        0.451613237352802,
-        0.32180823344651577,
-        0.4026400736205411,
-        0.3892733227220564,
-        0.3903202478473884
+        0.8382199595166533,
+        0.782708703919524,
+        0.7938722934429246,
+        0.8135619211188125,
+        0.8114495798319328
       ],
-      "std": 0.041473639959260615
+      "std": 0.018948959002103253
+    },
+    "recall_weighted": {
+      "mean": 0.8100122549019607,
+      "per_fold": [
+        0.83984375,
+        0.78515625,
+        0.79296875,
+        0.81640625,
+        0.8156862745098039
+      ],
+      "std": 0.019345789260910167
     },
     "scoring": [
-      "r2",
-      "rmse",
-      "mae"
+      "accuracy",
+      "precision_macro",
+      "recall_macro",
+      "f1_macro",
+      "precision_weighted",
+      "recall_weighted",
+      "f1_weighted"
     ],
     "shuffle": true,
     "status": "completed"
   },
   "dataset": {
-    "doi": "10.24432/C51307",
-    "name": "UCI Energy Efficiency",
-    "processed_path": "data\\processed\\energy-efficiency-processed.csv",
-    "raw_sha256": "0089fcffc1415e41e2ff63730cca5280efe54fc43d722dfde1b0aaa808e35dc4",
-    "source": "https://archive.ics.uci.edu/dataset/242/energy+efficiency"
+    "doi": "10.24432/C56S3T",
+    "name": "UCI Wine Quality - Red Wine",
+    "processed_path": "data\\processed\\winequality-red-processed.csv",
+    "raw_sha256": "4a402cf041b025d4566d954c3b9ba8635a3a8a01e039005d97d6a710278cf05e",
+    "source": "https://archive.ics.uci.edu/dataset/186/wine+quality"
   },
   "evaluation_command": "python -m src.evaluate",
-  "explained_variance": 0.9984578157723486,
+  "f1_macro": 0.8240100565681961,
+  "f1_weighted": 0.8249175047140165,
   "feature_schema": [
-    "relative_compactness",
-    "surface_area",
-    "wall_area",
-    "roof_area",
-    "overall_height",
-    "orientation",
-    "glazing_area",
-    "glazing_area_distribution"
+    "fixed_acidity",
+    "volatile_acidity",
+    "citric_acid",
+    "residual_sugar",
+    "chlorides",
+    "free_sulfur_dioxide",
+    "total_sulfur_dioxide",
+    "density",
+    "ph",
+    "sulphates",
+    "alcohol"
   ],
   "hyperparameters": {
-    "algorithm": "GradientBoostingRegressor",
+    "algorithm": "ExtraTreesClassifier",
+    "classifier": {
+      "class_weight": "balanced",
+      "max_depth": null,
+      "min_samples_leaf": 1,
+      "min_samples_split": 2,
+      "n_estimators": 300,
+      "n_jobs": 1,
+      "random_state": 42
+    },
     "preprocessing": {
-      "categorical_encoder": "OneHotEncoder(handle_unknown='ignore', sparse_output=False)",
-      "categorical_features": [
-        "orientation",
-        "glazing_area_distribution"
-      ],
+      "categorical_features": [],
       "column_transformer_remainder": "drop",
       "numeric_features": [
-        "relative_compactness",
-        "surface_area",
-        "wall_area",
-        "roof_area",
-        "overall_height",
-        "glazing_area"
+        "fixed_acidity",
+        "volatile_acidity",
+        "citric_acid",
+        "residual_sugar",
+        "chlorides",
+        "free_sulfur_dioxide",
+        "total_sulfur_dioxide",
+        "density",
+        "ph",
+        "sulphates",
+        "alcohol"
       ],
       "numeric_imputer_strategy": "median",
       "numeric_scaler": "StandardScaler"
     },
-    "regressor": {
-      "learning_rate": 0.04,
-      "max_depth": 4,
-      "min_samples_leaf": 1,
-      "min_samples_split": 2,
-      "n_estimators": 800,
-      "random_state": 42,
-      "subsample": 1.0
-    },
     "selection": {
-      "cross_validation": "KFold(n_splits=5, shuffle=True, random_state=42)",
-      "main_scoring_metric": "r2",
-      "method": "controlled scikit-learn model comparison for a compact public regression dataset",
+      "cross_validation": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42)",
+      "main_scoring_metric": "weighted_f1",
+      "method": "controlled scikit-learn classifier comparison for a compact public dataset",
       "secondary_metrics": [
-        "rmse",
-        "mae"
+        "accuracy",
+        "macro_f1",
+        "precision_weighted",
+        "recall_weighted"
       ],
-      "selection_rule": "highest held-out R2 with strong CV support and fast CI/CT runtime"
+      "selection_rule": "highest held-out weighted F1 with stable CV performance and fast runtime"
     },
     "train_test_split": {
       "random_state": 42,
       "shuffle": true,
+      "stratify": "quality_label",
       "test_size": 0.2
     }
   },
-  "mae": 0.2856033894786758,
-  "max_error": 1.712076053073842,
-  "mean_absolute_percentage_error": 0.013062033221972814,
-  "median_absolute_error": 0.19730389260068293,
-  "model_path": "models\\energy_efficiency_heating_load_regressor.joblib",
-  "model_version": "energy-efficiency-gradient-boosting-v1",
-  "mse": 0.1615840712075006,
+  "model_path": "models\\wine_quality_classifier.joblib",
+  "model_version": "wine-quality-extra-trees-v1",
+  "precision_macro": 0.8243482364043884,
+  "precision_weighted": 0.8248997286775982,
   "quality_gate": {
-    "baseline_mae": 9.272103050044418,
-    "baseline_r2": -0.0055245239100216725,
-    "baseline_rmse": 10.23758974168782,
-    "candidate_mae": 0.2856033894786758,
-    "candidate_r2": 0.9984497713108541,
-    "candidate_rmse": 0.4019752121804286,
+    "baseline_accuracy": 0.534375,
+    "baseline_f1_weighted": 0.37221232179226066,
+    "candidate_accuracy": 0.825,
+    "candidate_f1_macro": 0.8240100565681961,
+    "candidate_f1_weighted": 0.8249175047140165,
     "checks": {
-      "mae_below_maximum": true,
-      "mae_better_than_baseline": true,
-      "r2_above_baseline": true,
-      "r2_above_minimum": true,
-      "rmse_below_maximum": true,
-      "rmse_better_than_baseline": true
+      "accuracy_above_minimum": true,
+      "accuracy_beats_baseline_margin": true,
+      "cv_accuracy_above_minimum": true,
+      "macro_f1_above_minimum": true,
+      "weighted_f1_above_minimum": true
     },
+    "cv_accuracy_mean": 0.8100122549019607,
     "decision": "accept_candidate_model",
     "passed": true,
     "reasons": [
-      "All regression model quality gates passed."
+      "All classification model quality gates passed."
     ],
     "status": "passed",
     "thresholds": {
-      "max_baseline_regression": 0.02,
-      "max_mae": 0.55,
-      "max_rmse": 0.75,
-      "min_r2": 0.98
+      "min_accuracy": 0.8,
+      "min_baseline_accuracy_improvement": 0.2,
+      "min_cv_accuracy": 0.77,
+      "min_macro_f1": 0.8,
+      "min_weighted_f1": 0.8
     }
   },
-  "r2": 0.9984497713108541,
-  "residual_summary": {
-    "max_residual": 1.712076053073842,
-    "mean_residual": 0.02895675401256166,
-    "min_residual": -1.0459904488458562,
-    "std_residual": 0.40093088881321753
-  },
-  "rmse": 0.4019752121804286,
+  "recall_macro": 0.8237371953373366,
+  "recall_weighted": 0.825,
+  "roc_auc": 0.9192668472075041,
   "status": "evaluated",
   "target_definition": {
-    "description": "Predict building heating load from eight building design inputs.",
-    "model_target": "heating_load"
+    "description": "Predict whether a red wine sample is good quality from 11 physicochemical inputs.",
+    "model_target": "quality_label",
+    "negative_class_label": "standard quality",
+    "positive_class_label": "good quality",
+    "positive_class_threshold": 6,
+    "source_target": "quality"
   },
-  "target_unit": "heating load",
-  "task_type": "regression",
+  "target_labels": {
+    "0": "standard quality",
+    "1": "good quality"
+  },
+  "task_type": "classification",
   "training_command": "python -m src.train",
-  "training_timestamp": "2026-05-15T18:48:09+00:00"
+  "training_timestamp": "2026-05-15T19:59:26+00:00"
 }

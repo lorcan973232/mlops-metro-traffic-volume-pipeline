@@ -1,4 +1,19 @@
 {
-  "reason": "The selected UCI Energy Efficiency task is regression, not classification.",
-  "status": "NOT_APPLICABLE"
+  "labels": [
+    "standard quality",
+    "good quality"
+  ],
+  "matrix": [
+    [
+      120,
+      29
+    ],
+    [
+      27,
+      144
+    ]
+  ],
+  "predicted_label_axis": "columns",
+  "status": "completed",
+  "true_label_axis": "rows"
 }

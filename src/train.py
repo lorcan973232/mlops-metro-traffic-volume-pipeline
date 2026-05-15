@@ -8,11 +8,11 @@ from typing import Any
 import joblib
 import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.preprocessing import StandardScaler
 
 from src.data import (
     DATA_DOI,
@@ -20,55 +20,57 @@ from src.data import (
     DATA_SOURCE_PAGE,
     DATASET_NAME,
     FEATURE_COLUMNS,
+    POSITIVE_CLASS_THRESHOLD,
     RAW_DATA_PATH,
+    SOURCE_TARGET_COLUMN,
     TARGET_COLUMN,
-    TARGET_UNIT,
+    TARGET_LABELS,
     TASK_TYPE,
     file_sha256,
     write_json,
 )
 from src.preprocess import PROCESSED_DATA_PATH, preprocess_dataset
 
-MODEL_PATH = Path("models/energy_efficiency_heating_load_regressor.joblib")
+MODEL_PATH = Path("models/wine_quality_classifier.joblib")
 TRAIN_METADATA_PATH = Path("reports/metrics/train_metadata.json")
-MODEL_VERSION = "energy-efficiency-gradient-boosting-v1"
+MODEL_VERSION = "wine-quality-extra-trees-v1"
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
 TRAINING_COMMAND = "python -m src.train"
-CATEGORICAL_FEATURES = ["orientation", "glazing_area_distribution"]
-NUMERIC_FEATURES = [feature for feature in FEATURE_COLUMNS if feature not in CATEGORICAL_FEATURES]
+CATEGORICAL_FEATURES: list[str] = []
+NUMERIC_FEATURES = FEATURE_COLUMNS.copy()
 MODEL_HYPERPARAMETERS: dict[str, Any] = {
-    "algorithm": "GradientBoostingRegressor",
-    "regressor": {
-        "n_estimators": 800,
-        "learning_rate": 0.04,
-        "max_depth": 4,
+    "algorithm": "ExtraTreesClassifier",
+    "classifier": {
+        "n_estimators": 300,
+        "max_depth": None,
         "min_samples_leaf": 1,
         "min_samples_split": 2,
-        "subsample": 1.0,
+        "class_weight": "balanced",
         "random_state": RANDOM_STATE,
+        "n_jobs": 1,
     },
     "train_test_split": {
         "test_size": TEST_SIZE,
         "random_state": RANDOM_STATE,
         "shuffle": True,
+        "stratify": TARGET_COLUMN,
     },
     "preprocessing": {
         "categorical_features": CATEGORICAL_FEATURES,
-        "categorical_encoder": "OneHotEncoder(handle_unknown='ignore', sparse_output=False)",
         "numeric_features": NUMERIC_FEATURES,
         "numeric_imputer_strategy": "median",
         "numeric_scaler": "StandardScaler",
         "column_transformer_remainder": "drop",
     },
     "selection": {
-        "method": (
-            "controlled scikit-learn model comparison for a compact public regression dataset"
+        "method": "controlled scikit-learn classifier comparison for a compact public dataset",
+        "main_scoring_metric": "weighted_f1",
+        "secondary_metrics": ["accuracy", "macro_f1", "precision_weighted", "recall_weighted"],
+        "cross_validation": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42)",
+        "selection_rule": (
+            "highest held-out weighted F1 with stable CV performance and fast runtime"
         ),
-        "main_scoring_metric": "r2",
-        "secondary_metrics": ["rmse", "mae"],
-        "cross_validation": "KFold(n_splits=5, shuffle=True, random_state=42)",
-        "selection_rule": "highest held-out R2 with strong CV support and fast CI/CT runtime",
     },
 }
 
@@ -76,11 +78,6 @@ MODEL_HYPERPARAMETERS: dict[str, Any] = {
 def build_pipeline() -> Pipeline:
     preprocessor = ColumnTransformer(
         transformers=[
-            (
-                "categorical",
-                OneHotEncoder(handle_unknown="ignore", sparse_output=False),
-                CATEGORICAL_FEATURES,
-            ),
             (
                 "numeric",
                 Pipeline(
@@ -95,8 +92,8 @@ def build_pipeline() -> Pipeline:
         remainder="drop",
         sparse_threshold=0,
     )
-    model = GradientBoostingRegressor(**MODEL_HYPERPARAMETERS["regressor"])
-    return Pipeline(steps=[("preprocessor", preprocessor), ("regressor", model)])
+    model = ExtraTreesClassifier(**MODEL_HYPERPARAMETERS["classifier"])
+    return Pipeline(steps=[("preprocessor", preprocessor), ("classifier", model)])
 
 
 def load_processed_data(path: Path = PROCESSED_DATA_PATH) -> pd.DataFrame:
@@ -118,6 +115,7 @@ def train_model(
         test_size=TEST_SIZE,
         random_state=RANDOM_STATE,
         shuffle=True,
+        stratify=y,
     )
     pipeline = build_pipeline()
     pipeline.fit(x_train, y_train)
@@ -130,7 +128,7 @@ def train_model(
         "model": pipeline,
         "feature_columns": FEATURE_COLUMNS,
         "task_type": TASK_TYPE,
-        "target_unit": TARGET_UNIT,
+        "target_labels": TARGET_LABELS,
         "dataset": {
             "name": DATASET_NAME,
             "source": DATA_SOURCE_PAGE,
@@ -139,9 +137,16 @@ def train_model(
             "processed_path": str(processed_path),
         },
         "target_definition": {
+            "source_target": SOURCE_TARGET_COLUMN,
             "model_target": TARGET_COLUMN,
-            "description": "Predict building heating load from eight building design inputs.",
+            "positive_class_threshold": POSITIVE_CLASS_THRESHOLD,
+            "negative_class_label": TARGET_LABELS[0],
+            "positive_class_label": TARGET_LABELS[1],
+            "description": (
+                "Predict whether a red wine sample is good quality from 11 physicochemical inputs."
+            ),
         },
+        "classes": [int(value) for value in pipeline.named_steps["classifier"].classes_],
         "random_state": RANDOM_STATE,
         "test_size": TEST_SIZE,
         "hyperparameters": MODEL_HYPERPARAMETERS,
@@ -151,9 +156,13 @@ def train_model(
         "training_rows": int(len(x_train)),
         "test_rows": int(len(x_test)),
         "target_summary": {
-            "min": float(y.min()),
-            "max": float(y.max()),
-            "mean": float(y.mean()),
+            "source_quality_min": float(data[SOURCE_TARGET_COLUMN].min()),
+            "source_quality_max": float(data[SOURCE_TARGET_COLUMN].max()),
+            "source_quality_mean": float(data[SOURCE_TARGET_COLUMN].mean()),
+            "class_distribution": {
+                str(key): int(value)
+                for key, value in data[TARGET_COLUMN].value_counts().sort_index().to_dict().items()
+            },
         },
     }
     joblib.dump(bundle, model_path)
@@ -168,9 +177,10 @@ def main() -> None:
         "model_path": str(MODEL_PATH),
         "dataset": bundle["dataset"],
         "target_definition": bundle["target_definition"],
+        "target_labels": bundle["target_labels"],
+        "classes": bundle["classes"],
         "feature_columns": bundle["feature_columns"],
         "task_type": bundle["task_type"],
-        "target_unit": bundle["target_unit"],
         "random_state": bundle["random_state"],
         "test_size": bundle["test_size"],
         "hyperparameters": bundle["hyperparameters"],

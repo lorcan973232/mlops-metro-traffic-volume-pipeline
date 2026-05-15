@@ -7,36 +7,41 @@ from app.main import create_app
 from app.schemas import FEATURE_COLUMNS, PredictionRequestExample
 
 
-class DummyRegressor:
+class DummyClassifier:
+    classes_ = np.array([0, 1])
+
     def predict(self, frame: pd.DataFrame) -> np.ndarray:
-        return np.array([24.5] * len(frame))
+        return np.array([1] * len(frame))
+
+    def predict_proba(self, frame: pd.DataFrame) -> np.ndarray:
+        return np.array([[0.18, 0.82]] * len(frame))
 
 
 def create_test_app():
     return create_app(
         model_bundle={
-            "model": DummyRegressor(),
-            "model_version": "test-ui-energy-v1",
-            "model_path": "models/energy_efficiency_heating_load_regressor.joblib",
-            "dataset": {"name": "UCI Energy Efficiency"},
+            "model": DummyClassifier(),
+            "model_version": "test-ui-wine-v1",
+            "model_path": "models/wine_quality_classifier.joblib",
+            "dataset": {"name": "UCI Wine Quality - Red Wine"},
             "feature_columns": FEATURE_COLUMNS,
-            "task_type": "regression",
-            "target_unit": "heating load",
-            "target_definition": {"model_target": "heating_load"},
+            "task_type": "classification",
+            "target_labels": {0: "standard quality", 1: "good quality"},
+            "target_definition": {"model_target": "quality_label"},
+            "classes": [0, 1],
         }
     )
 
 
-def test_root_page_renders_clear_energy_ui() -> None:
+def test_root_page_renders_clear_wine_ui() -> None:
     response = create_test_app().test_client().get("/")
     html = response.get_data(as_text=True)
 
     assert response.status_code == 200
-    assert "Building Energy Load Predictor" in html
-    assert "UCI Energy Efficiency" in html
-    assert "test-ui-energy-v1" in html
-    assert "Bike Sharing Demand Predictor" not in html
-    assert "Breast Cancer Diagnostic Classifier" not in html
+    assert "Red Wine Quality Classifier" in html
+    assert "UCI Wine Quality - Red Wine" in html
+    assert "test-ui-wine-v1" in html
+    assert "Predict Quality" in html
 
 
 def test_root_page_form_fields_match_prediction_schema() -> None:
@@ -47,7 +52,7 @@ def test_root_page_form_fields_match_prediction_schema() -> None:
         assert f'name="{feature_name}"' in html
     assert html.count("data-feature-input") == len(FEATURE_COLUMNS)
     assert "Use Example" in html
-    assert "Predict Heating Load" in html
+    assert "Predict Quality" in html
 
 
 def test_use_example_payload_matches_model_schema() -> None:

@@ -1,84 +1,106 @@
 {
+  "classes": [
+    0,
+    1
+  ],
   "dataset": {
-    "doi": "10.24432/C51307",
-    "name": "UCI Energy Efficiency",
-    "processed_path": "data\\processed\\energy-efficiency-processed.csv",
-    "raw_sha256": "0089fcffc1415e41e2ff63730cca5280efe54fc43d722dfde1b0aaa808e35dc4",
-    "source": "https://archive.ics.uci.edu/dataset/242/energy+efficiency"
+    "doi": "10.24432/C56S3T",
+    "name": "UCI Wine Quality - Red Wine",
+    "processed_path": "data\\processed\\winequality-red-processed.csv",
+    "raw_sha256": "4a402cf041b025d4566d954c3b9ba8635a3a8a01e039005d97d6a710278cf05e",
+    "source": "https://archive.ics.uci.edu/dataset/186/wine+quality"
   },
   "feature_columns": [
-    "relative_compactness",
-    "surface_area",
-    "wall_area",
-    "roof_area",
-    "overall_height",
-    "orientation",
-    "glazing_area",
-    "glazing_area_distribution"
+    "fixed_acidity",
+    "volatile_acidity",
+    "citric_acid",
+    "residual_sugar",
+    "chlorides",
+    "free_sulfur_dioxide",
+    "total_sulfur_dioxide",
+    "density",
+    "ph",
+    "sulphates",
+    "alcohol"
   ],
   "hyperparameters": {
-    "algorithm": "GradientBoostingRegressor",
+    "algorithm": "ExtraTreesClassifier",
+    "classifier": {
+      "class_weight": "balanced",
+      "max_depth": null,
+      "min_samples_leaf": 1,
+      "min_samples_split": 2,
+      "n_estimators": 300,
+      "n_jobs": 1,
+      "random_state": 42
+    },
     "preprocessing": {
-      "categorical_encoder": "OneHotEncoder(handle_unknown='ignore', sparse_output=False)",
-      "categorical_features": [
-        "orientation",
-        "glazing_area_distribution"
-      ],
+      "categorical_features": [],
       "column_transformer_remainder": "drop",
       "numeric_features": [
-        "relative_compactness",
-        "surface_area",
-        "wall_area",
-        "roof_area",
-        "overall_height",
-        "glazing_area"
+        "fixed_acidity",
+        "volatile_acidity",
+        "citric_acid",
+        "residual_sugar",
+        "chlorides",
+        "free_sulfur_dioxide",
+        "total_sulfur_dioxide",
+        "density",
+        "ph",
+        "sulphates",
+        "alcohol"
       ],
       "numeric_imputer_strategy": "median",
       "numeric_scaler": "StandardScaler"
     },
-    "regressor": {
-      "learning_rate": 0.04,
-      "max_depth": 4,
-      "min_samples_leaf": 1,
-      "min_samples_split": 2,
-      "n_estimators": 800,
-      "random_state": 42,
-      "subsample": 1.0
-    },
     "selection": {
-      "cross_validation": "KFold(n_splits=5, shuffle=True, random_state=42)",
-      "main_scoring_metric": "r2",
-      "method": "controlled scikit-learn model comparison for a compact public regression dataset",
+      "cross_validation": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42)",
+      "main_scoring_metric": "weighted_f1",
+      "method": "controlled scikit-learn classifier comparison for a compact public dataset",
       "secondary_metrics": [
-        "rmse",
-        "mae"
+        "accuracy",
+        "macro_f1",
+        "precision_weighted",
+        "recall_weighted"
       ],
-      "selection_rule": "highest held-out R2 with strong CV support and fast CI/CT runtime"
+      "selection_rule": "highest held-out weighted F1 with stable CV performance and fast runtime"
     },
     "train_test_split": {
       "random_state": 42,
       "shuffle": true,
+      "stratify": "quality_label",
       "test_size": 0.2
     }
   },
-  "model_path": "models\\energy_efficiency_heating_load_regressor.joblib",
-  "model_version": "energy-efficiency-gradient-boosting-v1",
+  "model_path": "models\\wine_quality_classifier.joblib",
+  "model_version": "wine-quality-extra-trees-v1",
   "random_state": 42,
   "status": "trained",
   "target_definition": {
-    "description": "Predict building heating load from eight building design inputs.",
-    "model_target": "heating_load"
+    "description": "Predict whether a red wine sample is good quality from 11 physicochemical inputs.",
+    "model_target": "quality_label",
+    "negative_class_label": "standard quality",
+    "positive_class_label": "good quality",
+    "positive_class_threshold": 6,
+    "source_target": "quality"
+  },
+  "target_labels": {
+    "0": "standard quality",
+    "1": "good quality"
   },
   "target_summary": {
-    "max": 43.1,
-    "mean": 22.3071953125,
-    "min": 6.01
+    "class_distribution": {
+      "0": 744,
+      "1": 855
+    },
+    "source_quality_max": 8.0,
+    "source_quality_mean": 5.6360225140712945,
+    "source_quality_min": 3.0
   },
-  "target_unit": "heating load",
-  "task_type": "regression",
-  "test_rows": 154,
+  "task_type": "classification",
+  "test_rows": 320,
   "test_size": 0.2,
   "training_command": "python -m src.train",
-  "training_rows": 614,
-  "training_timestamp": "2026-05-15T18:48:09+00:00"
+  "training_rows": 1279,
+  "training_timestamp": "2026-05-15T19:59:26+00:00"
 }

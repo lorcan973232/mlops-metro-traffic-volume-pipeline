@@ -8,7 +8,7 @@ import joblib
 
 from app.schemas import FEATURE_COLUMNS
 
-DEFAULT_MODEL_PATH = Path("models/energy_efficiency_heating_load_regressor.joblib")
+DEFAULT_MODEL_PATH = Path("models/wine_quality_classifier.joblib")
 
 
 def load_model(model_path: str | Path | None = None) -> dict[str, Any]:
@@ -20,6 +20,6 @@ def load_model(model_path: str | Path | None = None) -> dict[str, Any]:
     bundle = joblib.load(resolved_path)
     if bundle.get("feature_columns") != FEATURE_COLUMNS:
         raise ValueError("Model feature schema is incompatible with the API prediction schema.")
-    if bundle.get("task_type") != "regression":
-        raise ValueError("Model task type is incompatible with the regression API schema.")
+    if bundle.get("task_type") != "classification":
+        raise ValueError("Model task type is incompatible with the classification API schema.")
     return bundle

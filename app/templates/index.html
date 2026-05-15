@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Building Energy Load Predictor</title>
+    <title>Red Wine Quality Classifier</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
   <body>
@@ -12,14 +12,15 @@
         <header class="hero">
           <div class="icon-badge" aria-hidden="true">
             <svg viewBox="0 0 64 64" role="img" focusable="false">
-              <path d="M12 54h40M18 54V22l14-10 14 10v32"></path>
-              <path d="M26 54V38h12v16M24 27h5M35 27h5M24 34h5M35 34h5"></path>
-              <path d="M32 12v-4M39 15l3-3M25 15l-3-3"></path>
+              <path d="M25 10h14"></path>
+              <path d="M28 10v15c0 5-10 10-10 22a14 14 0 0 0 28 0c0-12-10-17-10-22V10"></path>
+              <path d="M21 42c5 4 17 4 22 0"></path>
+              <path d="M24 52h16"></path>
             </svg>
           </div>
-          <h1 id="page-title">Building Energy Load Predictor</h1>
+          <h1 id="page-title">Red Wine Quality Classifier</h1>
           <p class="subtitle">
-            Enter simple building-design values to estimate heating load.
+            Enter physicochemical test results to classify a red wine sample as standard or good quality.
           </p>
           <p class="dataset-note">Dataset: {{ model_status.dataset.name }}</p>
           <div class="status-row" aria-label="Model status">
@@ -38,29 +39,18 @@
                 {% for feature in group.features %}
                   <label class="field">
                     <span>{{ feature.label }}</span>
-                    {% if feature.options %}
-                      <select
-                        name="{{ feature.name }}"
-                        data-feature-input
-                        data-example-value="{{ feature.example }}"
-                        required
-                      >
-                        {% for option in feature.options %}
-                          <option value="{{ option.value }}">{{ option.label }}</option>
-                        {% endfor %}
-                      </select>
-                    {% else %}
-                      <input
-                        type="number"
-                        step="any"
-                        inputmode="decimal"
-                        name="{{ feature.name }}"
-                        data-feature-input
-                        data-example-value="{{ feature.example }}"
-                        placeholder="e.g. {{ feature.example }}"
-                        required
-                      >
-                    {% endif %}
+                    <input
+                      type="number"
+                      step="any"
+                      inputmode="decimal"
+                      name="{{ feature.name }}"
+                      data-feature-input
+                      data-example-value="{{ feature.example }}"
+                      min="{{ feature.min }}"
+                      max="{{ feature.max }}"
+                      placeholder="e.g. {{ feature.example }}"
+                      required
+                    >
                     <small>{{ feature.helper }}</small>
                   </label>
                 {% endfor %}
@@ -73,13 +63,13 @@
               Use Example
             </button>
             <button type="submit" class="primary-button">
-              Predict Heating Load
+              Predict Quality
             </button>
           </div>
         </form>
 
         <section id="result-panel" class="result-panel" hidden aria-live="polite">
-          <p class="result-label">Predicted Heating Load</p>
+          <p class="result-label">Predicted Quality Class</p>
           <h2 id="prediction-value"></h2>
           <p id="confidence-value" class="confidence"></p>
           <p id="result-model-version" class="result-meta"></p>
@@ -97,7 +87,7 @@
         expectedFeatures: {{ feature_columns | tojson }},
         examplePayload: {{ example_payload | tojson }},
         modelVersion: {{ model_status.model_version | tojson }},
-        targetUnit: {{ model_status.target_unit | tojson }}
+        targetLabel: {{ model_status.target_label | tojson }}
       };
     </script>
     <script src="{{ url_for('static', filename='app.js') }}"></script>

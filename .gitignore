@@ -9,10 +9,10 @@ venv/
 
 data/raw/*.csv
 data/raw/*.xlsx
-!data/raw/energy-efficiency.xlsx
+!data/raw/winequality-red.csv
 data/processed/*.csv
 models/*.joblib
-!models/energy_efficiency_heating_load_regressor.joblib
+!models/wine_quality_classifier.joblib
 
 .env
 .DS_Store

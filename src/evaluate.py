@@ -6,20 +6,18 @@ from typing import Any
 
 import joblib
 import numpy as np
-from sklearn.dummy import DummyRegressor
+from sklearn.dummy import DummyClassifier
 from sklearn.metrics import (
-    explained_variance_score,
-    max_error,
-    mean_absolute_error,
-    mean_absolute_percentage_error,
-    mean_squared_error,
-    median_absolute_error,
-    r2_score,
-    root_mean_squared_error,
+    accuracy_score,
+    balanced_accuracy_score,
+    classification_report,
+    confusion_matrix,
+    precision_recall_fscore_support,
+    roc_auc_score,
 )
-from sklearn.model_selection import KFold, cross_validate, train_test_split
+from sklearn.model_selection import StratifiedKFold, cross_validate, train_test_split
 
-from src.data import FEATURE_COLUMNS, TARGET_COLUMN, write_json
+from src.data import FEATURE_COLUMNS, TARGET_COLUMN, TARGET_LABELS, write_json
 from src.preprocess import PROCESSED_DATA_PATH
 from src.train import MODEL_PATH, RANDOM_STATE, TEST_SIZE, load_processed_data, train_model
 
@@ -37,65 +35,96 @@ CLASSIFICATION_REPORT_TEXT_PATH = Path("reports/metrics/classification_report.tx
 CONFUSION_MATRIX_PATH = Path("reports/metrics/confusion_matrix.json")
 CONFUSION_MATRIX_NORMALIZED_PATH = Path("reports/metrics/confusion_matrix_normalized.json")
 
-MIN_R2 = 0.98
-MAX_RMSE = 0.75
-MAX_MAE = 0.55
-MAX_BASELINE_REGRESSION = 0.02
+MIN_ACCURACY = 0.80
+MIN_WEIGHTED_F1 = 0.80
+MIN_MACRO_F1 = 0.80
+MIN_CV_ACCURACY = 0.77
+MIN_BASELINE_ACCURACY_IMPROVEMENT = 0.20
 CV_SPLITS = 5
 EVALUATION_COMMAND = "python -m src.evaluate"
+CLASS_NAMES = [TARGET_LABELS[0], TARGET_LABELS[1]]
 
 
-def _rmse(y_true: Any, y_pred: Any) -> float:
-    return float(root_mean_squared_error(y_true, y_pred))
+def _positive_class_probabilities(model: Any, x_test: Any) -> np.ndarray | None:
+    if not hasattr(model, "predict_proba"):
+        return None
+    probabilities = model.predict_proba(x_test)
+    classes = list(model.classes_) if hasattr(model, "classes_") else [0, 1]
+    if 1 not in classes:
+        return None
+    return probabilities[:, classes.index(1)]
 
 
-def _regression_metrics(y_true: Any, predictions: Any) -> dict[str, float]:
+def _classification_metrics(
+    y_true: Any,
+    predictions: Any,
+    positive_probabilities: np.ndarray | None = None,
+) -> dict[str, float | None]:
+    precision_macro, recall_macro, f1_macro, _ = precision_recall_fscore_support(
+        y_true, predictions, average="macro", zero_division=0
+    )
+    precision_weighted, recall_weighted, f1_weighted, _ = precision_recall_fscore_support(
+        y_true, predictions, average="weighted", zero_division=0
+    )
+    roc_auc = (
+        float(roc_auc_score(y_true, positive_probabilities))
+        if positive_probabilities is not None
+        else None
+    )
     return {
-        "r2": float(r2_score(y_true, predictions)),
-        "mae": float(mean_absolute_error(y_true, predictions)),
-        "mse": float(mean_squared_error(y_true, predictions)),
-        "rmse": _rmse(y_true, predictions),
-        "median_absolute_error": float(median_absolute_error(y_true, predictions)),
-        "mean_absolute_percentage_error": float(
-            mean_absolute_percentage_error(y_true, predictions)
-        ),
-        "explained_variance": float(explained_variance_score(y_true, predictions)),
-        "max_error": float(max_error(y_true, predictions)),
+        "accuracy": float(accuracy_score(y_true, predictions)),
+        "balanced_accuracy": float(balanced_accuracy_score(y_true, predictions)),
+        "precision_macro": float(precision_macro),
+        "recall_macro": float(recall_macro),
+        "f1_macro": float(f1_macro),
+        "precision_weighted": float(precision_weighted),
+        "recall_weighted": float(recall_weighted),
+        "f1_weighted": float(f1_weighted),
+        "roc_auc": roc_auc,
     }
 
 
 def _evaluate_baseline(x_train: Any, y_train: Any, x_test: Any, y_test: Any) -> dict[str, Any]:
-    baseline = DummyRegressor(strategy="mean")
+    baseline = DummyClassifier(strategy="most_frequent")
     baseline.fit(x_train, y_train)
     predictions = baseline.predict(x_test)
-    metrics = _regression_metrics(y_test, predictions)
+    metrics = _classification_metrics(y_test, predictions)
     return {
         "status": "baseline_evaluated",
-        "baseline_model": "DummyRegressor(strategy='mean')",
-        "model_version": "dummy-mean-baseline",
-        "metric_summary": {
-            "r2": metrics["r2"],
-            "rmse": metrics["rmse"],
-            "mae": metrics["mae"],
-        },
+        "baseline_model": "DummyClassifier(strategy='most_frequent')",
+        "model_version": "dummy-most-frequent-baseline",
+        "metric_summary": metrics,
         "quality_thresholds": {
-            "min_r2": MIN_R2,
-            "max_rmse": MAX_RMSE,
-            "max_mae": MAX_MAE,
-            "max_baseline_regression": MAX_BASELINE_REGRESSION,
+            "min_accuracy": MIN_ACCURACY,
+            "min_weighted_f1": MIN_WEIGHTED_F1,
+            "min_macro_f1": MIN_MACRO_F1,
+            "min_cv_accuracy": MIN_CV_ACCURACY,
+            "min_baseline_accuracy_improvement": MIN_BASELINE_ACCURACY_IMPROVEMENT,
         },
         "created_by": EVALUATION_COMMAND,
     }
 
 
 def _cross_validation_report(estimator: Any, x_train: Any, y_train: Any) -> dict[str, Any]:
-    cv = KFold(n_splits=CV_SPLITS, shuffle=True, random_state=RANDOM_STATE)
+    cv = StratifiedKFold(n_splits=CV_SPLITS, shuffle=True, random_state=RANDOM_STATE)
     scoring = {
-        "r2": "r2",
-        "neg_rmse": "neg_root_mean_squared_error",
-        "neg_mae": "neg_mean_absolute_error",
+        "accuracy": "accuracy",
+        "precision_macro": "precision_macro",
+        "recall_macro": "recall_macro",
+        "f1_macro": "f1_macro",
+        "precision_weighted": "precision_weighted",
+        "recall_weighted": "recall_weighted",
+        "f1_weighted": "f1_weighted",
     }
-    results = cross_validate(estimator, x_train, y_train, cv=cv, scoring=scoring, n_jobs=1)
+    results = cross_validate(
+        estimator,
+        x_train,
+        y_train,
+        cv=cv,
+        scoring=scoring,
+        n_jobs=1,
+        error_score="raise",
+    )
 
     def summary(values: np.ndarray) -> dict[str, Any]:
         return {
@@ -104,33 +133,36 @@ def _cross_validation_report(estimator: Any, x_train: Any, y_train: Any) -> dict
             "std": float(np.std(values)),
         }
 
-    rmse_values = -results["test_neg_rmse"]
-    mae_values = -results["test_neg_mae"]
     return {
         "status": "completed",
-        "method": "KFold",
+        "method": "StratifiedKFold",
         "folds": CV_SPLITS,
         "shuffle": True,
         "random_state": RANDOM_STATE,
-        "scoring": ["r2", "rmse", "mae"],
-        "r2": summary(results["test_r2"]),
-        "rmse": summary(rmse_values),
-        "mae": summary(mae_values),
+        "scoring": list(scoring),
+        "accuracy": summary(results["test_accuracy"]),
+        "precision_macro": summary(results["test_precision_macro"]),
+        "recall_macro": summary(results["test_recall_macro"]),
+        "f1_macro": summary(results["test_f1_macro"]),
+        "precision_weighted": summary(results["test_precision_weighted"]),
+        "recall_weighted": summary(results["test_recall_weighted"]),
+        "f1_weighted": summary(results["test_f1_weighted"]),
     }
 
 
-def _quality_gate(metrics: dict[str, Any], baseline: dict[str, Any]) -> dict[str, Any]:
+def _quality_gate(
+    metrics: dict[str, Any],
+    baseline: dict[str, Any],
+    cv_report: dict[str, Any],
+) -> dict[str, Any]:
     baseline_summary = baseline["metric_summary"]
     checks = {
-        "r2_above_minimum": metrics["r2"] >= MIN_R2,
-        "rmse_below_maximum": metrics["rmse"] <= MAX_RMSE,
-        "mae_below_maximum": metrics["mae"] <= MAX_MAE,
-        "r2_above_baseline": metrics["r2"]
-        >= float(baseline_summary["r2"]) - MAX_BASELINE_REGRESSION,
-        "rmse_better_than_baseline": metrics["rmse"]
-        <= float(baseline_summary["rmse"]) + MAX_BASELINE_REGRESSION,
-        "mae_better_than_baseline": metrics["mae"]
-        <= float(baseline_summary["mae"]) + MAX_BASELINE_REGRESSION,
+        "accuracy_above_minimum": metrics["accuracy"] >= MIN_ACCURACY,
+        "weighted_f1_above_minimum": metrics["f1_weighted"] >= MIN_WEIGHTED_F1,
+        "macro_f1_above_minimum": metrics["f1_macro"] >= MIN_MACRO_F1,
+        "cv_accuracy_above_minimum": cv_report["accuracy"]["mean"] >= MIN_CV_ACCURACY,
+        "accuracy_beats_baseline_margin": metrics["accuracy"]
+        >= baseline_summary["accuracy"] + MIN_BASELINE_ACCURACY_IMPROVEMENT,
     }
     passed = all(checks.values())
     failed_checks = [check for check, result in checks.items() if not result]
@@ -139,15 +171,15 @@ def _quality_gate(metrics: dict[str, Any], baseline: dict[str, Any]) -> dict[str
         "passed": passed,
         "decision": "accept_candidate_model" if passed else "reject_candidate_model",
         "thresholds": baseline["quality_thresholds"],
-        "candidate_r2": metrics["r2"],
-        "candidate_rmse": metrics["rmse"],
-        "candidate_mae": metrics["mae"],
-        "baseline_r2": baseline_summary["r2"],
-        "baseline_rmse": baseline_summary["rmse"],
-        "baseline_mae": baseline_summary["mae"],
+        "candidate_accuracy": metrics["accuracy"],
+        "candidate_f1_weighted": metrics["f1_weighted"],
+        "candidate_f1_macro": metrics["f1_macro"],
+        "cv_accuracy_mean": cv_report["accuracy"]["mean"],
+        "baseline_accuracy": baseline_summary["accuracy"],
+        "baseline_f1_weighted": baseline_summary["f1_weighted"],
         "checks": checks,
         "reasons": (
-            ["All regression model quality gates passed."]
+            ["All classification model quality gates passed."]
             if passed
             else [f"Failed check: {check}" for check in failed_checks]
         ),
@@ -170,39 +202,56 @@ def evaluate_model(
         test_size=TEST_SIZE,
         random_state=RANDOM_STATE,
         shuffle=True,
+        stratify=y,
     )
     bundle = joblib.load(model_path)
     model = bundle["model"]
     predictions = model.predict(x_test)
-    basic = _regression_metrics(y_test, predictions)
-    residuals = np.asarray(y_test) - np.asarray(predictions)
+    positive_probabilities = _positive_class_probabilities(model, x_test)
+    basic = _classification_metrics(y_test, predictions, positive_probabilities)
     baseline = _evaluate_baseline(x_train, y_train, x_test, y_test)
     cv_report = _cross_validation_report(model, x_train, y_train)
+
+    labels = [0, 1]
+    matrix = confusion_matrix(y_test, predictions, labels=labels)
+    normalized_matrix = confusion_matrix(y_test, predictions, labels=labels, normalize="true")
+    report_dict = classification_report(
+        y_test,
+        predictions,
+        labels=labels,
+        target_names=CLASS_NAMES,
+        zero_division=0,
+        output_dict=True,
+    )
+    report_text = classification_report(
+        y_test,
+        predictions,
+        labels=labels,
+        target_names=CLASS_NAMES,
+        zero_division=0,
+    )
 
     metrics = {
         "status": "evaluated",
         "model_version": bundle.get("model_version", "unknown"),
         "model_path": str(model_path),
-        "task_type": bundle.get("task_type", "regression"),
+        "task_type": bundle.get("task_type", "classification"),
         "dataset": bundle.get("dataset", {}),
         "target_definition": bundle.get("target_definition", {}),
-        "target_unit": bundle.get("target_unit", "heating load"),
+        "target_labels": bundle.get("target_labels", TARGET_LABELS),
         "feature_schema": bundle.get("feature_columns", FEATURE_COLUMNS),
         "hyperparameters": bundle.get("hyperparameters", {}),
         "training_timestamp": bundle.get("training_timestamp"),
         "training_command": bundle.get("training_command", "python -m src.train"),
         "evaluation_command": EVALUATION_COMMAND,
         **basic,
-        "residual_summary": {
-            "mean_residual": float(np.mean(residuals)),
-            "std_residual": float(np.std(residuals)),
-            "min_residual": float(np.min(residuals)),
-            "max_residual": float(np.max(residuals)),
-        },
+        "confusion_matrix": matrix.tolist(),
+        "confusion_matrix_labels": CLASS_NAMES,
+        "classification_report": report_dict,
         "cross_validation": cv_report,
         "baseline": baseline,
     }
-    metrics["quality_gate"] = _quality_gate(metrics, baseline)
+    metrics["quality_gate"] = _quality_gate(metrics, baseline, cv_report)
 
     latest_metrics = {
         "status": "latest_evaluation",
@@ -210,19 +259,22 @@ def evaluate_model(
         "model_path": metrics["model_path"],
         "dataset": metrics["dataset"],
         "task_type": metrics["task_type"],
-        "target_unit": metrics["target_unit"],
+        "target_labels": metrics["target_labels"],
         "feature_schema": metrics["feature_schema"],
         "hyperparameters": metrics["hyperparameters"],
         "metric_summary": {
-            "r2": metrics["r2"],
-            "rmse": metrics["rmse"],
-            "mae": metrics["mae"],
-            "mse": metrics["mse"],
-            "median_absolute_error": metrics["median_absolute_error"],
-            "mean_absolute_percentage_error": metrics["mean_absolute_percentage_error"],
-            "explained_variance": metrics["explained_variance"],
-            "max_error": metrics["max_error"],
+            "accuracy": metrics["accuracy"],
+            "balanced_accuracy": metrics["balanced_accuracy"],
+            "precision_macro": metrics["precision_macro"],
+            "recall_macro": metrics["recall_macro"],
+            "f1_macro": metrics["f1_macro"],
+            "precision_weighted": metrics["precision_weighted"],
+            "recall_weighted": metrics["recall_weighted"],
+            "f1_weighted": metrics["f1_weighted"],
+            "roc_auc": metrics["roc_auc"],
         },
+        "confusion_matrix": matrix.tolist(),
+        "classification_report_path": str(CLASSIFICATION_REPORT_JSON_PATH),
         "quality_gate": metrics["quality_gate"],
         "training_timestamp": metrics["training_timestamp"],
         "training_command": metrics["training_command"],
@@ -231,84 +283,92 @@ def evaluate_model(
     model_comparison = {
         "status": "completed",
         "selected_best_model": {
-            "model_name": "gradient_boosting_regressor",
+            "model_name": "extra_trees_classifier",
             "model_version": metrics["model_version"],
-            "algorithm": "GradientBoostingRegressor",
+            "algorithm": "ExtraTreesClassifier",
             "held_out_test": latest_metrics["metric_summary"],
             "cross_validation": cv_report,
             "reason_selected": (
-                "Gradient boosting achieved a very high held-out R2 with low RMSE/MAE, "
-                "strong 5-fold CV stability, and fast CI/CT runtime."
+                "ExtraTreesClassifier achieved strong accuracy, macro F1 and weighted F1, "
+                "with stable 5-fold stratified cross-validation and fast CI runtime."
             ),
         },
         "baseline_comparison": {
-            "baseline_r2": baseline["metric_summary"]["r2"],
-            "baseline_rmse": baseline["metric_summary"]["rmse"],
-            "baseline_mae": baseline["metric_summary"]["mae"],
-            "final_model_r2": metrics["r2"],
-            "final_model_rmse": metrics["rmse"],
-            "final_model_mae": metrics["mae"],
-            "absolute_r2_improvement": metrics["r2"] - baseline["metric_summary"]["r2"],
-            "absolute_rmse_reduction": baseline["metric_summary"]["rmse"] - metrics["rmse"],
-            "absolute_mae_reduction": baseline["metric_summary"]["mae"] - metrics["mae"],
+            "baseline_accuracy": baseline["metric_summary"]["accuracy"],
+            "baseline_f1_weighted": baseline["metric_summary"]["f1_weighted"],
+            "final_model_accuracy": metrics["accuracy"],
+            "final_model_f1_weighted": metrics["f1_weighted"],
+            "absolute_accuracy_improvement": metrics["accuracy"]
+            - baseline["metric_summary"]["accuracy"],
+            "absolute_weighted_f1_improvement": metrics["f1_weighted"]
+            - baseline["metric_summary"]["f1_weighted"],
         },
     }
     search_report = {
         "status": "completed",
-        "selection_method": "KFold cross-validation plus held-out test confirmation",
-        "selection_metric": "r2",
+        "selection_method": "StratifiedKFold cross-validation plus held-out test confirmation",
+        "selection_metric": "f1_weighted",
         "models_compared": [
-            "GradientBoostingRegressor",
-            "HistGradientBoostingRegressor",
-            "RandomForestRegressor",
-            "ExtraTreesRegressor",
-            "DummyRegressor",
+            "ExtraTreesClassifier",
+            "RandomForestClassifier",
+            "GradientBoostingClassifier",
+            "HistGradientBoostingClassifier",
+            "LogisticRegression",
+            "DummyClassifier",
         ],
-        "selected_model": "GradientBoostingRegressor",
+        "selected_model": "ExtraTreesClassifier",
         "selected_hyperparameters": metrics["hyperparameters"],
         "held_out_test": latest_metrics["metric_summary"],
         "cross_validation": cv_report,
     }
-    not_applicable = {
-        "status": "NOT_APPLICABLE",
-        "reason": "The selected UCI Energy Efficiency task is regression, not classification.",
+    confusion_report = {
+        "status": "completed",
+        "labels": CLASS_NAMES,
+        "matrix": matrix.tolist(),
+        "true_label_axis": "rows",
+        "predicted_label_axis": "columns",
     }
+    normalized_confusion_report = {
+        "status": "completed",
+        "labels": CLASS_NAMES,
+        "matrix": normalized_matrix.tolist(),
+        "normalization": "true",
+    }
+
     write_json(LATEST_METRICS_PATH, latest_metrics)
     write_json(BASELINE_METRICS_PATH, baseline)
     write_json(CROSS_VALIDATION_RESULTS_PATH, cv_report)
     write_json(METRICS_PATH, metrics)
     write_json(QUALITY_GATE_PATH, metrics["quality_gate"])
     write_json(QUALITY_GATE_REPORT_PATH, metrics["quality_gate"])
-    write_json(MODEL_METADATA_PATH, {
-        "dataset_name": metrics["dataset"].get("name"),
-        "dataset_source": metrics["dataset"].get("source"),
-        "dataset_hash": metrics["dataset"].get("raw_sha256"),
-        "task_type": metrics["task_type"],
-        "target_definition": metrics["target_definition"],
-        "target_unit": metrics["target_unit"],
-        "feature_schema": metrics["feature_schema"],
-        "hyperparameters": metrics["hyperparameters"],
-        "metric_summary": latest_metrics["metric_summary"],
-        "quality_gate": metrics["quality_gate"],
-        "model_path": metrics["model_path"],
-        "model_version": metrics["model_version"],
-        "training_timestamp": metrics["training_timestamp"],
-        "training_command": metrics["training_command"],
-        "evaluation_command": EVALUATION_COMMAND,
-        "cross_validation_method": "KFold",
-    })
+    write_json(
+        MODEL_METADATA_PATH,
+        {
+            "model_version": metrics["model_version"],
+            "dataset_name": metrics["dataset"].get("name"),
+            "dataset_source": metrics["dataset"].get("source"),
+            "dataset_hash": metrics["dataset"].get("raw_sha256"),
+            "task_type": metrics["task_type"],
+            "target_definition": metrics["target_definition"],
+            "target_labels": metrics["target_labels"],
+            "feature_schema": metrics["feature_schema"],
+            "hyperparameters": metrics["hyperparameters"],
+            "metric_summary": latest_metrics["metric_summary"],
+            "confusion_matrix": matrix.tolist(),
+            "quality_gate": metrics["quality_gate"],
+            "model_path": metrics["model_path"],
+            "training_timestamp": metrics["training_timestamp"],
+            "training_command": metrics["training_command"],
+            "evaluation_command": EVALUATION_COMMAND,
+            "cross_validation_method": "StratifiedKFold",
+        },
+    )
     write_json(MODEL_COMPARISON_PATH, model_comparison)
     write_json(HYPERPARAMETER_SEARCH_RESULTS_PATH, search_report)
-    write_json(CLASSIFICATION_REPORT_JSON_PATH, not_applicable)
-    CLASSIFICATION_REPORT_TEXT_PATH.write_text(
-        (
-            "NOT_APPLICABLE: The selected UCI Energy Efficiency task is regression, "
-            "not classification.\n"
-        ),
-        encoding="utf-8",
-    )
-    write_json(CONFUSION_MATRIX_PATH, not_applicable)
-    write_json(CONFUSION_MATRIX_NORMALIZED_PATH, not_applicable)
+    write_json(CLASSIFICATION_REPORT_JSON_PATH, report_dict)
+    CLASSIFICATION_REPORT_TEXT_PATH.write_text(report_text, encoding="utf-8")
+    write_json(CONFUSION_MATRIX_PATH, confusion_report)
+    write_json(CONFUSION_MATRIX_NORMALIZED_PATH, normalized_confusion_report)
     if not metrics["quality_gate"]["passed"]:
         raise RuntimeError(f"Quality gate failed: {metrics['quality_gate']['reasons']}")
     return metrics

@@ -1,113 +1,167 @@
 {
   "cross_validation": {
-    "folds": 5,
-    "mae": {
-      "mean": 0.25835937478769483,
+    "accuracy": {
+      "mean": 0.8100122549019607,
       "per_fold": [
-        0.2547607543108132,
-        0.23449193980725633,
-        0.27454353415274757,
-        0.28154765547071653,
-        0.24645299019694067
+        0.83984375,
+        0.78515625,
+        0.79296875,
+        0.81640625,
+        0.8156862745098039
       ],
-      "std": 0.01745846437286545
+      "std": 0.019345789260910167
     },
-    "method": "KFold",
-    "r2": {
-      "mean": 0.9984581530470245,
+    "f1_macro": {
+      "mean": 0.808498079302489,
       "per_fold": [
-        0.998125222339314,
-        0.9989838762450118,
-        0.9983599027375533,
-        0.9985016095459114,
-        0.9983201543673317
+        0.838758737230202,
+        0.783407940683311,
+        0.7925857983642894,
+        0.814638505029964,
+        0.8130994152046784
       ],
-      "std": 0.0002890719506428489
+      "std": 0.01927329903780477
+    },
+    "f1_weighted": {
+      "mean": 0.8096307921962153,
+      "per_fold": [
+        0.8396887481757431,
+        0.7847761827572415,
+        0.7932124464954521,
+        0.81591128140839,
+        0.8145653021442495
+      ],
+      "std": 0.01925922291657906
+    },
+    "folds": 5,
+    "method": "StratifiedKFold",
+    "precision_macro": {
+      "mean": 0.8105688804201524,
+      "per_fold": [
+        0.8395320197044335,
+        0.784717074376081,
+        0.7924908424908425,
+        0.8169642857142857,
+        0.8191401798151197
+      ],
+      "std": 0.019740127408448598
+    },
+    "precision_weighted": {
+      "mean": 0.8107663436529755,
+      "per_fold": [
+        0.8397658174261083,
+        0.7849994015628861,
+        0.7946414262820511,
+        0.816650390625,
+        0.817774682368832
+      ],
+      "std": 0.01922839860382005
     },
     "random_state": 42,
-    "rmse": {
-      "mean": 0.39113102299786073,
+    "recall_macro": {
+      "mean": 0.8079624915659693,
       "per_fold": [
-        0.451613237352802,
-        0.32180823344651577,
-        0.4026400736205411,
-        0.3892733227220564,
-        0.3903202478473884
+        0.8382199595166533,
+        0.782708703919524,
+        0.7938722934429246,
+        0.8135619211188125,
+        0.8114495798319328
       ],
-      "std": 0.041473639959260615
+      "std": 0.018948959002103253
+    },
+    "recall_weighted": {
+      "mean": 0.8100122549019607,
+      "per_fold": [
+        0.83984375,
+        0.78515625,
+        0.79296875,
+        0.81640625,
+        0.8156862745098039
+      ],
+      "std": 0.019345789260910167
     },
     "scoring": [
-      "r2",
-      "rmse",
-      "mae"
+      "accuracy",
+      "precision_macro",
+      "recall_macro",
+      "f1_macro",
+      "precision_weighted",
+      "recall_weighted",
+      "f1_weighted"
     ],
     "shuffle": true,
     "status": "completed"
   },
   "held_out_test": {
-    "explained_variance": 0.9984578157723486,
-    "mae": 0.2856033894786758,
-    "max_error": 1.712076053073842,
-    "mean_absolute_percentage_error": 0.013062033221972814,
-    "median_absolute_error": 0.19730389260068293,
-    "mse": 0.1615840712075006,
-    "r2": 0.9984497713108541,
-    "rmse": 0.4019752121804286
+    "accuracy": 0.825,
+    "balanced_accuracy": 0.8237371953373366,
+    "f1_macro": 0.8240100565681961,
+    "f1_weighted": 0.8249175047140165,
+    "precision_macro": 0.8243482364043884,
+    "precision_weighted": 0.8248997286775982,
+    "recall_macro": 0.8237371953373366,
+    "recall_weighted": 0.825,
+    "roc_auc": 0.9192668472075041
   },
   "models_compared": [
-    "GradientBoostingRegressor",
-    "HistGradientBoostingRegressor",
-    "RandomForestRegressor",
-    "ExtraTreesRegressor",
-    "DummyRegressor"
+    "ExtraTreesClassifier",
+    "RandomForestClassifier",
+    "GradientBoostingClassifier",
+    "HistGradientBoostingClassifier",
+    "LogisticRegression",
+    "DummyClassifier"
   ],
   "selected_hyperparameters": {
-    "algorithm": "GradientBoostingRegressor",
+    "algorithm": "ExtraTreesClassifier",
+    "classifier": {
+      "class_weight": "balanced",
+      "max_depth": null,
+      "min_samples_leaf": 1,
+      "min_samples_split": 2,
+      "n_estimators": 300,
+      "n_jobs": 1,
+      "random_state": 42
+    },
     "preprocessing": {
-      "categorical_encoder": "OneHotEncoder(handle_unknown='ignore', sparse_output=False)",
-      "categorical_features": [
-        "orientation",
-        "glazing_area_distribution"
-      ],
+      "categorical_features": [],
       "column_transformer_remainder": "drop",
       "numeric_features": [
-        "relative_compactness",
-        "surface_area",
-        "wall_area",
-        "roof_area",
-        "overall_height",
-        "glazing_area"
+        "fixed_acidity",
+        "volatile_acidity",
+        "citric_acid",
+        "residual_sugar",
+        "chlorides",
+        "free_sulfur_dioxide",
+        "total_sulfur_dioxide",
+        "density",
+        "ph",
+        "sulphates",
+        "alcohol"
       ],
       "numeric_imputer_strategy": "median",
       "numeric_scaler": "StandardScaler"
     },
-    "regressor": {
-      "learning_rate": 0.04,
-      "max_depth": 4,
-      "min_samples_leaf": 1,
-      "min_samples_split": 2,
-      "n_estimators": 800,
-      "random_state": 42,
-      "subsample": 1.0
-    },
     "selection": {
-      "cross_validation": "KFold(n_splits=5, shuffle=True, random_state=42)",
-      "main_scoring_metric": "r2",
-      "method": "controlled scikit-learn model comparison for a compact public regression dataset",
+      "cross_validation": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42)",
+      "main_scoring_metric": "weighted_f1",
+      "method": "controlled scikit-learn classifier comparison for a compact public dataset",
       "secondary_metrics": [
-        "rmse",
-        "mae"
+        "accuracy",
+        "macro_f1",
+        "precision_weighted",
+        "recall_weighted"
       ],
-      "selection_rule": "highest held-out R2 with strong CV support and fast CI/CT runtime"
+      "selection_rule": "highest held-out weighted F1 with stable CV performance and fast runtime"
     },
     "train_test_split": {
       "random_state": 42,
       "shuffle": true,
+      "stratify": "quality_label",
       "test_size": 0.2
     }
   },
-  "selected_model": "GradientBoostingRegressor",
-  "selection_method": "KFold cross-validation plus held-out test confirmation",
-  "selection_metric": "r2",
+  "selected_model": "ExtraTreesClassifier",
+  "selection_method": "StratifiedKFold cross-validation plus held-out test confirmation",
+  "selection_metric": "f1_weighted",
   "status": "completed"
 }

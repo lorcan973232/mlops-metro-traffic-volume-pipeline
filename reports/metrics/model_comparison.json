@@ -1,75 +1,121 @@
 {
   "baseline_comparison": {
-    "absolute_mae_reduction": 8.986499660565743,
-    "absolute_r2_improvement": 1.0039742952208757,
-    "absolute_rmse_reduction": 9.835614529507392,
-    "baseline_mae": 9.272103050044418,
-    "baseline_r2": -0.0055245239100216725,
-    "baseline_rmse": 10.23758974168782,
-    "final_model_mae": 0.2856033894786758,
-    "final_model_r2": 0.9984497713108541,
-    "final_model_rmse": 0.4019752121804286
+    "absolute_accuracy_improvement": 0.2906249999999999,
+    "absolute_weighted_f1_improvement": 0.4527051829217558,
+    "baseline_accuracy": 0.534375,
+    "baseline_f1_weighted": 0.37221232179226066,
+    "final_model_accuracy": 0.825,
+    "final_model_f1_weighted": 0.8249175047140165
   },
   "selected_best_model": {
-    "algorithm": "GradientBoostingRegressor",
+    "algorithm": "ExtraTreesClassifier",
     "cross_validation": {
-      "folds": 5,
-      "mae": {
-        "mean": 0.25835937478769483,
+      "accuracy": {
+        "mean": 0.8100122549019607,
         "per_fold": [
-          0.2547607543108132,
-          0.23449193980725633,
-          0.27454353415274757,
-          0.28154765547071653,
-          0.24645299019694067
+          0.83984375,
+          0.78515625,
+          0.79296875,
+          0.81640625,
+          0.8156862745098039
         ],
-        "std": 0.01745846437286545
+        "std": 0.019345789260910167
       },
-      "method": "KFold",
-      "r2": {
-        "mean": 0.9984581530470245,
+      "f1_macro": {
+        "mean": 0.808498079302489,
         "per_fold": [
-          0.998125222339314,
-          0.9989838762450118,
-          0.9983599027375533,
-          0.9985016095459114,
-          0.9983201543673317
+          0.838758737230202,
+          0.783407940683311,
+          0.7925857983642894,
+          0.814638505029964,
+          0.8130994152046784
         ],
-        "std": 0.0002890719506428489
+        "std": 0.01927329903780477
+      },
+      "f1_weighted": {
+        "mean": 0.8096307921962153,
+        "per_fold": [
+          0.8396887481757431,
+          0.7847761827572415,
+          0.7932124464954521,
+          0.81591128140839,
+          0.8145653021442495
+        ],
+        "std": 0.01925922291657906
+      },
+      "folds": 5,
+      "method": "StratifiedKFold",
+      "precision_macro": {
+        "mean": 0.8105688804201524,
+        "per_fold": [
+          0.8395320197044335,
+          0.784717074376081,
+          0.7924908424908425,
+          0.8169642857142857,
+          0.8191401798151197
+        ],
+        "std": 0.019740127408448598
+      },
+      "precision_weighted": {
+        "mean": 0.8107663436529755,
+        "per_fold": [
+          0.8397658174261083,
+          0.7849994015628861,
+          0.7946414262820511,
+          0.816650390625,
+          0.817774682368832
+        ],
+        "std": 0.01922839860382005
       },
       "random_state": 42,
-      "rmse": {
-        "mean": 0.39113102299786073,
+      "recall_macro": {
+        "mean": 0.8079624915659693,
         "per_fold": [
-          0.451613237352802,
-          0.32180823344651577,
-          0.4026400736205411,
-          0.3892733227220564,
-          0.3903202478473884
+          0.8382199595166533,
+          0.782708703919524,
+          0.7938722934429246,
+          0.8135619211188125,
+          0.8114495798319328
         ],
-        "std": 0.041473639959260615
+        "std": 0.018948959002103253
+      },
+      "recall_weighted": {
+        "mean": 0.8100122549019607,
+        "per_fold": [
+          0.83984375,
+          0.78515625,
+          0.79296875,
+          0.81640625,
+          0.8156862745098039
+        ],
+        "std": 0.019345789260910167
       },
       "scoring": [
-        "r2",
-        "rmse",
-        "mae"
+        "accuracy",
+        "precision_macro",
+        "recall_macro",
+        "f1_macro",
+        "precision_weighted",
+        "recall_weighted",
+        "f1_weighted"
       ],
       "shuffle": true,
       "status": "completed"
     },
     "held_out_test": {
-      "explained_variance": 0.9984578157723486,
-      "mae": 0.2856033894786758,
-      "max_error": 1.712076053073842,
-      "mean_absolute_percentage_error": 0.013062033221972814,
-      "median_absolute_error": 0.19730389260068293,
-      "mse": 0.1615840712075006,
-      "r2": 0.9984497713108541,
-      "rmse": 0.4019752121804286
+      "accuracy": 0.825,
+      "balanced_accuracy": 0.8237371953373366,
+      "f1_macro": 0.8240100565681961,
+      "f1_weighted": 0.8249175047140165,
+      "precision_macro": 0.8243482364043884,
+      "precision_weighted": 0.8248997286775982,
+      "recall_macro": 0.8237371953373366,
+      "recall_weighted": 0.825,
+      "roc_auc": 0.9192668472075041
     },
-    "model_name": "gradient_boosting_regressor",
-    "model_version": "energy-efficiency-gradient-boosting-v1",
-    "reason_selected": "Gradient boosting achieved a very high held-out R2 with low RMSE/MAE, strong 5-fold CV stability, and fast CI/CT runtime."
+    "model_name": "extra_trees_classifier",
+    "model_version": "wine-quality-extra-trees-v1",
+    "reason_selected": "ExtraTreesClassifier achieved strong accuracy, macro F1 and weighted F1, with stable 5-fold stratified cross-validation and fast CI runtime."
   },
   "status": "completed"
 }

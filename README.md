@@ -1,4 +1,4 @@
-# MLOps Building Energy Load Predictor
+# MLOps Red Wine Quality Classifier
 
 ![CI](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/ci.yml/badge.svg)
 ![Data](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/data-preprocessing.yml/badge.svg)
@@ -7,89 +7,132 @@
 ![Docker](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/docker-build.yml/badge.svg)
 ![Deploy](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/deploy.yml/badge.svg)
 ![Monitoring](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/monitoring.yml/badge.svg)
-![Dataset](https://img.shields.io/badge/dataset-UCI%20Energy%20Efficiency-orange)
+![Dataset](https://img.shields.io/badge/dataset-UCI%20Wine%20Quality-red)
 
 Public GitHub repository: <https://github.com/lorcan973232/mlops-wine-quality-pipeline>
 
-This repository is the artefact component only. It implements a complete MLOps pipeline around a Flask prediction service, Docker image, Kind Kubernetes deployment, GitHub Actions CI/CD/CT/CM workflows, tests, monitoring, and traceability evidence. The repository must remain public until 21 June 2026.
+This repository is the artefact component only. It implements a reproducible MLOps pipeline around a Flask prediction service, Docker image, Kind Kubernetes deployment, GitHub Actions CI/CD/CT/CM workflows, tests, monitoring, and traceability evidence. The repository must remain public until 21 June 2026.
 
-## Use Case
+## Project Overview
 
-The artefact predicts a building's heating load from eight simple design inputs. This was selected because it is much easier to demonstrate than a specialist medical feature form, while still achieving excellent honest regression metrics on a public dataset.
+The artefact classifies a red wine sample as `standard quality` or `good quality` from 11 physicochemical inputs. The binary model target is `quality_label`, derived from the original UCI `quality` score where `quality >= 6` is treated as good quality.
 
 | Item | Value |
 |---|---|
-| Dataset | UCI Energy Efficiency |
-| Public source | <https://archive.ics.uci.edu/dataset/242/energy+efficiency> |
-| Download file | `https://archive.ics.uci.edu/ml/machine-learning-databases/00242/ENB2012_data.xlsx` |
-| Task type | Regression |
-| Target | `heating_load` |
-| Model | `GradientBoostingRegressor` |
-| Model path | `models/energy_efficiency_heating_load_regressor.joblib` |
-| Model version | `energy-efficiency-gradient-boosting-v1` |
+| Dataset | UCI Wine Quality - Red Wine |
+| Public source | <https://archive.ics.uci.edu/dataset/186/wine+quality> |
+| Download file | `https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv` |
+| Raw SHA-256 | `4a402cf041b025d4566d954c3b9ba8635a3a8a01e039005d97d6a710278cf05e` |
+| Task type | Binary classification |
+| Source target | `quality` |
+| Model target | `quality_label` |
+| Positive class | `good quality` when `quality >= 6` |
+| Model | `ExtraTreesClassifier` |
+| Model path | `models/wine_quality_classifier.joblib` |
+| Model version | `wine-quality-extra-trees-v1` |
 
 ## Input Schema
 
 | Field | Meaning |
 |---|---|
-| `relative_compactness` | Building compactness score |
-| `surface_area` | Total external surface area |
-| `wall_area` | Wall area |
-| `roof_area` | Roof area |
-| `overall_height` | Building height |
-| `orientation` | Integer-coded orientation, 2 to 5 |
-| `glazing_area` | Window/glazing proportion |
-| `glazing_area_distribution` | Integer-coded glazing distribution, 0 to 5 |
+| `fixed_acidity` | Non-volatile tartaric acid concentration |
+| `volatile_acidity` | Acetic acid level |
+| `citric_acid` | Citric acid concentration |
+| `residual_sugar` | Sugar left after fermentation |
+| `chlorides` | Salt concentration |
+| `free_sulfur_dioxide` | Free sulfur dioxide concentration |
+| `total_sulfur_dioxide` | Total sulfur dioxide concentration |
+| `density` | Wine density |
+| `ph` | Acidity/alkalinity value |
+| `sulphates` | Sulphate concentration |
+| `alcohol` | Alcohol by volume percentage |
 
-The `/predict` endpoint returns a numeric heating-load estimate, the target name, unit label, and model version.
+The `/predict` endpoint returns the class id, class label, class probabilities, confidence, target name, and model version.
 
 ## Latest Metrics
 
-Run `python -m src.evaluate` to regenerate the latest metrics.
+Run `python -m src.evaluate` to regenerate metrics.
 
-| Metric | Quality gate |
+| Metric | Latest value |
 |---|---:|
-| R2 | `>= 0.98` |
-| RMSE | `<= 0.75` |
-| MAE | `<= 0.55` |
+| Accuracy | `0.825` |
+| Balanced accuracy | `0.8237371953373366` |
+| Precision macro | `0.8243482364043884` |
+| Recall macro | `0.8237371953373366` |
+| F1 macro | `0.8240100565681961` |
+| Precision weighted | `0.8248997286775982` |
+| Recall weighted | `0.825` |
+| F1 weighted | `0.8249175047140165` |
+| ROC AUC | `0.9192668472075041` |
+| 5-fold CV accuracy mean/std | `0.8100122549019607 / 0.019345789260910167` |
+| Baseline accuracy | `0.534375` |
+| Baseline weighted F1 | `0.37221232179226066` |
 
-Latest verified local values:
+Quality gate thresholds:
 
-| Metric | Value |
-|---|---:|
-| R2 | `0.9984497713108541` |
-| RMSE | `0.4019752121804286` |
-| MAE | `0.2856033894786758` |
-| MAPE | `0.013062033221972814` |
-| 5-fold CV R2 mean/std | `0.9984581530470245 / 0.0002890719506428489` |
+| Gate | Threshold | Status |
+|---|---:|---|
+| Accuracy | `>= 0.80` | Passed |
+| Weighted F1 | `>= 0.80` | Passed |
+| Macro F1 | `>= 0.80` | Passed |
+| CV accuracy mean | `>= 0.77` | Passed |
+| Accuracy improvement over baseline | `>= 0.20` | Passed |
 
-Metric files:
+Metric evidence files:
 
 | File | Evidence |
 |---|---|
-| `reports/metrics/latest_metrics.json` | Latest R2, RMSE, MAE, MSE, residual and quality-gate summary |
-| `reports/metrics/baseline_metrics.json` | Dummy mean baseline |
+| `reports/metrics/latest_metrics.json` | Current accuracy, precision, recall, F1, ROC AUC, quality gate |
+| `reports/metrics/baseline_metrics.json` | Dummy most-frequent baseline |
+| `reports/metrics/quality_gate_report.json` | CT acceptance/rejection gate |
+| `reports/metrics/model_metadata.json` | Dataset, schema, hyperparameters, metrics, model version |
 | `reports/metrics/model_comparison.json` | Candidate model and baseline comparison |
-| `reports/metrics/cross_validation_results.json` | 5-fold KFold CV results |
-| `reports/metrics/model_metadata.json` | Dataset, schema, hyperparameters, metrics, and quality gate |
-| `reports/metrics/quality_gate_report.json` | Continuous Training acceptance/rejection gate |
+| `reports/metrics/classification_report.json` | Per-class, macro, and weighted classification report |
+| `reports/metrics/confusion_matrix.json` | Held-out confusion matrix |
+| `reports/metrics/cross_validation_results.json` | 5-fold StratifiedKFold results |
 
-Classification-specific files are marked `NOT_APPLICABLE` because the selected task is regression.
+## Hyperparameters
+
+```json
+{
+  "algorithm": "ExtraTreesClassifier",
+  "classifier": {
+    "n_estimators": 300,
+    "max_depth": null,
+    "min_samples_leaf": 1,
+    "min_samples_split": 2,
+    "class_weight": "balanced",
+    "random_state": 42,
+    "n_jobs": 1
+  },
+  "train_test_split": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "shuffle": true,
+    "stratify": "quality_label"
+  },
+  "preprocessing": {
+    "numeric_imputer_strategy": "median",
+    "numeric_scaler": "StandardScaler"
+  }
+}
+```
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  A["UCI Energy Efficiency dataset"] --> B["src.data"]
+  A["UCI red wine CSV"] --> B["src.data"]
   B --> C["src.preprocess"]
   C --> D["src.model_selection"]
   D --> E["src.train"]
   E --> F["src.evaluate + quality gate"]
-  F --> G["Flask API + Web UI"]
-  G --> H["Docker image"]
-  H --> I["Kind Kubernetes deployment"]
-  F --> J["Continuous Training"]
-  G --> K["Continuous Monitoring"]
+  F --> G["src.model_registry"]
+  G --> H["Flask API + Web UI"]
+  H --> I["Docker image"]
+  I --> J["Kind Kubernetes deployment"]
+  F --> K["Continuous Training"]
+  H --> L["Continuous Monitoring"]
 ```
 
 ## Local Setup
@@ -108,24 +151,10 @@ bash scripts/setup_local.sh
 bash scripts/check_setup.sh
 ```
 
-If PowerShell blocks scripts:
-
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-```
-
-Temporary bypass:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/check_setup.ps1
-```
-
-## Core Commands
+## Core Verification Commands
 
 ```powershell
 python -m compileall app src tests
-pytest -q
-ruff check src tests
 python -m src.data
 python -m src.preprocess
 python -m src.model_selection
@@ -135,9 +164,12 @@ python -m src.model_registry
 python -m src.predict
 python scripts/monitor.py
 python scripts/check_drift.py
+pytest -q
+ruff check src tests
+python -c "from app.main import app; print('Flask import OK')"
 ```
 
-## Flask Web UI
+## Flask API and UI
 
 Run:
 
@@ -151,21 +183,24 @@ Open:
 http://127.0.0.1:5000/
 ```
 
-The UI is a simple card-style form inspired by the supplied reference layout, but it uses the real Energy Efficiency dataset. Click `Use Example`, then `Predict Heating Load`. The UI calls `/predict` and displays the model version.
+Click `Use Example`, then `Predict Quality`. The UI calls `/predict`, displays the predicted quality class, confidence, and model version.
 
 Example payload:
 
 ```json
 {
   "features": {
-    "relative_compactness": 0.76,
-    "surface_area": 661.5,
-    "wall_area": 416.5,
-    "roof_area": 122.5,
-    "overall_height": 7.0,
-    "orientation": 2,
-    "glazing_area": 0.4,
-    "glazing_area_distribution": 5
+    "fixed_acidity": 7.4,
+    "volatile_acidity": 0.7,
+    "citric_acid": 0.0,
+    "residual_sugar": 1.9,
+    "chlorides": 0.076,
+    "free_sulfur_dioxide": 11.0,
+    "total_sulfur_dioxide": 34.0,
+    "density": 0.9978,
+    "ph": 3.51,
+    "sulphates": 0.56,
+    "alcohol": 9.4
   }
 }
 ```
@@ -221,7 +256,7 @@ Open Kind UI:
 http://127.0.0.1:8080/
 ```
 
-Smoke test:
+Smoke test and API-aware monitoring:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:8080
@@ -232,28 +267,32 @@ python scripts/monitor.py --api-url http://127.0.0.1:8080
 
 | Workflow | Purpose | Trigger | Main evidence |
 |---|---|---|---|
-| `.github/workflows/ci.yml` | Compile, lint, tests | Push/PR | `compileall`, `ruff`, `pytest` |
-| `.github/workflows/data-preprocessing.yml` | Ingest and preprocess public dataset | Push/PR/manual | `python -m src.data`, `python -m src.preprocess` |
+| `.github/workflows/ci.yml` | Compile, lint, tests, ML smoke path | Push/PR/manual | `compileall`, `ruff`, `pytest`, pipeline scripts |
+| `.github/workflows/data-preprocessing.yml` | Ingest and preprocess public dataset | Push/PR/manual | `data_ingestion.json`, processed CSV |
 | `.github/workflows/train-and-evaluate.yml` | Train, evaluate, register | Push/PR/manual | model and metrics artefacts |
+| `.github/workflows/docker-build.yml` | Build and smoke-test image | Push/PR/manual | Docker health/predict smoke test |
 | `.github/workflows/continuous-training.yml` | Scheduled/manual retraining | Schedule/manual | `quality_gate_report.json` |
-| `.github/workflows/docker-build.yml` | Build and smoke-test image | Push/PR/manual | Docker smoke logs |
 | `.github/workflows/deploy.yml` | Kind deployment only | Push/manual/workflow_run | rollout and smoke logs |
-| `.github/workflows/monitoring.yml` | Offline monitoring and drift | Schedule/manual | monitoring reports |
+| `.github/workflows/monitoring.yml` | Offline monitoring and drift | Schedule/manual | monitoring and drift reports |
+
+Post-push verification is required in the GitHub Actions tab. If a workflow has not run after the final push, run it manually from Actions using `Run workflow`.
 
 ## Branching Strategy
 
 | Branch | Purpose |
 |---|---|
-| `main` | Stable release branch; triggers deployment workflow |
+| `main` | Stable release branch; deployment workflow is scoped to `main` |
 | `develop` | Integration branch before release |
 | `feature/*` | Feature work through pull requests |
 | `hotfix/*` | Optional urgent corrections |
 
-Pull requests trigger CI. CI must pass before merge. Continuous Training and Monitoring are scheduled from the repository workflow definitions.
+Pull requests trigger CI. CI must pass before merge. Continuous Training and Monitoring are scheduled from the repository workflow definitions and can also be run manually.
 
-## Monitoring
+## Continuous Training and Monitoring
 
-Offline simulated monitoring:
+Continuous Training reruns ingestion, preprocessing, model selection, training, evaluation, and the quality gate. The candidate is accepted only if accuracy, macro F1, weighted F1, CV accuracy, and baseline improvement thresholds pass.
+
+Offline monitoring:
 
 ```powershell
 python scripts/monitor.py
@@ -266,40 +305,39 @@ API-aware monitoring after Kind port-forward:
 python scripts/monitor.py --api-url http://127.0.0.1:8080
 ```
 
-Reports are written under `reports/monitoring/`. The artefact does not claim production telemetry; it implements simulated data-quality/drift checks and API-aware health/prediction monitoring.
+Reports are written under `reports/monitoring/`. The artefact does not claim production telemetry; monitoring uses deterministic batch checks, schema validation, simulated drift, and optional deployed API checks.
 
 ## Live Demo Checklist
 
-1. Show public GitHub repo and this README.
-2. Run setup check.
-3. Run tests and lint.
-4. Run data ingestion, preprocessing, model selection, training, evaluation, registry, prediction.
-5. Show `latest_metrics.json`, `model_metadata.json`, `model_comparison.json`, and `quality_gate_report.json`.
-6. Start Flask and open `http://127.0.0.1:5000/`.
-7. Click `Use Example`, then `Predict Heating Load`.
-8. Build Docker, open `http://127.0.0.1:5001/`, and run smoke test.
-9. Deploy to Kind, port-forward, open `http://127.0.0.1:8080/`, and run smoke test.
-10. Run offline monitoring, drift check, and API-aware monitoring.
-11. Show GitHub Actions workflows and recent runs.
+1. Show the public GitHub repo and this README.
+2. Run `python -m compileall app src tests`, `pytest -q`, and `ruff check src tests`.
+3. Run `python -m src.data`, `python -m src.preprocess`, `python -m src.model_selection`, `python -m src.train`, `python -m src.evaluate`, `python -m src.model_registry`, and `python -m src.predict`.
+4. Show `latest_metrics.json`, `classification_report.json`, `confusion_matrix.json`, `model_metadata.json`, `model_comparison.json`, and `quality_gate_report.json`.
+5. Start Flask and open `http://127.0.0.1:5000/`.
+6. Click `Use Example`, then `Predict Quality`.
+7. Build Docker, open `http://127.0.0.1:5001/`, and run the smoke test.
+8. Deploy to Kind, port-forward the service, open `http://127.0.0.1:8080/`, and run the smoke test.
+9. Run offline monitoring, drift check, and API-aware monitoring.
+10. Show GitHub Actions workflows and recent runs.
 
 ## Traceability Matrix
 
 | Artefact requirement | File/path | Local command | GitHub Actions workflow | Quality gate/test | Status | Remaining action |
 |---|---|---|---|---|---|---|
-| Public dataset ingestion | `src/data.py`, `data/raw/energy-efficiency.xlsx` | `python -m src.data` | `data-preprocessing.yml` | SHA-256/schema validation, `tests/test_data.py` | Verified locally | Rerun before demo |
-| Preprocessing | `src/preprocess.py` | `python -m src.preprocess` | `data-preprocessing.yml` | deterministic processed CSV | Verified locally | Rerun before demo |
-| Model selection | `src/model_selection.py` | `python -m src.model_selection` | `train-and-evaluate.yml` | model comparison JSON | Verified locally | Rerun before demo |
-| Training | `src/train.py` | `python -m src.train` | `train-and-evaluate.yml`, `continuous-training.yml` | saved model and metadata | Verified locally | Rerun before demo |
-| Evaluation | `src/evaluate.py` | `python -m src.evaluate` | `train-and-evaluate.yml`, `continuous-training.yml` | R2/RMSE/MAE gate | Verified locally | Rerun before demo |
+| Public dataset ingestion | `src/data.py`, `data/raw/winequality-red.csv` | `python -m src.data` | `data-preprocessing.yml` | SHA-256/schema validation, `tests/test_data.py` | Verified locally | Confirm final GitHub run |
+| Preprocessing | `src/preprocess.py` | `python -m src.preprocess` | `data-preprocessing.yml` | deterministic processed CSV | Verified locally | Confirm final GitHub run |
+| Model selection | `src/model_selection.py` | `python -m src.model_selection` | `train-and-evaluate.yml` | model comparison JSON | Verified locally | Confirm final GitHub run |
+| Training | `src/train.py` | `python -m src.train` | `train-and-evaluate.yml`, `continuous-training.yml` | saved model and metadata | Verified locally | Confirm final GitHub run |
+| Evaluation | `src/evaluate.py` | `python -m src.evaluate` | `train-and-evaluate.yml`, `continuous-training.yml` | accuracy/F1/baseline gate | Verified locally | Confirm final GitHub run |
 | Flask API/UI | `app/` | `python -m app.main` | `ci.yml`, Docker/Deploy workflows | `tests/test_api.py`, `tests/test_ui.py` | Verified locally | Open UI during demo |
-| Docker | `Dockerfile`, `.dockerignore` | `docker build -t mlops-flask-api:latest .` | `docker-build.yml` | smoke test script | Verified locally | Rerun before demo |
-| Kind Kubernetes | `deployment/kind/`, `scripts/deploy_kind.*` | `scripts/deploy_kind.sh` or `.ps1` | `deploy.yml` | rollout + smoke test | Verified locally | Rerun before demo |
-| Continuous Training | `continuous-training.yml` | `python -m src.evaluate` | `continuous-training.yml` | `quality_gate_report.json` | Verified locally | Confirm GitHub run after push |
-| Continuous Monitoring | `scripts/monitor.py`, `scripts/check_drift.py` | `python scripts/monitor.py` | `monitoring.yml` | retraining flag/report | Verified locally | Confirm GitHub run after push |
-| Tests | `tests/` | `pytest -q` | `ci.yml` | pytest suite | Verified locally | Rerun before demo |
+| Docker | `Dockerfile`, `.dockerignore` | `docker build -t mlops-flask-api:latest .` | `docker-build.yml` | smoke test script | Verified locally | Confirm final GitHub run |
+| Kind Kubernetes | `deployment/kind/`, `scripts/deploy_kind.*` | `scripts/deploy_kind.ps1` or `.sh` | `deploy.yml` | rollout + smoke test | Verified locally | Confirm final GitHub run |
+| Continuous Training | `continuous-training.yml` | `python -m src.evaluate` | `continuous-training.yml` | `quality_gate_report.json` | Verified locally | Confirm final GitHub run |
+| Continuous Monitoring | `scripts/monitor.py`, `scripts/check_drift.py` | `python scripts/monitor.py` | `monitoring.yml` | drift/API reports | Verified locally | Confirm final GitHub run |
+| Tests | `tests/` | `pytest -q` | `ci.yml` | pytest suite | Verified locally | Confirm final GitHub run |
 | Branching | README | `git status --short --branch` | PR workflows | CI before merge | Documented | None |
-| Public GitHub | README, remote repo | `gh repo view` | GitHub Actions tab | repo public check | Implemented | Keep public until 21 June 2026 |
+| Public GitHub | README, remote repo | `gh repo view` | GitHub Actions tab | repo public check | Documented | Keep public until 21 June 2026 |
 
 ## Limitations
 
-The dataset is simulation-based building-performance data rather than live production telemetry. This is acceptable for the artefact because the repository demonstrates reproducible ingestion, training, evaluation, API serving, Docker, Kind deployment, Continuous Training, Continuous Monitoring, tests, and traceability without hidden manual steps.
+The dataset is a fixed public research dataset rather than live production telemetry. Monitoring is therefore simulated and API-aware rather than production-grade observability. The model is intended for MLOps pipeline demonstration, not wine-production decision making.

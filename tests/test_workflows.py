@@ -121,28 +121,31 @@ def test_workflows_do_not_hardcode_credentials() -> None:
 
 
 def test_docker_workflow_has_verified_dataset_build_context() -> None:
-    raw_dataset = Path("data/raw/energy-efficiency.xlsx")
+    raw_dataset = Path("data/raw/winequality-red.csv")
     dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
     dockerignore = Path(".dockerignore").read_text(encoding="utf-8")
     gitignore = Path(".gitignore").read_text(encoding="utf-8")
 
     assert raw_dataset.exists()
     assert "COPY data/raw/ data/raw/" in dockerfile
-    assert "data/raw/*.xlsx" not in dockerignore
-    assert "!data/raw/energy-efficiency.xlsx" in gitignore
+    assert "data/raw/*.csv" not in dockerignore
+    assert "!data/raw/winequality-red.csv" in gitignore
 
 
 def test_smoke_test_uses_valid_prediction_feature_names() -> None:
     smoke_script = Path("scripts/smoke_test_api.sh").read_text(encoding="utf-8")
     for feature_name in [
-        "relative_compactness",
-        "surface_area",
-        "wall_area",
-        "roof_area",
-        "overall_height",
-        "orientation",
-        "glazing_area",
-        "glazing_area_distribution",
+        "fixed_acidity",
+        "volatile_acidity",
+        "citric_acid",
+        "residual_sugar",
+        "chlorides",
+        "free_sulfur_dioxide",
+        "total_sulfur_dioxide",
+        "density",
+        "ph",
+        "sulphates",
+        "alcohol",
     ]:
         assert feature_name in smoke_script
 

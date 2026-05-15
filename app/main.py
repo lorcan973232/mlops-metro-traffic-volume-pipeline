@@ -9,12 +9,16 @@ from app.model_loader import load_model
 from app.schemas import (
     FEATURE_COLUMNS,
     TARGET_LABEL,
+    TARGET_LABELS,
     TARGET_NAME,
-    TARGET_UNIT,
     PredictionRequestExample,
     ui_feature_groups,
     validate_prediction_payload,
 )
+
+
+def _target_labels(bundle: dict[str, Any]) -> dict[int, str]:
+    return {int(key): value for key, value in bundle.get("target_labels", TARGET_LABELS).items()}
 
 
 def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
@@ -31,9 +35,8 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
         model_status: dict[str, Any] = {
             "model_loaded": False,
             "model_version": "unavailable",
-            "dataset": {"name": "UCI Energy Efficiency"},
+            "dataset": {"name": "UCI Wine Quality - Red Wine"},
             "target_label": TARGET_LABEL,
-            "target_unit": TARGET_UNIT,
         }
         try:
             bundle = get_model_bundle()
@@ -41,12 +44,9 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
                 {
                     "model_loaded": True,
                     "model_version": bundle.get("model_version", "unknown"),
-                    "model_path": bundle.get(
-                        "model_path",
-                        "models/energy_efficiency_heating_load_regressor.joblib",
-                    ),
+                    "model_path": bundle.get("model_path", "models/wine_quality_classifier.joblib"),
                     "dataset": bundle.get("dataset", model_status["dataset"]),
-                    "target_unit": bundle.get("target_unit", TARGET_UNIT),
+                    "target_labels": _target_labels(bundle),
                 }
             )
         except Exception as exc:  # pragma: no cover - defensive UI status path
@@ -73,15 +73,14 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
                     "status": "healthy",
                     "model_loaded": True,
                     "model_version": bundle.get("model_version", "unknown"),
-                    "model_path": bundle.get(
-                        "model_path",
-                        "models/energy_efficiency_heating_load_regressor.joblib",
-                    ),
+                    "model_path": bundle.get("model_path", "models/wine_quality_classifier.joblib"),
                     "dataset": bundle.get("dataset", {}),
                     "feature_count": len(bundle["feature_columns"]),
-                    "task_type": bundle.get("task_type", "regression"),
+                    "task_type": bundle.get("task_type", "classification"),
                     "target": bundle.get("target_definition", {}).get("model_target", TARGET_NAME),
-                    "target_unit": bundle.get("target_unit", TARGET_UNIT),
+                    "target_label": TARGET_LABEL,
+                    "target_labels": _target_labels(bundle),
+                    "classes": bundle.get("classes", [0, 1]),
                 }
             ),
             200,
@@ -94,20 +93,35 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
             frame = pd.DataFrame(records, columns=FEATURE_COLUMNS)
             bundle = get_model_bundle()
             model = bundle["model"]
-            predictions = model.predict(frame)
+            predictions = [int(value) for value in model.predict(frame)]
+            probability_rows = (
+                model.predict_proba(frame)
+                if hasattr(model, "predict_proba")
+                else [None] * len(predictions)
+            )
         except ValueError as exc:
             return jsonify({"error": str(exc)}), 400
         except Exception as exc:  # pragma: no cover - exercised by smoke tests
             return jsonify({"error": str(exc)}), 500
 
-        results = [
-            {
-                "prediction": round(float(prediction), 3),
+        labels = _target_labels(bundle)
+        classes = [int(value) for value in bundle.get("classes", [0, 1])]
+        results = []
+        for prediction, probabilities in zip(predictions, probability_rows, strict=False):
+            result: dict[str, Any] = {
+                "prediction": prediction,
+                "prediction_label": labels.get(prediction, str(prediction)),
                 "target": bundle.get("target_definition", {}).get("model_target", TARGET_NAME),
-                "unit": bundle.get("target_unit", TARGET_UNIT),
             }
-            for prediction in predictions
-        ]
+            if probabilities is not None:
+                probability_map = {
+                    labels.get(class_value, str(class_value)): round(float(probability), 4)
+                    for class_value, probability in zip(classes, probabilities, strict=False)
+                }
+                result["probabilities"] = probability_map
+                result["confidence"] = probability_map[labels.get(prediction, str(prediction))]
+            results.append(result)
+
         response: dict[str, Any] = {"predictions": results}
         response["model_version"] = bundle.get("model_version", "unknown")
         if len(results) == 1:

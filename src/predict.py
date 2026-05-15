@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from typing import Any
 
 import joblib
 import pandas as pd
@@ -11,7 +12,31 @@ from app.schemas import FEATURE_COLUMNS, PredictionRequestExample, validate_pred
 from src.train import MODEL_PATH
 
 
-def predict(payload: dict, model_path: Path = MODEL_PATH) -> list[dict[str, object]]:
+def _prediction_result(
+    bundle: dict[str, Any],
+    prediction: int,
+    probabilities: Any | None,
+) -> dict[str, Any]:
+    target_labels = {int(key): value for key, value in bundle.get("target_labels", {}).items()}
+    label = target_labels.get(prediction, str(prediction))
+    result: dict[str, Any] = {
+        "prediction": prediction,
+        "prediction_label": label,
+        "target": bundle.get("target_definition", {}).get("model_target", "quality_label"),
+    }
+    if probabilities is not None:
+        classes = [int(value) for value in bundle.get("classes", [0, 1])]
+        probability_map = {
+            target_labels.get(class_value, str(class_value)): round(float(probability), 4)
+            for class_value, probability in zip(classes, probabilities, strict=False)
+        }
+        result["probabilities"] = probability_map
+        if prediction in classes:
+            result["confidence"] = probability_map[target_labels.get(prediction, str(prediction))]
+    return result
+
+
+def predict(payload: dict, model_path: Path = MODEL_PATH) -> list[dict[str, Any]]:
     if not model_path.exists():
         raise FileNotFoundError(
             f"Model artifact not found at {model_path}. Run `python -m src.train` first."
@@ -19,22 +44,23 @@ def predict(payload: dict, model_path: Path = MODEL_PATH) -> list[dict[str, obje
     bundle = joblib.load(model_path)
     if bundle.get("feature_columns") != FEATURE_COLUMNS:
         raise ValueError("Saved model feature schema does not match prediction schema.")
+    if bundle.get("task_type") != "classification":
+        raise ValueError("Saved model task type does not match classification prediction schema.")
     records = validate_prediction_payload(payload)
     frame = pd.DataFrame(records, columns=FEATURE_COLUMNS)
     model = bundle["model"]
-    predictions = model.predict(frame)
+    predictions = [int(value) for value in model.predict(frame)]
+    probability_rows = (
+        model.predict_proba(frame) if hasattr(model, "predict_proba") else [None] * len(frame)
+    )
     return [
-        {
-            "prediction": float(prediction),
-            "target": bundle.get("target_definition", {}).get("model_target", "heating_load"),
-            "unit": bundle.get("target_unit", "heating load"),
-        }
-        for prediction in predictions
+        _prediction_result(bundle, prediction, probabilities)
+        for prediction, probabilities in zip(predictions, probability_rows, strict=False)
     ]
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run one local building heating-load prediction.")
+    parser = argparse.ArgumentParser(description="Run one local red wine quality prediction.")
     parser.add_argument("--payload-json", default=None)
     args = parser.parse_args()
     payload = (

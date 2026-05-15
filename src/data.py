@@ -8,50 +8,56 @@ from typing import Any
 
 import pandas as pd
 
-DATASET_NAME = "UCI Energy Efficiency"
-DATA_SOURCE_PAGE = "https://archive.ics.uci.edu/dataset/242/energy+efficiency"
+DATASET_NAME = "UCI Wine Quality - Red Wine"
+DATA_SOURCE_PAGE = "https://archive.ics.uci.edu/dataset/186/wine+quality"
 DATA_DOWNLOAD_URL = (
-    "https://archive.ics.uci.edu/ml/machine-learning-databases/00242/ENB2012_data.xlsx"
+    "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv"
 )
-DATA_SOURCE_NOTE = "Downloaded from the official UCI ENB2012_data.xlsx file."
-DATA_DOI = "10.24432/C51307"
+DATA_SOURCE_NOTE = "Downloaded from the official UCI winequality-red.csv file."
+DATA_DOI = "10.24432/C56S3T"
 DATA_LICENSE = "Creative Commons Attribution 4.0 International"
-DATA_SHA256 = "0089fcffc1415e41e2ff63730cca5280efe54fc43d722dfde1b0aaa808e35dc4"
+DATA_SHA256 = "4a402cf041b025d4566d954c3b9ba8635a3a8a01e039005d97d6a710278cf05e"
 
-RAW_DATA_PATH = Path("data/raw/energy-efficiency.xlsx")
-RAW_CSV_PATH = Path("data/raw/energy-efficiency.csv")
+RAW_DATA_PATH = Path("data/raw/winequality-red.csv")
+RAW_CSV_PATH = RAW_DATA_PATH
 INGESTION_REPORT_PATH = Path("reports/metrics/data_ingestion.json")
 
 FEATURE_COLUMNS = [
-    "relative_compactness",
-    "surface_area",
-    "wall_area",
-    "roof_area",
-    "overall_height",
-    "orientation",
-    "glazing_area",
-    "glazing_area_distribution",
+    "fixed_acidity",
+    "volatile_acidity",
+    "citric_acid",
+    "residual_sugar",
+    "chlorides",
+    "free_sulfur_dioxide",
+    "total_sulfur_dioxide",
+    "density",
+    "ph",
+    "sulphates",
+    "alcohol",
 ]
-TARGET_COLUMN = "heating_load"
-SECONDARY_TARGET_COLUMN = "cooling_load"
-TASK_TYPE = "regression"
-TARGET_UNIT = "heating load"
+SOURCE_TARGET_COLUMN = "quality"
+TARGET_COLUMN = "quality_label"
+TASK_TYPE = "classification"
+POSITIVE_CLASS_THRESHOLD = 6
+TARGET_LABELS = {
+    0: "standard quality",
+    1: "good quality",
+}
 
-RAW_COLUMN_NAMES = [
-    *FEATURE_COLUMNS,
-    TARGET_COLUMN,
-    SECONDARY_TARGET_COLUMN,
-]
+RAW_COLUMN_NAMES = [*FEATURE_COLUMNS, SOURCE_TARGET_COLUMN]
 
 FEATURE_RANGES: dict[str, tuple[float, float]] = {
-    "relative_compactness": (0.62, 0.98),
-    "surface_area": (514.5, 808.5),
-    "wall_area": (245.0, 416.5),
-    "roof_area": (110.25, 220.5),
-    "overall_height": (3.5, 7.0),
-    "orientation": (2.0, 5.0),
-    "glazing_area": (0.0, 0.4),
-    "glazing_area_distribution": (0.0, 5.0),
+    "fixed_acidity": (4.0, 16.0),
+    "volatile_acidity": (0.1, 1.6),
+    "citric_acid": (0.0, 1.1),
+    "residual_sugar": (0.5, 16.0),
+    "chlorides": (0.01, 0.7),
+    "free_sulfur_dioxide": (1.0, 80.0),
+    "total_sulfur_dioxide": (5.0, 300.0),
+    "density": (0.98, 1.01),
+    "ph": (2.5, 4.2),
+    "sulphates": (0.2, 2.2),
+    "alcohol": (8.0, 16.0),
 }
 
 
@@ -114,13 +120,13 @@ def download_dataset(
 def load_raw_data(path: Path = RAW_DATA_PATH) -> pd.DataFrame:
     if not Path(path).exists():
         raise FileNotFoundError(f"Raw dataset not found at {path}. Run `python -m src.data`.")
-    frame = pd.read_excel(path, engine="openpyxl")
+    frame = pd.read_csv(path, sep=";")
     frame.columns = RAW_COLUMN_NAMES
     return frame
 
 
-def validate_raw_data(frame: pd.DataFrame, min_rows: int = 700) -> dict[str, Any]:
-    required_columns = [*FEATURE_COLUMNS, TARGET_COLUMN, SECONDARY_TARGET_COLUMN]
+def validate_raw_data(frame: pd.DataFrame, min_rows: int = 1500) -> dict[str, Any]:
+    required_columns = [*FEATURE_COLUMNS, SOURCE_TARGET_COLUMN]
     missing_columns = [column for column in required_columns if column not in frame.columns]
     if missing_columns:
         raise DataQualityError(f"Missing required columns: {missing_columns}")
@@ -134,6 +140,7 @@ def validate_raw_data(frame: pd.DataFrame, min_rows: int = 700) -> dict[str, Any
     missing_values = int(frame[required_columns].isna().sum().sum())
     if missing_values:
         raise DataQualityError(f"Dataset contains {missing_values} missing values.")
+
     invalid_ranges: dict[str, dict[str, float]] = {}
     for column, (minimum, maximum) in FEATURE_RANGES.items():
         observed_min = float(frame[column].min())
@@ -148,22 +155,40 @@ def validate_raw_data(frame: pd.DataFrame, min_rows: int = 700) -> dict[str, Any
     if invalid_ranges:
         raise DataQualityError(f"Feature ranges are outside expected UCI bounds: {invalid_ranges}")
 
+    observed_quality = sorted(int(value) for value in frame[SOURCE_TARGET_COLUMN].unique())
+    if min(observed_quality) < 0 or max(observed_quality) > 10:
+        raise DataQualityError(
+            f"Quality scores are outside expected 0-10 range: {observed_quality}"
+        )
+
+    target_counts = (
+        (frame[SOURCE_TARGET_COLUMN] >= POSITIVE_CLASS_THRESHOLD)
+        .astype(int)
+        .value_counts()
+        .sort_index()
+        .to_dict()
+    )
     return {
         "status": "valid",
         "rows": int(len(frame)),
         "columns": int(len(frame.columns)),
         "missing_values": missing_values,
         "feature_columns": FEATURE_COLUMNS,
+        "source_target_column": SOURCE_TARGET_COLUMN,
         "target_column": TARGET_COLUMN,
-        "secondary_target_column": SECONDARY_TARGET_COLUMN,
+        "task_type": TASK_TYPE,
+        "positive_class_threshold": POSITIVE_CLASS_THRESHOLD,
+        "target_labels": TARGET_LABELS,
+        "quality_scores_observed": observed_quality,
+        "target_distribution": {str(key): int(value) for key, value in target_counts.items()},
         "feature_ranges": {
             column: {"min": minimum, "max": maximum}
             for column, (minimum, maximum) in FEATURE_RANGES.items()
         },
-        "target_summary": {
-            "min": float(frame[TARGET_COLUMN].min()),
-            "max": float(frame[TARGET_COLUMN].max()),
-            "mean": float(frame[TARGET_COLUMN].mean()),
+        "source_target_summary": {
+            "min": float(frame[SOURCE_TARGET_COLUMN].min()),
+            "max": float(frame[SOURCE_TARGET_COLUMN].max()),
+            "mean": float(frame[SOURCE_TARGET_COLUMN].mean()),
         },
     }
 
@@ -172,8 +197,6 @@ def main() -> None:
     ingestion = download_dataset()
     frame = load_raw_data()
     validation = validate_raw_data(frame)
-    RAW_CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
-    frame.to_csv(RAW_CSV_PATH, index=False)
     report = {
         "dataset": DATASET_NAME,
         "source": DATA_SOURCE_PAGE,

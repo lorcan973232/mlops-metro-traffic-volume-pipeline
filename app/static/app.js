@@ -43,9 +43,13 @@
   }
 
   function renderPrediction(data) {
-    const unit = data.unit || config.targetUnit || "load units";
-    predictionValue.textContent = `${Number(data.prediction).toFixed(2)} ${unit}`;
-    confidenceValue.textContent = "Regression estimate from the trained model.";
+    const label = data.prediction_label || String(data.prediction);
+    predictionValue.textContent = label;
+    if (typeof data.confidence === "number") {
+      confidenceValue.textContent = `Model confidence: ${(data.confidence * 100).toFixed(1)}%`;
+    } else {
+      confidenceValue.textContent = "Classification result from the trained model.";
+    }
     resultModelVersion.textContent = `Model version: ${data.model_version || config.modelVersion}`;
     setPanelVisibility(true, false);
   }

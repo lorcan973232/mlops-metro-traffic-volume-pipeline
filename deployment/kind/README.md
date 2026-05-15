@@ -1,8 +1,8 @@
 # Kind Deployment
 
 This artefact uses Kind Kubernetes only for deployment evidence. It deploys the Flask
-prediction image `mlops-flask-api:latest`, which serves the UCI Energy Efficiency
-heating-load model at `models/energy_efficiency_heating_load_regressor.joblib`.
+prediction image `mlops-flask-api:latest`, which serves the UCI red wine quality
+classifier at `models/wine_quality_classifier.joblib`.
 
 Run from the repository root:
 
@@ -28,7 +28,7 @@ Open the live-demo UI at:
 http://127.0.0.1:8080/
 ```
 
-The smoke test uses the real Energy Efficiency feature schema:
-`relative_compactness`, `surface_area`, `wall_area`, `roof_area`,
-`overall_height`, `orientation`, `glazing_area`, and
-`glazing_area_distribution`.
+The smoke test uses the real Wine Quality feature schema: `fixed_acidity`,
+`volatile_acidity`, `citric_acid`, `residual_sugar`, `chlorides`,
+`free_sulfur_dioxide`, `total_sulfur_dioxide`, `density`, `ph`, `sulphates`,
+and `alcohol`.

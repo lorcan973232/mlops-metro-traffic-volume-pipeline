@@ -61,9 +61,10 @@ def population_stability_index(
 
 def simulate_drift(frame: pd.DataFrame) -> pd.DataFrame:
     drifted = frame.copy()
-    drifted["surface_area"] = drifted["surface_area"] * 1.15
-    drifted["roof_area"] = drifted["roof_area"] * 0.85
-    drifted["glazing_area"] = (drifted["glazing_area"] + 0.2).clip(upper=0.4)
+    drifted["volatile_acidity"] = (drifted["volatile_acidity"] * 1.55).clip(upper=1.6)
+    drifted["chlorides"] = (drifted["chlorides"] * 1.7).clip(upper=0.7)
+    drifted["sulphates"] = (drifted["sulphates"] * 1.45).clip(upper=2.2)
+    drifted["alcohol"] = (drifted["alcohol"] + 1.8).clip(upper=16.0)
     return drifted
 
 
@@ -72,15 +73,16 @@ def load_metadata() -> dict[str, Any]:
         return load_model_metadata()
     return {
         "model_version": "metadata_unavailable",
-        "dataset_name": "UCI Energy Efficiency",
+        "dataset_name": "UCI Wine Quality - Red Wine",
         "dataset_source": DATA_SOURCE_PAGE,
         "feature_schema": FEATURE_COLUMNS,
         "quality_gate": {
             "thresholds": {
-                "min_r2": 0.98,
-                "max_rmse": 0.75,
-                "max_mae": 0.55,
-                "max_baseline_regression": 0.02,
+                "min_accuracy": 0.80,
+                "min_weighted_f1": 0.80,
+                "min_macro_f1": 0.80,
+                "min_cv_accuracy": 0.77,
+                "min_baseline_accuracy_improvement": 0.20,
             }
         },
     }
@@ -115,7 +117,7 @@ def drift_report(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any]:
         "timestamp_utc": utc_now(),
         "monitoring_mode": "simulated_drift_check",
         "production_claim": "simulated_only",
-        "dataset_name": metadata.get("dataset_name", "UCI Energy Efficiency"),
+        "dataset_name": metadata.get("dataset_name", "UCI Wine Quality - Red Wine"),
         "dataset_source": metadata.get("dataset_source", DATA_SOURCE_PAGE),
         "model_version": metadata.get("model_version"),
         "feature_schema": FEATURE_COLUMNS,

@@ -1,73 +1,106 @@
 {
-  "dataset": "UCI Energy Efficiency",
-  "doi": "10.24432/C51307",
-  "download_url": "https://archive.ics.uci.edu/ml/machine-learning-databases/00242/ENB2012_data.xlsx",
+  "dataset": "UCI Wine Quality - Red Wine",
+  "doi": "10.24432/C56S3T",
+  "download_url": "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv",
   "ingestion": {
     "fallback_used": false,
-    "path": "data\\raw\\energy-efficiency.xlsx",
-    "sha256": "0089fcffc1415e41e2ff63730cca5280efe54fc43d722dfde1b0aaa808e35dc4",
-    "source": "https://archive.ics.uci.edu/ml/machine-learning-databases/00242/ENB2012_data.xlsx",
+    "path": "data\\raw\\winequality-red.csv",
+    "sha256": "4a402cf041b025d4566d954c3b9ba8635a3a8a01e039005d97d6a710278cf05e",
+    "source": "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv",
     "status": "cached"
   },
   "license": "Creative Commons Attribution 4.0 International",
-  "source": "https://archive.ics.uci.edu/dataset/242/energy+efficiency",
-  "source_note": "Downloaded from the official UCI ENB2012_data.xlsx file.",
-  "task_type": "regression",
+  "source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
+  "source_note": "Downloaded from the official UCI winequality-red.csv file.",
+  "task_type": "classification",
   "validation": {
-    "columns": 10,
+    "columns": 12,
     "feature_columns": [
-      "relative_compactness",
-      "surface_area",
-      "wall_area",
-      "roof_area",
-      "overall_height",
-      "orientation",
-      "glazing_area",
-      "glazing_area_distribution"
+      "fixed_acidity",
+      "volatile_acidity",
+      "citric_acid",
+      "residual_sugar",
+      "chlorides",
+      "free_sulfur_dioxide",
+      "total_sulfur_dioxide",
+      "density",
+      "ph",
+      "sulphates",
+      "alcohol"
     ],
     "feature_ranges": {
-      "glazing_area": {
-        "max": 0.4,
+      "alcohol": {
+        "max": 16.0,
+        "min": 8.0
+      },
+      "chlorides": {
+        "max": 0.7,
+        "min": 0.01
+      },
+      "citric_acid": {
+        "max": 1.1,
         "min": 0.0
       },
-      "glazing_area_distribution": {
-        "max": 5.0,
-        "min": 0.0
+      "density": {
+        "max": 1.01,
+        "min": 0.98
       },
-      "orientation": {
-        "max": 5.0,
-        "min": 2.0
+      "fixed_acidity": {
+        "max": 16.0,
+        "min": 4.0
       },
-      "overall_height": {
-        "max": 7.0,
-        "min": 3.5
+      "free_sulfur_dioxide": {
+        "max": 80.0,
+        "min": 1.0
       },
-      "relative_compactness": {
-        "max": 0.98,
-        "min": 0.62
+      "ph": {
+        "max": 4.2,
+        "min": 2.5
       },
-      "roof_area": {
-        "max": 220.5,
-        "min": 110.25
+      "residual_sugar": {
+        "max": 16.0,
+        "min": 0.5
       },
-      "surface_area": {
-        "max": 808.5,
-        "min": 514.5
+      "sulphates": {
+        "max": 2.2,
+        "min": 0.2
       },
-      "wall_area": {
-        "max": 416.5,
-        "min": 245.0
+      "total_sulfur_dioxide": {
+        "max": 300.0,
+        "min": 5.0
+      },
+      "volatile_acidity": {
+        "max": 1.6,
+        "min": 0.1
       }
     },
     "missing_values": 0,
-    "rows": 768,
-    "secondary_target_column": "cooling_load",
+    "positive_class_threshold": 6,
+    "quality_scores_observed": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "rows": 1599,
+    "source_target_column": "quality",
+    "source_target_summary": {
+      "max": 8.0,
+      "mean": 5.6360225140712945,
+      "min": 3.0
+    },
     "status": "valid",
-    "target_column": "heating_load",
-    "target_summary": {
-      "max": 43.1,
-      "mean": 22.3071953125,
-      "min": 6.01
-    }
+    "target_column": "quality_label",
+    "target_distribution": {
+      "0": 744,
+      "1": 855
+    },
+    "target_labels": {
+      "0": "standard quality",
+      "1": "good quality"
+    },
+    "task_type": "classification"
   }
 }

@@ -8,25 +8,27 @@ import pandas as pd
 
 from src.data import (
     FEATURE_COLUMNS,
+    POSITIVE_CLASS_THRESHOLD,
     RAW_DATA_PATH,
-    SECONDARY_TARGET_COLUMN,
+    SOURCE_TARGET_COLUMN,
     TARGET_COLUMN,
+    TARGET_LABELS,
     download_dataset,
     load_raw_data,
     validate_raw_data,
     write_json,
 )
 
-PROCESSED_DATA_PATH = Path("data/processed/energy-efficiency-processed.csv")
+PROCESSED_DATA_PATH = Path("data/processed/winequality-red-processed.csv")
 PREPROCESS_REPORT_PATH = Path("reports/metrics/preprocessing.json")
 
 
 def preprocess_frame(raw_frame: pd.DataFrame) -> pd.DataFrame:
     validate_raw_data(raw_frame)
-    processed = raw_frame[[*FEATURE_COLUMNS, TARGET_COLUMN, SECONDARY_TARGET_COLUMN]].copy()
-    processed[["orientation", "glazing_area_distribution"]] = processed[
-        ["orientation", "glazing_area_distribution"]
-    ].astype(int)
+    processed = raw_frame[[*FEATURE_COLUMNS, SOURCE_TARGET_COLUMN]].copy()
+    processed[TARGET_COLUMN] = (
+        processed[SOURCE_TARGET_COLUMN] >= POSITIVE_CLASS_THRESHOLD
+    ).astype(int)
     return processed
 
 
@@ -39,19 +41,24 @@ def preprocess_dataset(
     processed = preprocess_frame(load_raw_data(raw_path))
     output_path.parent.mkdir(parents=True, exist_ok=True)
     processed.to_csv(output_path, index=False)
+    target_distribution = processed[TARGET_COLUMN].value_counts().sort_index().to_dict()
     report = {
         "status": "processed",
         "input": str(raw_path),
         "output": str(output_path),
         "rows": int(len(processed)),
         "feature_columns": FEATURE_COLUMNS,
+        "source_target_column": SOURCE_TARGET_COLUMN,
         "target_column": TARGET_COLUMN,
-        "secondary_target_column": SECONDARY_TARGET_COLUMN,
+        "task_type": "classification",
+        "positive_class_threshold": POSITIVE_CLASS_THRESHOLD,
+        "target_labels": TARGET_LABELS,
+        "target_distribution": {str(key): int(value) for key, value in target_distribution.items()},
         "preprocessing_steps": [
-            "validate official UCI schema",
-            "rename X1-X8/Y1-Y2 columns to readable names",
-            "cast categorical integer-coded fields for orientation and glazing distribution",
-            "save deterministic processed CSV",
+            "validate official UCI red wine quality schema",
+            "rename semicolon-delimited physicochemical columns to snake_case names",
+            "derive binary quality_label target where quality >= 6 is good quality",
+            "save deterministic processed CSV for training, CT, Docker, and Kind",
         ],
     }
     return processed, report

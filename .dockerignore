@@ -8,6 +8,5 @@ venv/
 deployment/
 tests/
 data/processed/*.csv
-models/*.joblib
 *.pyc
 *.log

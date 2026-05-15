@@ -1,67 +1,91 @@
 {
   "api_url": "http://127.0.0.1:8080",
-  "dataset_name": "UCI Energy Efficiency",
-  "dataset_source": "https://archive.ics.uci.edu/dataset/242/energy+efficiency",
+  "dataset_name": "UCI Wine Quality - Red Wine",
+  "dataset_source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
   "error": null,
-  "expected_model_version": "energy-efficiency-gradient-boosting-v1",
+  "expected_model_version": "wine-quality-extra-trees-v1",
   "feature_schema": [
-    "relative_compactness",
-    "surface_area",
-    "wall_area",
-    "roof_area",
-    "overall_height",
-    "orientation",
-    "glazing_area",
-    "glazing_area_distribution"
+    "fixed_acidity",
+    "volatile_acidity",
+    "citric_acid",
+    "residual_sugar",
+    "chlorides",
+    "free_sulfur_dioxide",
+    "total_sulfur_dioxide",
+    "density",
+    "ph",
+    "sulphates",
+    "alcohol"
   ],
   "health": {
     "response": {
+      "classes": [
+        0,
+        1
+      ],
       "dataset": {
-        "doi": "10.24432/C51307",
-        "name": "UCI Energy Efficiency",
-        "processed_path": "data/processed/energy-efficiency-processed.csv",
-        "raw_sha256": "0089fcffc1415e41e2ff63730cca5280efe54fc43d722dfde1b0aaa808e35dc4",
-        "source": "https://archive.ics.uci.edu/dataset/242/energy+efficiency"
+        "doi": "10.24432/C56S3T",
+        "name": "UCI Wine Quality - Red Wine",
+        "processed_path": "data/processed/winequality-red-processed.csv",
+        "raw_sha256": "4a402cf041b025d4566d954c3b9ba8635a3a8a01e039005d97d6a710278cf05e",
+        "source": "https://archive.ics.uci.edu/dataset/186/wine+quality"
       },
-      "feature_count": 8,
+      "feature_count": 11,
       "model_loaded": true,
-      "model_path": "models/energy_efficiency_heating_load_regressor.joblib",
-      "model_version": "energy-efficiency-gradient-boosting-v1",
+      "model_path": "models/wine_quality_classifier.joblib",
+      "model_version": "wine-quality-extra-trees-v1",
       "status": "healthy",
-      "target": "heating_load",
-      "target_unit": "heating load",
-      "task_type": "regression"
+      "target": "quality_label",
+      "target_label": "Wine Quality Class",
+      "target_labels": {
+        "0": "standard quality",
+        "1": "good quality"
+      },
+      "task_type": "classification"
     },
     "status_code": 200
   },
-  "model_version": "energy-efficiency-gradient-boosting-v1",
+  "model_version": "wine-quality-extra-trees-v1",
   "monitoring_mode": "api_aware_monitoring",
   "predict": {
     "response": {
-      "model_version": "energy-efficiency-gradient-boosting-v1",
-      "prediction": 39.156,
+      "confidence": 1.0,
+      "model_version": "wine-quality-extra-trees-v1",
+      "prediction": 0,
+      "prediction_label": "standard quality",
       "predictions": [
         {
-          "prediction": 39.156,
-          "target": "heating_load",
-          "unit": "heating load"
+          "confidence": 1.0,
+          "prediction": 0,
+          "prediction_label": "standard quality",
+          "probabilities": {
+            "good quality": 0.0,
+            "standard quality": 1.0
+          },
+          "target": "quality_label"
         }
       ],
-      "target": "heating_load",
-      "unit": "heating load"
+      "probabilities": {
+        "good quality": 0.0,
+        "standard quality": 1.0
+      },
+      "target": "quality_label"
     },
     "status_code": 200
   },
   "prediction_request_schema": {
     "features": {
-      "glazing_area": 0.4,
-      "glazing_area_distribution": 5.0,
-      "orientation": 2.0,
-      "overall_height": 7.0,
-      "relative_compactness": 0.76,
-      "roof_area": 122.5,
-      "surface_area": 661.5,
-      "wall_area": 416.5
+      "alcohol": 9.4,
+      "chlorides": 0.076,
+      "citric_acid": 0.0,
+      "density": 0.9978,
+      "fixed_acidity": 7.4,
+      "free_sulfur_dioxide": 11.0,
+      "ph": 3.51,
+      "residual_sugar": 1.9,
+      "sulphates": 0.56,
+      "total_sulfur_dioxide": 34.0,
+      "volatile_acidity": 0.7
     }
   },
   "prediction_response_schema_valid": true,
@@ -71,5 +95,5 @@
   "retraining_recommended": false,
   "retraining_required": false,
   "status": "monitored",
-  "timestamp_utc": "2026-05-15T18:59:25+00:00"
+  "timestamp_utc": "2026-05-15T20:53:39+00:00"
 }

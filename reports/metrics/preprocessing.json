@@ -1,24 +1,37 @@
 {
   "feature_columns": [
-    "relative_compactness",
-    "surface_area",
-    "wall_area",
-    "roof_area",
-    "overall_height",
-    "orientation",
-    "glazing_area",
-    "glazing_area_distribution"
+    "fixed_acidity",
+    "volatile_acidity",
+    "citric_acid",
+    "residual_sugar",
+    "chlorides",
+    "free_sulfur_dioxide",
+    "total_sulfur_dioxide",
+    "density",
+    "ph",
+    "sulphates",
+    "alcohol"
   ],
-  "input": "data\\raw\\energy-efficiency.xlsx",
-  "output": "data\\processed\\energy-efficiency-processed.csv",
+  "input": "data\\raw\\winequality-red.csv",
+  "output": "data\\processed\\winequality-red-processed.csv",
+  "positive_class_threshold": 6,
   "preprocessing_steps": [
-    "validate official UCI schema",
-    "rename X1-X8/Y1-Y2 columns to readable names",
-    "cast categorical integer-coded fields for orientation and glazing distribution",
-    "save deterministic processed CSV"
+    "validate official UCI red wine quality schema",
+    "rename semicolon-delimited physicochemical columns to snake_case names",
+    "derive binary quality_label target where quality >= 6 is good quality",
+    "save deterministic processed CSV for training, CT, Docker, and Kind"
   ],
-  "rows": 768,
-  "secondary_target_column": "cooling_load",
+  "rows": 1599,
+  "source_target_column": "quality",
   "status": "processed",
-  "target_column": "heating_load"
+  "target_column": "quality_label",
+  "target_distribution": {
+    "0": 744,
+    "1": 855
+  },
+  "target_labels": {
+    "0": "standard quality",
+    "1": "good quality"
+  },
+  "task_type": "classification"
 }

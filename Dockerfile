@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV MODEL_PATH=models/energy_efficiency_heating_load_regressor.joblib
+ENV MODEL_PATH=models/wine_quality_classifier.joblib
 
 WORKDIR /app
 
@@ -21,7 +21,7 @@ COPY models/ models/
 COPY reports/ reports/
 
 RUN python -m compileall app src \
-    && ALLOW_INSECURE_DATA_DOWNLOAD=1 python -m src.data \
+    && python -m src.data \
     && python -m src.preprocess \
     && python -m src.train \
     && python -m src.evaluate \
@@ -29,7 +29,7 @@ RUN python -m compileall app src \
 
 EXPOSE 5000
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=3)"
+HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=5 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=8)"
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "60", "app.main:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--timeout", "90", "app.main:app"]

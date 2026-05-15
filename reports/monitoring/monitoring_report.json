@@ -1,14 +1,17 @@
 {
   "data_quality": {
     "expected_feature_schema": [
-      "relative_compactness",
-      "surface_area",
-      "wall_area",
-      "roof_area",
-      "overall_height",
-      "orientation",
-      "glazing_area",
-      "glazing_area_distribution"
+      "fixed_acidity",
+      "volatile_acidity",
+      "citric_acid",
+      "residual_sugar",
+      "chlorides",
+      "free_sulfur_dioxide",
+      "total_sulfur_dioxide",
+      "density",
+      "ph",
+      "sulphates",
+      "alcohol"
     ],
     "missing_columns": [],
     "missing_values": 0,
@@ -16,81 +19,105 @@
     "status": "passed",
     "unexpected_columns": []
   },
-  "dataset_name": "UCI Energy Efficiency",
-  "dataset_source": "https://archive.ics.uci.edu/dataset/242/energy+efficiency",
+  "dataset_name": "UCI Wine Quality - Red Wine",
+  "dataset_source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
   "feature_schema": [
-    "relative_compactness",
-    "surface_area",
-    "wall_area",
-    "roof_area",
-    "overall_height",
-    "orientation",
-    "glazing_area",
-    "glazing_area_distribution"
+    "fixed_acidity",
+    "volatile_acidity",
+    "citric_acid",
+    "residual_sugar",
+    "chlorides",
+    "free_sulfur_dioxide",
+    "total_sulfur_dioxide",
+    "density",
+    "ph",
+    "sulphates",
+    "alcohol"
   ],
   "feature_summary": {
-    "glazing_area": {
-      "max": 0.4,
-      "mean": 0.234375,
+    "alcohol": {
+      "max": 14.9,
+      "mean": 10.422983114446529,
+      "min": 8.4,
+      "std": 1.0656675818473946
+    },
+    "chlorides": {
+      "max": 0.611,
+      "mean": 0.08746654158849279,
+      "min": 0.012,
+      "std": 0.0470653020100901
+    },
+    "citric_acid": {
+      "max": 1.0,
+      "mean": 0.2709756097560976,
       "min": 0.0,
-      "std": 0.13322056291470777
+      "std": 0.19480113740531857
     },
-    "glazing_area_distribution": {
-      "max": 5.0,
-      "mean": 2.8125,
-      "min": 0.0,
-      "std": 1.5509596642247505
+    "density": {
+      "max": 1.00369,
+      "mean": 0.9967466791744841,
+      "min": 0.99007,
+      "std": 0.0018873339538425554
     },
-    "orientation": {
-      "max": 5.0,
-      "mean": 3.5,
-      "min": 2.0,
-      "std": 1.1187625870603635
+    "fixed_acidity": {
+      "max": 15.9,
+      "mean": 8.31963727329581,
+      "min": 4.6,
+      "std": 1.7410963181276953
     },
-    "overall_height": {
-      "max": 7.0,
-      "mean": 5.25,
-      "min": 3.5,
-      "std": 1.7511404367453496
+    "free_sulfur_dioxide": {
+      "max": 72.0,
+      "mean": 15.874921826141339,
+      "min": 1.0,
+      "std": 10.460156969809725
     },
-    "relative_compactness": {
-      "max": 0.98,
-      "mean": 0.7641666666666667,
-      "min": 0.62,
-      "std": 0.10577747587475192
+    "ph": {
+      "max": 4.01,
+      "mean": 3.3111131957473416,
+      "min": 2.74,
+      "std": 0.15438646490354277
     },
-    "roof_area": {
-      "max": 220.5,
-      "mean": 176.60416666666666,
-      "min": 110.25,
-      "std": 45.16595022292048
+    "residual_sugar": {
+      "max": 15.5,
+      "mean": 2.53880550343965,
+      "min": 0.9,
+      "std": 1.4099280595072798
     },
-    "surface_area": {
-      "max": 808.5,
-      "mean": 671.7083333333334,
-      "min": 514.5,
-      "std": 88.08611605586836
+    "sulphates": {
+      "max": 2.0,
+      "mean": 0.6581488430268917,
+      "min": 0.33,
+      "std": 0.16950697959010996
     },
-    "wall_area": {
-      "max": 416.5,
-      "mean": 318.5,
-      "min": 245.0,
-      "std": 43.6264814379949
+    "total_sulfur_dioxide": {
+      "max": 289.0,
+      "mean": 46.46779237023139,
+      "min": 6.0,
+      "std": 32.895324478299074
+    },
+    "volatile_acidity": {
+      "max": 1.58,
+      "mean": 0.5278205128205128,
+      "min": 0.12,
+      "std": 0.17905970415353537
     }
   },
-  "model_path": "models\\energy_efficiency_heating_load_regressor.joblib",
-  "model_version": "energy-efficiency-gradient-boosting-v1",
+  "model_path": "models\\wine_quality_classifier.joblib",
+  "model_version": "wine-quality-extra-trees-v1",
   "monitoring_mode": "offline_simulated_monitoring",
   "prediction_request_schema": {
     "features": [
-      "relative_compactness",
-      "surface_area",
-      "wall_area",
-      "roof_area",
-      "overall_height",
-      "orientation",
-      "glazing_area",
-      "glazing_area_distribution"
+      "fixed_acidity",
+      "volatile_acidity",
+      "citric_acid",
+      "residual_sugar",
+      "chlorides",
+      "free_sulfur_dioxide",
+      "total_sulfur_dioxide",
+      "density",
+      "ph",
+      "sulphates",
+      "alcohol"
     ]
   },
   "production_claim": "simulated_only",
@@ -99,13 +126,15 @@
   "response_status": "simulated_batch_available",
   "retraining_recommended": false,
   "retraining_required": false,
-  "rows": 768,
+  "rows": 1599,
   "status": "monitored",
   "target_summary": {
-    "max": 43.1,
-    "mean": 22.3071953125,
-    "min": 6.01,
-    "target": "heating_load"
+    "max": 1.0,
+    "mean": 0.5347091932457786,
+    "min": 0.0,
+    "source_quality_mean": 5.6360225140712945,
+    "source_target": "quality",
+    "target": "quality_label"
   },
-  "timestamp_utc": "2026-05-15T18:59:21+00:00"
+  "timestamp_utc": "2026-05-15T20:53:31+00:00"
 }

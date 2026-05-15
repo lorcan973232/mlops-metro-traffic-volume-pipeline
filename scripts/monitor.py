@@ -19,7 +19,7 @@ from app.schemas import PredictionRequestExample
 from src.data import (
     DATA_SOURCE_PAGE,
     FEATURE_COLUMNS,
-    SECONDARY_TARGET_COLUMN,
+    SOURCE_TARGET_COLUMN,
     TARGET_COLUMN,
     write_json,
 )
@@ -47,7 +47,7 @@ def feature_summary(frame: pd.DataFrame) -> dict[str, dict[str, float]]:
 
 
 def validate_monitoring_schema(frame: pd.DataFrame) -> dict[str, Any]:
-    expected_columns = {*FEATURE_COLUMNS, TARGET_COLUMN, SECONDARY_TARGET_COLUMN}
+    expected_columns = {*FEATURE_COLUMNS, SOURCE_TARGET_COLUMN, TARGET_COLUMN}
     missing_columns = [column for column in FEATURE_COLUMNS if column not in frame.columns]
     unexpected_columns = [column for column in frame.columns if column not in expected_columns]
     non_numeric_columns = [
@@ -77,10 +77,10 @@ def load_metadata() -> dict[str, Any]:
         return load_model_metadata()
     return {
         "model_version": "metadata_unavailable",
-        "dataset_name": "UCI Energy Efficiency",
+        "dataset_name": "UCI Wine Quality - Red Wine",
         "dataset_source": DATA_SOURCE_PAGE,
         "feature_schema": FEATURE_COLUMNS,
-        "model_path": "models/energy_efficiency_heating_load_regressor.joblib",
+        "model_path": "models/wine_quality_classifier.joblib",
         "metric_summary": {},
         "quality_gate": {"passed": None},
     }
@@ -102,7 +102,7 @@ def offline_monitor(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any
             "No live production telemetry is available in this student artefact; monitoring "
             "uses the selected public dataset schema and deterministic batch checks."
         ),
-        "dataset_name": metadata.get("dataset_name", "UCI Energy Efficiency"),
+        "dataset_name": metadata.get("dataset_name", "UCI Wine Quality - Red Wine"),
         "dataset_source": metadata.get("dataset_source", DATA_SOURCE_PAGE),
         "model_version": metadata.get("model_version"),
         "model_path": metadata.get("model_path"),
@@ -114,6 +114,8 @@ def offline_monitor(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any
         "feature_summary": feature_summary(frame),
         "target_summary": {
             "target": TARGET_COLUMN,
+            "source_target": SOURCE_TARGET_COLUMN,
+            "source_quality_mean": float(frame[SOURCE_TARGET_COLUMN].mean()),
             "min": float(frame[TARGET_COLUMN].min()),
             "max": float(frame[TARGET_COLUMN].max()),
             "mean": float(frame[TARGET_COLUMN].mean()),
@@ -234,7 +236,7 @@ def api_monitor(api_url: str) -> dict[str, Any]:
         "monitoring_mode": "api_aware_monitoring",
         "production_claim": "api_check_only",
         "api_url": base_url,
-        "dataset_name": metadata.get("dataset_name", "UCI Energy Efficiency"),
+        "dataset_name": metadata.get("dataset_name", "UCI Wine Quality - Red Wine"),
         "dataset_source": metadata.get("dataset_source", DATA_SOURCE_PAGE),
         "feature_schema": FEATURE_COLUMNS,
         "prediction_request_schema": prediction_payload,

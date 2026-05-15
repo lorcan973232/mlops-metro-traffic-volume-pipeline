@@ -4,69 +4,74 @@ from dataclasses import dataclass
 from typing import Any
 
 FEATURE_COLUMNS = [
-    "relative_compactness",
-    "surface_area",
-    "wall_area",
-    "roof_area",
-    "overall_height",
-    "orientation",
-    "glazing_area",
-    "glazing_area_distribution",
+    "fixed_acidity",
+    "volatile_acidity",
+    "citric_acid",
+    "residual_sugar",
+    "chlorides",
+    "free_sulfur_dioxide",
+    "total_sulfur_dioxide",
+    "density",
+    "ph",
+    "sulphates",
+    "alcohol",
 ]
 
-TARGET_NAME = "heating_load"
-TARGET_LABEL = "Heating Load"
-TARGET_UNIT = "load units"
+TARGET_NAME = "quality_label"
+TARGET_LABEL = "Wine Quality Class"
+TARGET_LABELS = {
+    0: "standard quality",
+    1: "good quality",
+}
 
-FEATURE_OPTIONS: dict[str, list[dict[str, float | str]]] = {
-    "orientation": [
-        {"value": 2, "label": "2 - North"},
-        {"value": 3, "label": "3 - East"},
-        {"value": 4, "label": "4 - South"},
-        {"value": 5, "label": "5 - West"},
-    ],
-    "glazing_area": [
-        {"value": 0.0, "label": "0.00 - No glazing"},
-        {"value": 0.1, "label": "0.10 - Low glazing"},
-        {"value": 0.25, "label": "0.25 - Medium glazing"},
-        {"value": 0.4, "label": "0.40 - High glazing"},
-    ],
-    "glazing_area_distribution": [
-        {"value": 0, "label": "0 - No glazing"},
-        {"value": 1, "label": "1 - Uniform"},
-        {"value": 2, "label": "2 - North-facing"},
-        {"value": 3, "label": "3 - East-facing"},
-        {"value": 4, "label": "4 - South-facing"},
-        {"value": 5, "label": "5 - West-facing"},
-    ],
+FEATURE_RANGES: dict[str, tuple[float, float]] = {
+    "fixed_acidity": (4.0, 16.0),
+    "volatile_acidity": (0.1, 1.6),
+    "citric_acid": (0.0, 1.1),
+    "residual_sugar": (0.5, 16.0),
+    "chlorides": (0.01, 0.7),
+    "free_sulfur_dioxide": (1.0, 80.0),
+    "total_sulfur_dioxide": (5.0, 300.0),
+    "density": (0.98, 1.01),
+    "ph": (2.5, 4.2),
+    "sulphates": (0.2, 2.2),
+    "alcohol": (8.0, 16.0),
 }
 
 FEATURE_GROUPS = {
-    "Building Shape": [
-        "relative_compactness",
-        "surface_area",
-        "wall_area",
-        "roof_area",
+    "Acidity Profile": [
+        "fixed_acidity",
+        "volatile_acidity",
+        "citric_acid",
+        "ph",
     ],
-    "Building Setup": [
-        "overall_height",
-        "orientation",
-        "glazing_area",
-        "glazing_area_distribution",
+    "Fermentation Chemistry": [
+        "residual_sugar",
+        "chlorides",
+        "free_sulfur_dioxide",
+        "total_sulfur_dioxide",
+    ],
+    "Body and Finish": [
+        "density",
+        "sulphates",
+        "alcohol",
     ],
 }
 
 
 @dataclass(frozen=True)
 class PredictionRequestExample:
-    relative_compactness: float = 0.76
-    surface_area: float = 661.5
-    wall_area: float = 416.5
-    roof_area: float = 122.5
-    overall_height: float = 7.0
-    orientation: float = 2.0
-    glazing_area: float = 0.4
-    glazing_area_distribution: float = 5.0
+    fixed_acidity: float = 7.4
+    volatile_acidity: float = 0.70
+    citric_acid: float = 0.00
+    residual_sugar: float = 1.9
+    chlorides: float = 0.076
+    free_sulfur_dioxide: float = 11.0
+    total_sulfur_dioxide: float = 34.0
+    density: float = 0.9978
+    ph: float = 3.51
+    sulphates: float = 0.56
+    alcohol: float = 9.4
 
     def as_payload(self) -> dict[str, dict[str, float]]:
         return {"features": self.__dict__.copy()}
@@ -74,28 +79,34 @@ class PredictionRequestExample:
 
 def feature_label(feature_name: str) -> str:
     labels = {
-        "relative_compactness": "Relative Compactness",
-        "surface_area": "Surface Area",
-        "wall_area": "Wall Area",
-        "roof_area": "Roof Area",
-        "overall_height": "Overall Height",
-        "orientation": "Orientation",
-        "glazing_area": "Glazing Area",
-        "glazing_area_distribution": "Glazing Distribution",
+        "fixed_acidity": "Fixed Acidity",
+        "volatile_acidity": "Volatile Acidity",
+        "citric_acid": "Citric Acid",
+        "residual_sugar": "Residual Sugar",
+        "chlorides": "Chlorides",
+        "free_sulfur_dioxide": "Free SO2",
+        "total_sulfur_dioxide": "Total SO2",
+        "density": "Density",
+        "ph": "pH",
+        "sulphates": "Sulphates",
+        "alcohol": "Alcohol",
     }
     return labels[feature_name]
 
 
 def feature_helper(feature_name: str) -> str:
     helpers = {
-        "relative_compactness": "Building compactness score, dataset range 0.62 to 0.98.",
-        "surface_area": "Total external surface area, dataset range 514.5 to 808.5.",
-        "wall_area": "Wall area, dataset range 245.0 to 416.5.",
-        "roof_area": "Roof area, dataset range 110.25 to 220.5.",
-        "overall_height": "Building height, usually 3.5 or 7.0.",
-        "orientation": "Integer-coded building orientation from the UCI dataset.",
-        "glazing_area": "Window/glazing proportion from 0.0 to 0.4.",
-        "glazing_area_distribution": "Integer-coded window distribution from 0 to 5.",
+        "fixed_acidity": "Non-volatile tartaric acid concentration.",
+        "volatile_acidity": "Acetic acid level; high values can reduce quality.",
+        "citric_acid": "Citric acid concentration.",
+        "residual_sugar": "Sugar left after fermentation.",
+        "chlorides": "Salt concentration in the wine.",
+        "free_sulfur_dioxide": "Free sulfur dioxide concentration.",
+        "total_sulfur_dioxide": "Total sulfur dioxide concentration.",
+        "density": "Wine density, usually near 1.0.",
+        "ph": "Acidity/alkalinity value.",
+        "sulphates": "Sulphate concentration.",
+        "alcohol": "Alcohol by volume percentage.",
     }
     return helpers[feature_name]
 
@@ -113,7 +124,8 @@ def ui_feature_groups() -> list[dict[str, Any]]:
                         "label": feature_label(feature_name),
                         "helper": feature_helper(feature_name),
                         "example": example[feature_name],
-                        "options": FEATURE_OPTIONS.get(feature_name),
+                        "min": FEATURE_RANGES[feature_name][0],
+                        "max": FEATURE_RANGES[feature_name][1],
                     }
                     for feature_name in features
                 ],
@@ -149,9 +161,15 @@ def validate_prediction_payload(payload: object) -> list[dict[str, float]]:
         clean_record: dict[str, float] = {}
         for column in FEATURE_COLUMNS:
             try:
-                clean_record[column] = float(record[column])
+                value = float(record[column])
             except (TypeError, ValueError) as exc:
                 raise ValueError(f"Feature '{column}' must be numeric.") from exc
+            minimum, maximum = FEATURE_RANGES[column]
+            if value < minimum or value > maximum:
+                raise ValueError(
+                    f"Feature '{column}' must be between {minimum} and {maximum}."
+                )
+            clean_record[column] = value
         clean_records.append(clean_record)
 
     return clean_records

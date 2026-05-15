@@ -1,40 +1,47 @@
 {
   "ct_quality_gate_reference": {
-    "max_baseline_regression": 0.02,
-    "max_mae": 0.55,
-    "max_rmse": 0.75,
-    "min_r2": 0.98
+    "min_accuracy": 0.8,
+    "min_baseline_accuracy_improvement": 0.2,
+    "min_cv_accuracy": 0.77,
+    "min_macro_f1": 0.8,
+    "min_weighted_f1": 0.8
   },
   "current_batch": {
     "drift_detected": false,
     "feature_psi": {
-      "glazing_area": 0.0,
-      "glazing_area_distribution": 0.0,
-      "orientation": 0.0,
-      "overall_height": 0.0,
-      "relative_compactness": 0.0,
-      "roof_area": 0.0,
-      "surface_area": 0.0,
-      "wall_area": 0.0
+      "alcohol": 0.0,
+      "chlorides": 0.0,
+      "citric_acid": 0.0,
+      "density": 0.0,
+      "fixed_acidity": 0.0,
+      "free_sulfur_dioxide": 0.0,
+      "ph": 0.0,
+      "residual_sugar": 0.0,
+      "sulphates": 0.0,
+      "total_sulfur_dioxide": 0.0,
+      "volatile_acidity": 0.0
     },
     "max_psi": 0.0
   },
   "data_quality_status": "passed",
-  "dataset_name": "UCI Energy Efficiency",
-  "dataset_source": "https://archive.ics.uci.edu/dataset/242/energy+efficiency",
+  "dataset_name": "UCI Wine Quality - Red Wine",
+  "dataset_source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
   "drift_metric": "population_stability_index",
-  "drift_score": 4.258551273292485,
+  "drift_score": 6.995655190821598,
   "feature_schema": [
-    "relative_compactness",
-    "surface_area",
-    "wall_area",
-    "roof_area",
-    "overall_height",
-    "orientation",
-    "glazing_area",
-    "glazing_area_distribution"
+    "fixed_acidity",
+    "volatile_acidity",
+    "citric_acid",
+    "residual_sugar",
+    "chlorides",
+    "free_sulfur_dioxide",
+    "total_sulfur_dioxide",
+    "density",
+    "ph",
+    "sulphates",
+    "alcohol"
   ],
-  "model_version": "energy-efficiency-gradient-boosting-v1",
+  "model_version": "wine-quality-extra-trees-v1",
   "monitoring_mode": "simulated_drift_check",
   "production_claim": "simulated_only",
   "reason": "Current batch has no drift; simulated batch confirms drift detection logic.",
@@ -43,16 +50,19 @@
   "simulated_drift_batch": {
     "drift_detected": true,
     "feature_psi": {
-      "glazing_area": 1.2192388962032714,
-      "glazing_area_distribution": 0.0,
-      "orientation": 0.0,
-      "overall_height": 0.0,
-      "relative_compactness": 0.0,
-      "roof_area": 3.3241824271152645,
-      "surface_area": 4.258551273292485,
-      "wall_area": 0.0
+      "alcohol": 6.995655190821598,
+      "chlorides": 3.6738160288140245,
+      "citric_acid": 0.0,
+      "density": 0.0,
+      "fixed_acidity": 0.0,
+      "free_sulfur_dioxide": 0.0,
+      "ph": 0.0,
+      "residual_sugar": 0.0,
+      "sulphates": 3.916209176054694,
+      "total_sulfur_dioxide": 0.0,
+      "volatile_acidity": 1.441337259199892
     },
-    "max_psi": 4.258551273292485
+    "max_psi": 6.995655190821598
   },
   "simulated_retraining_signal": {
     "reason": "Synthetic drift was injected to demonstrate monitoring and retraining trigger logic.",
@@ -60,5 +70,5 @@
   },
   "status": "checked",
   "threshold": 0.2,
-  "timestamp_utc": "2026-05-15T18:48:43+00:00"
+  "timestamp_utc": "2026-05-15T20:01:13+00:00"
 }
