@@ -40,7 +40,7 @@ powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl http
 
 Expected evidence:
 
-- `/health` returns `status=healthy`, `model_loaded=true`, `model_version`, and `feature_count=11`.
+- `/health` returns `status=healthy`, `model_loaded=true`, `model_version`, and `feature_count=30`.
 - `/predict` returns a `malignant` or `benign` prediction, class probabilities, and `model_version`.
 
 The smoke test uses the UCI Breast Cancer Wisconsin Diagnostic feature schema, including `mean_radius`, `mean_texture`, `mean_perimeter`, `mean_area`, `mean_smoothness`, `mean_concavity`, `worst_radius`, `worst_texture`, `worst_perimeter`, `worst_area`, and the remaining numeric diagnostic cell-nucleus measurements.

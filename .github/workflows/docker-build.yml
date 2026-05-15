@@ -24,9 +24,9 @@ jobs:
 
       - name: Run Docker container
         run: |
-          docker run -d --name mlops-flask-api -p 8080:8080 mlops-flask-api:${{ github.sha }}
+          docker run -d --name mlops-flask-api -p 5001:5000 mlops-flask-api:${{ github.sha }}
           for attempt in $(seq 1 30); do
-            if curl -fsS http://127.0.0.1:8080/health; then
+            if curl -fsS http://127.0.0.1:5001/health; then
               exit 0
             fi
             sleep 2
@@ -35,7 +35,7 @@ jobs:
           exit 1
 
       - name: Docker API smoke test
-        run: bash scripts/smoke_test_api.sh http://127.0.0.1:8080
+        run: bash scripts/smoke_test_api.sh http://127.0.0.1:5001
 
       - name: Upload Docker smoke logs
         if: always()
@@ -47,4 +47,3 @@ jobs:
         with:
           name: docker-smoke-logs
           path: docker-smoke.log
-

@@ -24,12 +24,12 @@ spec:
             - name: MODEL_PATH
               value: models/breast_cancer_classifier.joblib
           ports:
-            - containerPort: 8080
+            - containerPort: 5000
               name: http
           readinessProbe:
             httpGet:
               path: /health
-              port: 8080
+              port: 5000
             initialDelaySeconds: 5
             periodSeconds: 5
             timeoutSeconds: 3
@@ -37,7 +37,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: 8080
+              port: 5000
             initialDelaySeconds: 15
             periodSeconds: 10
             timeoutSeconds: 3

@@ -262,13 +262,13 @@ Run locally:
 
 ```bash
 python -m app.main
-bash scripts/smoke_test_api.sh http://127.0.0.1:8080
+bash scripts/smoke_test_api.sh http://127.0.0.1:5000
 ```
 
 PowerShell smoke test:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:8080
+powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:5000
 ```
 
 `GET /health` returns model status, model version, feature count, dataset metadata, and class labels.
@@ -345,17 +345,17 @@ Local UI:
 
 ```bash
 python -m app.main
-# open http://127.0.0.1:8080/
-curl http://127.0.0.1:8080/
-curl http://127.0.0.1:8080/health
-bash scripts/smoke_test_api.sh http://127.0.0.1:8080
+# open http://127.0.0.1:5000/
+curl http://127.0.0.1:5000/
+curl http://127.0.0.1:5000/health
+bash scripts/smoke_test_api.sh http://127.0.0.1:5000
 ```
 
 Docker UI:
 
 ```bash
 docker build -t mlops-flask-api:latest .
-docker run --rm -d --name mlops-flask-ui-test -p 5001:8080 mlops-flask-api:latest
+docker run --rm -d --name mlops-flask-ui-test -p 5001:5000 mlops-flask-api:latest
 # open http://127.0.0.1:5001/
 bash scripts/smoke_test_api.sh http://127.0.0.1:5001
 docker stop mlops-flask-ui-test
@@ -384,7 +384,7 @@ Example input: click `Use Example` in the web page. Expected output for the bund
 
 ```bash
 docker build -t mlops-flask-api:latest .
-docker run --rm -d --name mlops-flask-api-test -p 5001:8080 mlops-flask-api:latest
+docker run --rm -d --name mlops-flask-api-test -p 5001:5000 mlops-flask-api:latest
 bash scripts/smoke_test_api.sh http://127.0.0.1:5001
 docker stop mlops-flask-api-test
 ```
@@ -518,7 +518,7 @@ The public repository URL is already documented above. Confirm GitHub visibility
 5. Run `pytest -q`.
 6. Run `python -m src.data`, `python -m src.preprocess`, `python -m src.model_selection`, `python -m src.train`, `python -m src.evaluate`.
 7. Show `reports/metrics/latest_metrics.json`, `classification_report.json`, `confusion_matrix.json`, `model_comparison.json`, and `quality_gate_report.json`.
-8. Open `http://127.0.0.1:8080/`, click `Use Example`, and run a UI prediction.
+8. Open the local UI at `http://127.0.0.1:5000/`, click `Use Example`, and run a UI prediction.
 9. Show `/health` and explain that the UI calls `/predict`.
 10. Build and run Docker, open the same UI, then smoke-test the container.
 11. Deploy through Kind, show pods/services/rollout, open the same UI through port-forward, then smoke-test the Kind API.
@@ -536,7 +536,7 @@ The public repository URL is already documented above. Confirm GitHub visibility
 | Model training | `src/train.py`, `models/breast_cancer_classifier.joblib` | `python -m src.train` | `ci.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | saved model exists, `tests/test_model.py` | Implemented and locally verified | Rerun Actions after push |
 | Model evaluation | `src/evaluate.py`, `reports/metrics/latest_metrics.json` | `python -m src.evaluate` | `ci.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | full metrics and quality gate | Implemented and locally verified | Rerun Actions after push |
 | Flask API | `app/main.py`, `app/model_loader.py`, `app/schemas.py` | `python -m app.main`; smoke scripts | `ci.yml`, `docker-build.yml`, `deploy.yml` | `/health`, `/predict`, invalid payload tests | Implemented and locally verified | Rerun Actions after push |
-| Web UI | `app/templates/index.html`, `app/static/style.css`, `app/static/app.js` | `curl http://127.0.0.1:8080/`; open root URL | `ci.yml`, `docker-build.yml`, `deploy.yml` | `tests/test_ui.py`, root-page smoke checks | Implemented and locally verified | Rerun Actions after push |
+| Web UI | `app/templates/index.html`, `app/static/style.css`, `app/static/app.js` | `curl http://127.0.0.1:5000/`; open root URL | `ci.yml`, `docker-build.yml`, `deploy.yml` | `tests/test_ui.py`, root-page smoke checks | Implemented and locally verified | Rerun Actions after push |
 | Docker | `Dockerfile`, `.dockerignore` | `docker build -t mlops-flask-api:latest .` | `docker-build.yml` | container smoke tests | Implemented and locally verified | Rerun Actions after push |
 | Kind deployment | `deployment/kind/`, `scripts/deploy_kind.*` | `bash scripts/deploy_kind.sh`; smoke scripts | `deploy.yml` | rollout, pods/services, API smoke | Implemented and locally verified | Rerun Actions after push |
 | Continuous Integration | `.github/workflows/ci.yml` | `pytest -q`; `ruff check src tests` | `ci.yml` | lint, compile, tests, ML path | Implemented and locally verified | Rerun Actions after push |

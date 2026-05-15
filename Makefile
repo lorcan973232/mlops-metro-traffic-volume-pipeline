@@ -45,7 +45,7 @@ docker-build:
 	docker build -t $(IMAGE_NAME) .
 
 docker-run:
-	docker run --rm -p 8080:8080 $(IMAGE_NAME)
+	docker run --rm -p 5001:5000 $(IMAGE_NAME)
 
 kind-create:
 	KIND_CLUSTER_NAME=$(KIND_CLUSTER_NAME) $(BASH) scripts/create_kind_cluster.sh
