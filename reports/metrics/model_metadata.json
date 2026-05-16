@@ -169,5 +169,5 @@
     "test_size": 0.2
   },
   "training_command": "python -m src.train",
-  "training_timestamp": "2026-05-16T12:38:55+00:00"
+  "training_timestamp": "2026-05-16T14:00:50+00:00"
 }

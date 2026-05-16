@@ -1,0 +1,22 @@
+{
+  "external_registry": false,
+  "external_registry_claim": "none",
+  "model_management_scope": "Accepted model and metrics are stored as repository evidence and GitHub Actions artefacts. This is not an MLflow, GHCR, or cloud model-registry promotion.",
+  "records": [
+    {
+      "accuracy": 0.825,
+      "dataset_doi": "10.24432/C56S3T",
+      "dataset_source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
+      "f1_macro": 0.8240100565681961,
+      "f1_weighted": 0.8249175047140165,
+      "metadata_path": "reports\\metrics\\model_metadata.json",
+      "metrics_path": "reports\\metrics\\metrics.json",
+      "model_path": "models\\wine_quality_classifier.joblib",
+      "model_version": "wine-quality-extra-trees-v1",
+      "promotion_decision": "accepted",
+      "quality_gate_passed": true,
+      "training_timestamp": "2026-05-16T14:00:50+00:00"
+    }
+  ],
+  "registry_type": "lightweight_repository_metadata"
+}

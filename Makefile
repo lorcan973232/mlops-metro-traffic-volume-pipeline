@@ -100,36 +100,7 @@ drift-check:
 	$(PYTHON) scripts/check_drift.py
 
 security-scan:
-	$(PYTHON) - <<'PY'
-	from pathlib import Path
-	patterns = [
-	    "api_" + "key",
-	    "api-" + "key",
-	    "tok" + "en",
-	    "pass" + "word",
-	    "sec" + "ret",
-	    "begin rsa private" + " key",
-	    "begin openssh private" + " key",
-	    "g" + "cloud",
-	    "g" + "oogle vm",
-	    "fake suc" + "cess",
-	]
-	ignore_parts = {".git", ".venv", "__pycache__", ".pytest_cache"}
-	matches = []
-	for path in Path(".").rglob("*"):
-	    if not path.is_file() or any(part in ignore_parts for part in path.parts):
-	        continue
-	    try:
-	        text = path.read_text(encoding="utf-8").lower()
-	    except UnicodeDecodeError:
-	        continue
-	    for pattern in patterns:
-	        if pattern in text:
-	            matches.append(f"{path}: {pattern}")
-	if matches:
-	    raise SystemExit("Potential " + "sec" + "ret or disallowed claim found:\n" + "\n".join(matches))
-	print("PASS: security and fake-claim scan clean")
-	PY
+	$(PYTHON) scripts/security_scan.py
 
 workflow-validate:
 	$(PYTHON) - <<'PY'

@@ -2,10 +2,15 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+.coverage
+htmlcov/
+.hypothesis/
 .venv/
 venv/
 *.pyc
 *.log
+*.pid
+*.tmp
 
 data/raw/*.csv
 data/raw/*.xlsx
