@@ -103,11 +103,16 @@ def register_version(
         "training_timestamp": training_timestamp,
     }
 
-    manifest["versions"].append(version_record)
+    existing_versions = [
+        record for record in manifest["versions"] if record.get("version") != version
+    ]
+    existing_versions.append(version_record)
+    manifest["versions"] = existing_versions
     if quality_gate_passed:
         manifest["current_version"] = version
-        manifest["rollback_candidates"] = [v["version"] for v in manifest["versions"]
-                                            if v["quality_gate_passed"]]
+        manifest["rollback_candidates"] = [
+            v["version"] for v in manifest["versions"] if v["quality_gate_passed"]
+        ]
 
     VERSION_MANIFEST_PATH.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 

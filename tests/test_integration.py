@@ -6,6 +6,7 @@ from pathlib import Path
 from app.main import create_app
 from app.schemas import FEATURE_COLUMNS, PredictionRequestExample
 from src.data import FEATURE_COLUMNS as DATA_FEATURE_COLUMNS
+from src.model_registry import load_model_metadata
 from src.train import (
     RANDOM_STATE,
     TEST_SIZE,
@@ -72,9 +73,10 @@ def test_api_can_load_model_and_handle_predictions() -> None:
     from app.model_loader import load_model
 
     bundle = load_model()
+    metadata = load_model_metadata()
 
     assert bundle["model"] is not None
-    assert bundle["model_version"] == "wine-quality-tier3-selected-v1"
+    assert bundle["model_version"] == metadata["model_version"]
     assert bundle["feature_columns"] == FEATURE_COLUMNS
     assert bundle["task_type"] == "classification"
 
@@ -85,7 +87,7 @@ def test_api_can_load_model_and_handle_predictions() -> None:
     assert health.status_code == 200
     health_data = health.get_json()
     assert health_data["status"] == "healthy"
-    assert health_data["model_version"] == "wine-quality-tier3-selected-v1"
+    assert health_data["model_version"] == metadata["model_version"]
 
     prediction_response = client.post("/predict", json=PredictionRequestExample().as_payload())
     assert prediction_response.status_code == 200
@@ -94,7 +96,7 @@ def test_api_can_load_model_and_handle_predictions() -> None:
     assert pred_data["prediction"] in [0, 1]
     assert "confidence" in pred_data
     assert 0.0 <= pred_data["confidence"] <= 1.0
-    assert pred_data["model_version"] == "wine-quality-tier3-selected-v1"
+    assert pred_data["model_version"] == metadata["model_version"]
 
 
 def test_api_rejects_invalid_prediction_requests() -> None:

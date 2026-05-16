@@ -74,7 +74,7 @@
     }
   },
   "model_path": "models\\wine_quality_classifier.joblib",
-  "model_version": "wine-quality-tier3-selected-v1",
+  "model_version": "1.0.1",
   "random_state": 42,
   "selected_hyperparameters": {
     "class_weight": "balanced",
@@ -118,5 +118,5 @@
   "test_size": 0.2,
   "training_command": "python -m src.train",
   "training_rows": 1279,
-  "training_timestamp": "2026-05-16T19:15:11+00:00"
+  "training_timestamp": "2026-05-16T22:16:48+00:00"
 }

@@ -40,7 +40,7 @@ The artefact classifies a red wine sample as `standard quality` or `good quality
 | Positive class | `good quality` when `quality >= 6` |
 | Model | `ExtraTreesClassifier` |
 | Model path | `models/wine_quality_classifier.joblib` |
-| Model version | `wine-quality-extra-trees-v1` |
+| Model version | `1.0.1` |
 
 ## Input Schema
 
@@ -124,9 +124,9 @@ Example output:
 
 This helps understand which physicochemical properties drive wine quality predictions.
 
-## Model Fairness Analysis
+## Model Class-Balance Check
 
-Per-class performance and fairness metrics are generated to detect class imbalance:
+Per-class performance metrics are generated to detect class imbalance:
 
 ```bash
 python -c "import json; f=json.load(open('reports/metrics/fairness_analysis.json')); print(json.dumps({k:f[k] for k in ['per_class_metrics', 'disparities', 'is_balanced']}, indent=2))"
@@ -138,7 +138,10 @@ python -c "import json; f=json.load(open('reports/metrics/fairness_analysis.json
 | Recall | 0.805 | 0.842 | 0.037 |
 | F1 Score | 0.811 | 0.837 | 0.026 |
 
-`is_balanced: true` when all class disparities are < 5% (no class fairness warnings).
+`is_balanced: true` in this legacy metrics file only means the two prediction
+classes have similar precision, recall, and F1. It is not a protected-attribute
+fairness claim. The full Tier 3 proxy subgroup audit is documented in
+`reports/fairness/fairness_report.json` and the Advanced Tier 3 Evidence section.
 
 ## API Observability & Structured Logging
 

@@ -242,7 +242,7 @@
     },
     "model_name": "soft_voting_ensemble"
   },
-  "generated_at": "2026-05-16T19:15:05+00:00",
+  "generated_at": "2026-05-16T22:16:42+00:00",
   "models_evaluated": [
     {
       "algorithm": "ExtraTreesClassifier",
@@ -763,7 +763,7 @@
       }
     },
     "model_name": "extra_trees_tuned",
-    "model_version": "wine-quality-tier3-selected-v1",
+    "model_version": "1.0.1",
     "reason_selected": "Tuned ExtraTreesClassifier was retained because it met the primary macro F1 objective with simpler runtime, deployment, and explainability characteristics."
   },
   "selection_metric": "f1_macro",

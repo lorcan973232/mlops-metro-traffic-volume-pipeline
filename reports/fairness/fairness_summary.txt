@@ -1,5 +1,5 @@
 Fairness proxy subgroup audit
-Model version: wine-quality-tier3-selected-v1
+Model version: 1.0.1
 Protected attributes present: no
 Proxy groups: alcohol tertiles and sulphates tertiles
 Maximum equalized-odds-style gap: 0.5919

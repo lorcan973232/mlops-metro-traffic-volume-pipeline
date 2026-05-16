@@ -19,7 +19,7 @@
     "true_negative": 120,
     "true_positive": 144
   },
-  "generated_at": "2026-05-16T19:44:07+00:00",
+  "generated_at": "2026-05-16T22:34:36+00:00",
   "incremental_value_vs_majority_baseline": 384.0,
   "limitations": [
     "The values are simulated and are not real business figures.",
@@ -36,7 +36,7 @@
   },
   "model_decision_value": 643.0,
   "model_path": "models\\wine_quality_classifier.joblib",
-  "model_version": "wine-quality-tier3-selected-v1",
+  "model_version": "1.0.1",
   "practical_value": "Positive simulated value indicates that the model could support prioritised quality review under the stated assumptions.",
   "prediction_action_mapping": {
     "good quality": "route_to_good_quality_or_premium_review",

@@ -7,7 +7,7 @@
   },
   "dataset": "UCI Wine Quality - Red Wine",
   "fast_mode": false,
-  "generated_at": "2026-05-16T19:15:05+00:00",
+  "generated_at": "2026-05-16T22:16:42+00:00",
   "grid_search": {
     "best_cv_f1_macro": 0.808498079302489,
     "best_params": {
@@ -248,7 +248,7 @@
       }
     },
     "model_name": "extra_trees_tuned",
-    "model_version": "wine-quality-tier3-selected-v1",
+    "model_version": "1.0.1",
     "reason_selected": "Tuned ExtraTreesClassifier was retained because it met the primary macro F1 objective with simpler runtime, deployment, and explainability characteristics."
   },
   "selection_method": "GridSearchCV plus held-out test and ensemble comparison",

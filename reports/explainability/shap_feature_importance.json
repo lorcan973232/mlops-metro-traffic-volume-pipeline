@@ -13,7 +13,7 @@
     "total_sulfur_dioxide": 0.05135430739443219,
     "volatile_acidity": 0.05877899939501938
   },
-  "generated_at": "2026-05-16T19:16:00+00:00",
+  "generated_at": "2026-05-16T22:14:50+00:00",
   "method": "shap.TreeExplainer",
   "status": "computed",
   "top_5_features": [

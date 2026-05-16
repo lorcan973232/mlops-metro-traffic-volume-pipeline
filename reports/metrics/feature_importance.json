@@ -13,7 +13,7 @@
     "total_sulfur_dioxide": 0.10299181210962714,
     "volatile_acidity": 0.10345970937283336
   },
-  "model_version": "wine-quality-tier3-selected-v1",
+  "model_version": "1.0.1",
   "status": "computed",
   "top_3_features": [
     [

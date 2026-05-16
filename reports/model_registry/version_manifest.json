@@ -3,7 +3,7 @@
   "versions": [
     {
       "version": "1.0.1",
-      "timestamp": "2026-05-16T15:24:00+00:00",
+      "timestamp": "2026-05-16T22:16:48+00:00",
       "model_path": "models\\wine_quality_classifier.joblib",
       "metadata_path": "reports\\metrics\\model_metadata.json",
       "metrics": {
@@ -18,70 +18,10 @@
       "quality_gate_passed": true,
       "status": "active",
       "data_hash": "717553f075c0853b67baf203fb0cf0e0ee2172eae7b1574ae1cc7ce81585f6ec",
-      "training_timestamp": "2026-05-16T15:24:00+00:00"
-    },
-    {
-      "version": "1.0.2",
-      "timestamp": "2026-05-16T19:03:09+00:00",
-      "model_path": "models\\wine_quality_classifier.joblib",
-      "metadata_path": "reports\\metrics\\model_metadata.json",
-      "metrics": {
-        "accuracy": 0.825,
-        "balanced_accuracy": 0.8237371953373366,
-        "f1_macro": 0.8240100565681961,
-        "f1_weighted": 0.8249175047140165,
-        "precision_macro": 0.8243482364043884,
-        "recall_macro": 0.8237371953373366,
-        "roc_auc": 0.9192668472075041
-      },
-      "quality_gate_passed": true,
-      "status": "active",
-      "data_hash": "717553f075c0853b67baf203fb0cf0e0ee2172eae7b1574ae1cc7ce81585f6ec",
-      "training_timestamp": "2026-05-16T19:03:09+00:00"
-    },
-    {
-      "version": "1.0.1",
-      "timestamp": "2026-05-16T19:03:09+00:00",
-      "model_path": "models\\wine_quality_classifier.joblib",
-      "metadata_path": "reports\\metrics\\model_metadata.json",
-      "metrics": {
-        "accuracy": 0.825,
-        "balanced_accuracy": 0.8237371953373366,
-        "f1_macro": 0.8240100565681961,
-        "f1_weighted": 0.8249175047140165,
-        "precision_macro": 0.8243482364043884,
-        "recall_macro": 0.8237371953373366,
-        "roc_auc": 0.9192668472075041
-      },
-      "quality_gate_passed": true,
-      "status": "active",
-      "data_hash": "717553f075c0853b67baf203fb0cf0e0ee2172eae7b1574ae1cc7ce81585f6ec",
-      "training_timestamp": "2026-05-16T19:03:09+00:00"
-    },
-    {
-      "version": "1.0.1",
-      "timestamp": "2026-05-16T19:15:11+00:00",
-      "model_path": "models\\wine_quality_classifier.joblib",
-      "metadata_path": "reports\\metrics\\model_metadata.json",
-      "metrics": {
-        "accuracy": 0.825,
-        "balanced_accuracy": 0.8237371953373366,
-        "f1_macro": 0.8240100565681961,
-        "f1_weighted": 0.8249175047140165,
-        "precision_macro": 0.8243482364043884,
-        "recall_macro": 0.8237371953373366,
-        "roc_auc": 0.9192668472075041
-      },
-      "quality_gate_passed": true,
-      "status": "active",
-      "data_hash": "717553f075c0853b67baf203fb0cf0e0ee2172eae7b1574ae1cc7ce81585f6ec",
-      "training_timestamp": "2026-05-16T19:15:11+00:00"
+      "training_timestamp": "2026-05-16T22:16:48+00:00"
     }
   ],
   "rollback_candidates": [
-    "1.0.1",
-    "1.0.2",
-    "1.0.1",
     "1.0.1"
   ]
 }

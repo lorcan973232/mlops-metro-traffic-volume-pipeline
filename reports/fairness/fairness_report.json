@@ -25,7 +25,7 @@
       "true_positive_rate_gap": 0.20453190220632078
     }
   },
-  "generated_at": "2026-05-16T19:44:36+00:00",
+  "generated_at": "2026-05-16T22:35:17+00:00",
   "group_metrics_path": "reports\\fairness\\group_metrics.json",
   "grouping_variables": [
     "alcohol_tertile_proxy",
@@ -39,7 +39,7 @@
   ],
   "max_equalized_odds_style_gap": 0.5918604651162791,
   "model_path": "models\\wine_quality_classifier.joblib",
-  "model_version": "wine-quality-tier3-selected-v1",
+  "model_version": "1.0.1",
   "performance_balanced_across_proxy_groups": false,
   "protected_attribute_statement": "The UCI red wine quality dataset contains physicochemical measurements and a quality score; it does not contain demographic protected attributes.",
   "proxy_group_statement": "This is a proxy subgroup performance audit using non-sensitive operational feature bins. These proxy groups are not protected characteristics.",

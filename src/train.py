@@ -31,11 +31,12 @@ from src.data import (
     write_json,
 )
 from src.preprocess import PROCESSED_DATA_PATH, preprocess_dataset
+from src.versioning import get_current_version
 
 MODEL_PATH = Path("models/wine_quality_classifier.joblib")
 TRAIN_METADATA_PATH = Path("reports/metrics/train_metadata.json")
 HYPERPARAMETER_SEARCH_RESULTS_PATH = Path("reports/metrics/hyperparameter_search_results.json")
-MODEL_VERSION = "wine-quality-tier3-selected-v1"
+MODEL_VERSION = get_current_version()
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
 TRAINING_COMMAND = "python -m src.train"
