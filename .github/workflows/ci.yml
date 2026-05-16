@@ -28,6 +28,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Create reproducible local Python environment
+        run: bash scripts/setup_local.sh
+
       - name: Verify Python setup without deployment tooling
         run: bash scripts/check_setup.sh --python-only
 
