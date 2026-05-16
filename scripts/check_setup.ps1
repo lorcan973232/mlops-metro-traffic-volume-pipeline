@@ -80,7 +80,6 @@ if (-not $pythonCommand) {
 }
 
 $pythonAvailable = Require-Command $pythonCommand "Install Python 3.11 or 3.12: winget install Python.Python.3.12"
-$pipAvailable = Require-Command "pip" "Install pip with Python or run: python -m ensurepip --upgrade"
 Require-Command "git" "Install Git: winget install Git.Git" | Out-Null
 if ($RequireGh) {
     Require-Command "gh" "Install GitHub CLI: winget install GitHub.cli; then run: gh auth login" | Out-Null
@@ -94,6 +93,20 @@ if ($pythonAvailable) {
         Pass-Check "python version and venv" $version
     } else {
         Fail-Check "python version and venv" "Use Python 3.11 or 3.12 with venv support."
+    }
+
+    & $pythonCommand -m pip --version | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        $pipVersion = (& $pythonCommand -m pip --version) -join " "
+        Pass-Check "pip" $pipVersion
+    } else {
+        Block-Check "pip" "Install pip with Python or run: $pythonCommand -m ensurepip --upgrade"
+    }
+
+    if (Test-Path ".venv") {
+        Pass-Check "virtual environment" ".venv exists; selected interpreter is $pythonCommand"
+    } else {
+        Block-Check "virtual environment" "Run: powershell -ExecutionPolicy Bypass -File scripts/setup_local.ps1"
     }
 
     $dependencyScript = @"
@@ -111,7 +124,7 @@ if missing:
     if ($LASTEXITCODE -eq 0) {
         Pass-Check "python dependencies" "required packages import successfully"
     } else {
-        Block-Check "python dependencies" "Run: pip install -r requirements.txt"
+        Block-Check "python dependencies" "Run: $pythonCommand -m pip install -r requirements.txt"
     }
 }
 

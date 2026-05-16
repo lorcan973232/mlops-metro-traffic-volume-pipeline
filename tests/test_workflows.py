@@ -12,6 +12,7 @@ EXPECTED_WORKFLOWS = {
     "docker-build.yml",
     "deploy.yml",
     "monitoring.yml",
+    "repository-visibility-check.yml",
 }
 
 REQUIRED_COMMAND_PATHS = [
@@ -73,6 +74,14 @@ def test_workflow_triggers_and_dependencies_show_lifecycle() -> None:
     monitoring_text = Path(".github/workflows/monitoring.yml").read_text(encoding="utf-8")
     assert "missing_monitoring_fields" in monitoring_text
     assert "missing_drift_fields" in monitoring_text
+
+    visibility = load_workflow("repository-visibility-check.yml")
+    assert "schedule" in visibility["on"]
+    visibility_text = Path(".github/workflows/repository-visibility-check.yml").read_text(
+        encoding="utf-8"
+    )
+    assert "Repository is not public" in visibility_text
+    assert "repository-visibility-evidence" in visibility_text
 
 
 def test_deploy_workflow_and_kind_manifests_are_kind_only() -> None:

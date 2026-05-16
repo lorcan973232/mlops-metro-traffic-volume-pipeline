@@ -25,6 +25,7 @@ REQUIRED_WORKFLOW_FILES = [
     "deploy.yml",
     "continuous-training.yml",
     "monitoring.yml",
+    "repository-visibility-check.yml",
 ]
 
 
@@ -62,6 +63,8 @@ def test_readme_exposes_marker_facing_artefact_evidence() -> None:
 
     required_sections = [
         "Public GitHub repository:",
+        "reports/submission/public_repository_evidence.json",
+        "reports/submission/branching_evidence.md",
         "remain public until 21 June 2026",
         "## MLOps Workflow Detail: CI/CD/CT/CM",
         "## Branching Strategy",
@@ -136,6 +139,7 @@ def test_required_workflows_exist_and_upload_marker_evidence() -> None:
         "kind-deployment-logs",
         "continuous-training-artifacts",
         "monitoring-artifacts",
+        "repository-visibility-evidence",
     ]:
         assert artefact_name in workflow_text
 
@@ -143,3 +147,18 @@ def test_required_workflows_exist_and_upload_marker_evidence() -> None:
     assert "kubectl rollout status" in workflow_text
     assert "Continuous Training rejected candidate model." in workflow_text
     assert "retraining_required" in workflow_text
+
+
+def test_public_repository_submission_evidence_is_present() -> None:
+    evidence_path = Path("reports/submission/public_repository_evidence.json")
+    branching_path = Path("reports/submission/branching_evidence.md")
+    assert evidence_path.is_file()
+    assert branching_path.is_file()
+
+    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    assert evidence["repository_url"] == (
+        "https://github.com/lorcan973232/mlops-wine-quality-pipeline"
+    )
+    assert evidence["visibility"] == "public"
+    assert evidence["private"] is False
+    assert "21 June 2026" in evidence["requirement_note"]

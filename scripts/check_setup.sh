@@ -58,7 +58,6 @@ else
 fi
 
 require_command "${PYTHON_CMD}" "Install Python 3.11 or 3.12: https://www.python.org/downloads/"
-require_command pip "Install pip with Python or run: python -m ensurepip --upgrade"
 require_command git "Install Git: https://git-scm.com/downloads"
 
 if [[ "${REQUIRE_GH}" == "--require-gh" ]]; then
@@ -79,6 +78,18 @@ PY
     fail "python version and venv" "Use Python 3.11 or 3.12 with venv support."
   fi
 
+  if "${PYTHON_CMD}" -m pip --version >/dev/null 2>&1; then
+    pass "pip" "$("${PYTHON_CMD}" -m pip --version 2>&1)"
+  else
+    block "pip" "Install pip with Python or run: ${PYTHON_CMD} -m ensurepip --upgrade"
+  fi
+
+  if [[ -d ".venv" ]]; then
+    pass "virtual environment" ".venv exists; selected interpreter is ${PYTHON_CMD}"
+  else
+    block "virtual environment" "Run: scripts/setup_local.sh"
+  fi
+
   if "${PYTHON_CMD}" - <<'PY'
 required = ["flask", "joblib", "numpy", "openpyxl", "pandas", "pytest", "sklearn", "yaml"]
 missing = []
@@ -93,7 +104,7 @@ PY
   then
     pass "python dependencies" "required packages import successfully"
   else
-    block "python dependencies" "Run: pip install -r requirements.txt"
+    block "python dependencies" "Run: ${PYTHON_CMD} -m pip install -r requirements.txt"
   fi
 fi
 
