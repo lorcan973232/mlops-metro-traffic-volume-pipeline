@@ -1,0 +1,24 @@
+{
+  "disparities": {
+    "f1_disparity": 0.0264,
+    "precision_disparity": 0.016,
+    "recall_disparity": 0.0367
+  },
+  "is_balanced": true,
+  "model_version": "wine-quality-extra-trees-v1",
+  "per_class_metrics": {
+    "good quality": {
+      "f1_score": 0.8372093023255814,
+      "precision": 0.8323699421965318,
+      "recall": 0.8421052631578947,
+      "support": 171
+    },
+    "standard quality": {
+      "f1_score": 0.8108108108108109,
+      "precision": 0.8163265306122449,
+      "recall": 0.8053691275167785,
+      "support": 149
+    }
+  },
+  "status": "fairness_analyzed"
+}

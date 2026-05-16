@@ -102,6 +102,83 @@ Metric evidence files:
 | `reports/metrics/classification_report.json` | Per-class, macro, and weighted classification report |
 | `reports/metrics/confusion_matrix.json` | Held-out confusion matrix |
 | `reports/metrics/cross_validation_results.json` | 5-fold StratifiedKFold results |
+| `reports/metrics/feature_importance.json` | **NEW**: Feature importance ranking (top-3 most predictive features) |
+| `reports/metrics/fairness_analysis.json` | **NEW**: Per-class metrics and fairness disparities (precision, recall, F1) |
+
+## Model Explainability & Feature Importance
+
+The model's feature importance is computed and ranked. The top-3 most predictive features are:
+
+```bash
+python -c "import json; f=json.load(open('reports/metrics/feature_importance.json')); print(json.dumps(f['top_3_features'], indent=2))"
+```
+
+Example output:
+```json
+[
+  ["alcohol", 0.179],
+  ["sulphates", 0.123],
+  ["volatile_acidity", 0.103]
+]
+```
+
+This helps understand which physicochemical properties drive wine quality predictions.
+
+## Model Fairness Analysis
+
+Per-class performance and fairness metrics are generated to detect class imbalance:
+
+```bash
+python -c "import json; f=json.load(open('reports/metrics/fairness_analysis.json')); print(json.dumps({k:f[k] for k in ['per_class_metrics', 'disparities', 'is_balanced']}, indent=2))"
+```
+
+| Metric | Standard Quality | Good Quality | Disparity |
+|--------|------------------|--------------|-----------|
+| Precision | 0.816 | 0.832 | 0.016 |
+| Recall | 0.805 | 0.842 | 0.037 |
+| F1 Score | 0.811 | 0.837 | 0.026 |
+
+`is_balanced: true` when all class disparities are < 5% (no class fairness warnings).
+
+## API Observability & Structured Logging
+
+The Flask API now emits structured JSON logs for every prediction request:
+
+```bash
+python -m app.main 2>&1 | grep "event"
+```
+
+Example log output:
+```json
+{"event": "prediction_request_started", "request_id": "abc12345", "timestamp": "2026-05-16T..."}
+{"event": "predictions_computed", "request_id": "abc12345", "prediction_count": 1, "execution_time_ms": 45.23}
+{"event": "response_sent", "request_id": "abc12345", "status_code": 200, "latency_ms": 48.5}
+```
+
+This enables monitoring, debugging, and request tracing.
+
+## API Performance & SLA
+
+API latency is benchmarked and verified against an SLA (99th percentile latency < 200ms):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/benchmark_api.ps1 -ApiUrl http://127.0.0.1:5000
+```
+
+```bash
+python scripts/benchmark_api.py http://127.0.0.1:5000 --samples 100
+```
+
+Benchmark report (`reports/benchmarks/api_sla_report.json`):
+```json
+{
+  "p50_ms": 92.07,
+  "p95_ms": 185.64,
+  "p99_ms": 185.64,
+  "sla_threshold_ms": 200,
+  "sla_met": true
+}
+```
 
 ## Hyperparameters
 
@@ -510,12 +587,16 @@ Reports are written under `reports/monitoring/`. The artefact does not claim pro
 8. Run `python -m compileall app src tests`, `pytest -q`, and `ruff check src tests` if the marker wants to see the individual CI commands.
 9. Run `python -m src.data`, `python -m src.preprocess`, `python -m src.model_selection`, `python -m src.train`, `python -m src.evaluate`, `python -m src.model_registry`, and `python -m src.predict`.
 10. Show `latest_metrics.json`, `classification_report.json`, `confusion_matrix.json`, `model_metadata.json`, `model_comparison.json`, and `quality_gate_report.json`.
-11. Explain the CT quality gate and show `passed`, thresholds, baseline comparison, and accepted/rejected decision.
-12. Start Flask and open `http://127.0.0.1:5000/`; click `Use Example`, then `Predict Quality`.
-13. Build Docker, open `http://127.0.0.1:5001/`, and run the smoke test.
-14. Deploy to Kind, port-forward the service, open `http://127.0.0.1:8080/`, and run the smoke test.
-15. Run offline monitoring, drift check, and API-aware monitoring; show `retraining_required` and `reason`.
-16. Show `reports/security/secret_scan.txt`, `reports/security/docker_security_notes.md`, and `reports/security/sbom.spdx.json`, plus the latest Security Scan workflow.
+11. **NEW: Show `feature_importance.json` and explain the top-3 most predictive features (alcohol, sulphates, volatile_acidity) and their importance scores.**
+12. **NEW: Show `fairness_analysis.json` and explain per-class metrics, disparities, and whether the model is balanced (is_balanced: true means no class fairness warnings).**
+13. Explain the CT quality gate and show `passed`, thresholds, baseline comparison, and accepted/rejected decision.
+14. Start Flask and open `http://127.0.0.1:5000/`; click `Use Example`, then `Predict Quality`.
+15. **NEW: While Flask is running, show API logs (structured JSON) by checking stdout/logs; point to request_id, latency_ms, model_version in logs.**
+16. **NEW: Run `python scripts/benchmark_api.py http://127.0.0.1:5000 --samples 50` to show latency benchmark; explain p50, p95, p99, and SLA (sla_met: true).**
+17. Build Docker, open `http://127.0.0.1:5001/`, and run the smoke test.
+18. Deploy to Kind, port-forward the service, open `http://127.0.0.1:8080/`, and run the smoke test.
+19. Run offline monitoring, drift check, and API-aware monitoring; show `retraining_required` and `reason`.
+20. Show `reports/security/secret_scan.txt`, `reports/security/docker_security_notes.md`, and `reports/security/sbom.spdx.json`, plus the latest Security Scan workflow.
 
 ## Traceability Matrix
 

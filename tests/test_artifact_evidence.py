@@ -15,6 +15,8 @@ REQUIRED_METRIC_FILES = [
     "confusion_matrix.json",
     "confusion_matrix_normalized.json",
     "cross_validation_results.json",
+    "feature_importance.json",
+    "fairness_analysis.json",
 ]
 
 REQUIRED_WORKFLOW_FILES = [
@@ -56,6 +58,41 @@ def test_full_metrics_and_model_management_package_is_present() -> None:
     assert metadata["feature_schema"] == latest["feature_schema"]
     assert gate["checks"]["balanced_accuracy_above_minimum"] is True
     assert gate["decision"] in {"accept_candidate_model", "reject_candidate_model"}
+
+
+def test_feature_importance_and_fairness_analysis_are_present() -> None:
+    metrics_dir = Path("reports/metrics")
+    feature_importance_path = metrics_dir / "feature_importance.json"
+    fairness_analysis_path = metrics_dir / "fairness_analysis.json"
+
+    assert feature_importance_path.is_file(), "feature_importance.json missing"
+    assert fairness_analysis_path.is_file(), "fairness_analysis.json missing"
+
+    feature_imp = json.loads(feature_importance_path.read_text(encoding="utf-8"))
+    fairness = json.loads(fairness_analysis_path.read_text(encoding="utf-8"))
+
+    # Validate feature importance structure
+    assert feature_imp["status"] == "computed"
+    assert feature_imp["algorithm"] == "ExtraTreesClassifier.feature_importances_"
+    assert "features" in feature_imp
+    assert "top_3_features" in feature_imp
+    assert len(feature_imp["top_3_features"]) == 3
+    assert all(isinstance(f[1], float) for f in feature_imp["top_3_features"])
+
+    # Validate fairness analysis structure
+    assert fairness["status"] == "fairness_analyzed"
+    assert "per_class_metrics" in fairness
+    assert "disparities" in fairness
+    assert "is_balanced" in fairness
+    assert isinstance(fairness["is_balanced"], bool)
+    assert "standard quality" in fairness["per_class_metrics"]
+    assert "good quality" in fairness["per_class_metrics"]
+    for class_name in ["standard quality", "good quality"]:
+        class_metrics = fairness["per_class_metrics"][class_name]
+        assert "precision" in class_metrics
+        assert "recall" in class_metrics
+        assert "f1_score" in class_metrics
+        assert "support" in class_metrics
 
 
 def test_readme_exposes_marker_facing_artefact_evidence() -> None:

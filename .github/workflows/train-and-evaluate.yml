@@ -98,11 +98,13 @@ jobs:
               "reports/metrics/confusion_matrix.json",
               "reports/metrics/confusion_matrix_normalized.json",
               "reports/metrics/cross_validation_results.json",
+              "reports/metrics/feature_importance.json",
+              "reports/metrics/fairness_analysis.json",
           ]
           missing = [path for path in required if not Path(path).is_file()]
           if missing:
               raise SystemExit(f"Missing required evaluation artefacts: {missing}")
-          print("Full model metric and metadata package is present.")
+          print("Full model metric and metadata package is present (including explainability and fairness).")
           PY
 
       - name: Upload model, metrics, and metadata

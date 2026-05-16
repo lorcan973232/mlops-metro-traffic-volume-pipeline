@@ -34,6 +34,8 @@ CLASSIFICATION_REPORT_JSON_PATH = Path("reports/metrics/classification_report.js
 CLASSIFICATION_REPORT_TEXT_PATH = Path("reports/metrics/classification_report.txt")
 CONFUSION_MATRIX_PATH = Path("reports/metrics/confusion_matrix.json")
 CONFUSION_MATRIX_NORMALIZED_PATH = Path("reports/metrics/confusion_matrix_normalized.json")
+FEATURE_IMPORTANCE_PATH = Path("reports/metrics/feature_importance.json")
+FAIRNESS_ANALYSIS_PATH = Path("reports/metrics/fairness_analysis.json")
 
 MIN_ACCURACY = 0.80
 MIN_BALANCED_ACCURACY = 0.80
@@ -212,6 +214,13 @@ def evaluate_model(
     )
     bundle = joblib.load(model_path)
     model = bundle["model"]
+    feature_importance: dict[str, float] | None = None
+    classifier = model.named_steps.get("classifier", model) if hasattr(model, "named_steps") else model
+    if hasattr(classifier, "feature_importances_"):
+        importances = classifier.feature_importances_
+        feature_importance = {
+            feature: float(imp) for feature, imp in zip(FEATURE_COLUMNS, importances)
+        }
     predictions = model.predict(x_test)
     positive_probabilities = _positive_class_probabilities(model, x_test)
     basic = _classification_metrics(y_test, predictions, positive_probabilities)
@@ -236,6 +245,43 @@ def evaluate_model(
         target_names=CLASS_NAMES,
         zero_division=0,
     )
+
+    fairness_report: dict[str, Any] = {
+        "status": "fairness_analyzed",
+        "model_version": bundle.get("model_version", "unknown"),
+        "per_class_metrics": {},
+        "disparities": {},
+        "is_balanced": True,
+    }
+    if report_dict is not None:
+        for idx, class_name in enumerate(CLASS_NAMES):
+            class_key = str(idx) if str(idx) in report_dict else class_name
+            class_metrics = report_dict.get(class_key, {})
+            fairness_report["per_class_metrics"][class_name] = {
+                "precision": float(class_metrics.get("precision", 0)),
+                "recall": float(class_metrics.get("recall", 0)),
+                "f1_score": float(class_metrics.get("f1-score", 0)),
+                "support": int(class_metrics.get("support", 0)),
+            }
+        class_0_f1 = fairness_report["per_class_metrics"][CLASS_NAMES[0]]["f1_score"]
+        class_1_f1 = fairness_report["per_class_metrics"][CLASS_NAMES[1]]["f1_score"]
+        f1_disparity = abs(class_0_f1 - class_1_f1)
+        class_0_precision = fairness_report["per_class_metrics"][CLASS_NAMES[0]]["precision"]
+        class_1_precision = fairness_report["per_class_metrics"][CLASS_NAMES[1]]["precision"]
+        precision_disparity = abs(class_0_precision - class_1_precision)
+        class_0_recall = fairness_report["per_class_metrics"][CLASS_NAMES[0]]["recall"]
+        class_1_recall = fairness_report["per_class_metrics"][CLASS_NAMES[1]]["recall"]
+        recall_disparity = abs(class_0_recall - class_1_recall)
+        fairness_report["disparities"] = {
+            "f1_disparity": round(f1_disparity, 4),
+            "precision_disparity": round(precision_disparity, 4),
+            "recall_disparity": round(recall_disparity, 4),
+        }
+        fairness_report["is_balanced"] = (
+            f1_disparity < 0.05 and precision_disparity < 0.05 and recall_disparity < 0.05
+        )
+        if f1_disparity >= 0.05:
+            fairness_report["warning"] = "High F1 disparity detected between classes"
 
     metrics = {
         "status": "evaluated",
@@ -375,6 +421,20 @@ def evaluate_model(
     CLASSIFICATION_REPORT_TEXT_PATH.write_text(report_text, encoding="utf-8")
     write_json(CONFUSION_MATRIX_PATH, confusion_report)
     write_json(CONFUSION_MATRIX_NORMALIZED_PATH, normalized_confusion_report)
+    if feature_importance:
+        write_json(
+            FEATURE_IMPORTANCE_PATH,
+            {
+                "status": "computed",
+                "model_version": bundle.get("model_version", "unknown"),
+                "algorithm": "ExtraTreesClassifier.feature_importances_",
+                "features": feature_importance,
+                "top_3_features": sorted(
+                    feature_importance.items(), key=lambda x: x[1], reverse=True
+                )[:3],
+            },
+        )
+    write_json(FAIRNESS_ANALYSIS_PATH, fairness_report)
     if not metrics["quality_gate"]["passed"]:
         raise RuntimeError(f"Quality gate failed: {metrics['quality_gate']['reasons']}")
     return metrics

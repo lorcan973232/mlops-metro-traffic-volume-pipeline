@@ -44,6 +44,12 @@ jobs:
       - name: Docker API smoke test
         run: bash scripts/smoke_test_api.sh http://127.0.0.1:5001
 
+      - name: Benchmark Docker API latency and SLA
+        run: |
+          python scripts/benchmark_api.py http://127.0.0.1:5001 --samples 50 --warmup 10
+          mkdir -p docker-smoke-logs
+          cp reports/benchmarks/api_sla_report.json docker-smoke-logs/api_sla_report.json
+
       - name: Upload Docker smoke logs
         if: always()
         run: docker logs mlops-flask-api > docker-smoke.log 2>&1 || true
@@ -53,4 +59,6 @@ jobs:
         uses: actions/upload-artifact@v7.0.1
         with:
           name: docker-smoke-logs
-          path: docker-smoke.log
+          path: |
+            docker-smoke.log
+            docker-smoke-logs/

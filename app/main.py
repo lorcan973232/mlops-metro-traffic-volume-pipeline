@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import json
+import logging
+import traceback
+import uuid
+from datetime import UTC, datetime
 from typing import Any
 
 import pandas as pd
@@ -15,6 +20,9 @@ from app.schemas import (
     ui_feature_groups,
     validate_prediction_payload,
 )
+
+logging.basicConfig(format="%(message)s", level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def _target_labels(bundle: dict[str, Any]) -> dict[int, str]:
@@ -88,6 +96,17 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
 
     @app.post("/predict")
     def predict() -> tuple[Any, int]:
+        request_id = str(uuid.uuid4())[:12]
+        start_time = datetime.now(UTC)
+        logger.info(
+            json.dumps(
+                {
+                    "event": "prediction_request_started",
+                    "request_id": request_id,
+                    "timestamp": start_time.isoformat(),
+                }
+            )
+        )
         try:
             records = validate_prediction_payload(request.get_json(force=True))
             frame = pd.DataFrame(records, columns=FEATURE_COLUMNS)
@@ -99,9 +118,42 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
                 if hasattr(model, "predict_proba")
                 else [None] * len(predictions)
             )
+            execution_time_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
+            logger.info(
+                json.dumps(
+                    {
+                        "event": "predictions_computed",
+                        "request_id": request_id,
+                        "prediction_count": len(predictions),
+                        "execution_time_ms": round(execution_time_ms, 2),
+                        "model_version": bundle.get("model_version", "unknown"),
+                    }
+                )
+            )
         except ValueError as exc:
+            logger.warning(
+                json.dumps(
+                    {
+                        "event": "validation_error",
+                        "request_id": request_id,
+                        "error_type": "ValueError",
+                        "error_message": str(exc),
+                    }
+                )
+            )
             return jsonify({"error": str(exc)}), 400
-        except Exception as exc:  # pragma: no cover - exercised by smoke tests
+        except Exception as exc:
+            logger.error(
+                json.dumps(
+                    {
+                        "event": "prediction_failed",
+                        "request_id": request_id,
+                        "error_type": type(exc).__name__,
+                        "error_message": str(exc),
+                        "traceback": traceback.format_exc(),
+                    }
+                )
+            )
             return jsonify({"error": str(exc)}), 500
 
         labels = _target_labels(bundle)
@@ -126,6 +178,20 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
         response["model_version"] = bundle.get("model_version", "unknown")
         if len(results) == 1:
             response.update(results[0])
+
+        latency_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
+        logger.info(
+            json.dumps(
+                {
+                    "event": "response_sent",
+                    "request_id": request_id,
+                    "status_code": 200,
+                    "model_version": bundle.get("model_version", "unknown"),
+                    "latency_ms": round(latency_ms, 2),
+                    "prediction_count": len(results),
+                }
+            )
+        )
         return jsonify(response), 200
 
     return app

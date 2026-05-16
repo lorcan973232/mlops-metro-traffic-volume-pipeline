@@ -1,0 +1,32 @@
+{
+  "algorithm": "ExtraTreesClassifier.feature_importances_",
+  "features": {
+    "alcohol": 0.17906369394012578,
+    "chlorides": 0.07126391348953719,
+    "citric_acid": 0.07242953639888436,
+    "density": 0.08127170138019905,
+    "fixed_acidity": 0.06867671942780089,
+    "free_sulfur_dioxide": 0.06640932239963669,
+    "ph": 0.06682423056725526,
+    "residual_sugar": 0.06499241814216145,
+    "sulphates": 0.12261694277193876,
+    "total_sulfur_dioxide": 0.10299181210962714,
+    "volatile_acidity": 0.10345970937283336
+  },
+  "model_version": "wine-quality-extra-trees-v1",
+  "status": "computed",
+  "top_3_features": [
+    [
+      "alcohol",
+      0.17906369394012578
+    ],
+    [
+      "sulphates",
+      0.12261694277193876
+    ],
+    [
+      "volatile_acidity",
+      0.10345970937283336
+    ]
+  ]
+}
