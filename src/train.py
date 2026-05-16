@@ -8,8 +8,9 @@ from typing import Any
 import joblib
 import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier, VotingClassifier
 from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -33,7 +34,8 @@ from src.preprocess import PROCESSED_DATA_PATH, preprocess_dataset
 
 MODEL_PATH = Path("models/wine_quality_classifier.joblib")
 TRAIN_METADATA_PATH = Path("reports/metrics/train_metadata.json")
-MODEL_VERSION = "wine-quality-extra-trees-v1"
+HYPERPARAMETER_SEARCH_RESULTS_PATH = Path("reports/metrics/hyperparameter_search_results.json")
+MODEL_VERSION = "wine-quality-tier3-selected-v1"
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
 TRAINING_COMMAND = "python -m src.train"
@@ -64,18 +66,100 @@ MODEL_HYPERPARAMETERS: dict[str, Any] = {
         "column_transformer_remainder": "drop",
     },
     "selection": {
-        "method": "controlled scikit-learn classifier comparison for a compact public dataset",
-        "main_scoring_metric": "weighted_f1",
-        "secondary_metrics": ["accuracy", "macro_f1", "precision_weighted", "recall_weighted"],
+        "method": "reproducible GridSearchCV plus ensemble comparison",
+        "main_scoring_metric": "f1_macro",
+        "secondary_metrics": [
+            "balanced_accuracy",
+            "accuracy",
+            "precision_macro",
+            "recall_macro",
+            "f1_weighted",
+        ],
         "cross_validation": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42)",
         "selection_rule": (
-            "highest held-out weighted F1 with stable CV performance and fast runtime"
+            "highest macro F1 unless an ensemble improves enough to justify extra runtime"
         ),
     },
 }
 
 
+def selected_training_configuration() -> dict[str, Any]:
+    """Return the selected model configuration, using model-selection evidence when present."""
+    default_config = {
+        "model_name": "extra_trees_default",
+        "algorithm": MODEL_HYPERPARAMETERS["algorithm"],
+        "classifier": MODEL_HYPERPARAMETERS["classifier"],
+        "source": "src.train default hyperparameters",
+    }
+    if not HYPERPARAMETER_SEARCH_RESULTS_PATH.exists():
+        return default_config
+    try:
+        search = json.loads(HYPERPARAMETER_SEARCH_RESULTS_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return default_config
+    selected = search.get("selected_model", {})
+    model_name = selected.get("model_name")
+    if model_name == "extra_trees_tuned":
+        return {
+            "model_name": model_name,
+            "algorithm": "ExtraTreesClassifier",
+            "classifier": selected.get("hyperparameters", {}).get(
+                "classifier",
+                MODEL_HYPERPARAMETERS["classifier"],
+            ),
+            "source": str(HYPERPARAMETER_SEARCH_RESULTS_PATH),
+        }
+    if model_name == "soft_voting_ensemble":
+        selected_hyperparameters = selected.get("hyperparameters", {})
+        return {
+            "model_name": model_name,
+            "algorithm": "VotingClassifier",
+            "classifier": selected_hyperparameters.get("classifier", selected_hyperparameters),
+            "source": str(HYPERPARAMETER_SEARCH_RESULTS_PATH),
+        }
+    return default_config
+
+
+def _selected_classifier(config: dict[str, Any]) -> Any:
+    if config["algorithm"] == "VotingClassifier":
+        voting = config["classifier"].get("voting", "soft")
+        extra_trees_params = config["classifier"].get(
+            "extra_trees",
+            MODEL_HYPERPARAMETERS["classifier"],
+        )
+        random_forest_params = config["classifier"].get(
+            "random_forest",
+            {
+                "n_estimators": 200,
+                "max_depth": None,
+                "min_samples_leaf": 1,
+                "class_weight": "balanced_subsample",
+                "random_state": RANDOM_STATE,
+                "n_jobs": 1,
+            },
+        )
+        logistic_params = config["classifier"].get(
+            "logistic_regression",
+            {
+                "max_iter": 1000,
+                "class_weight": "balanced",
+                "random_state": RANDOM_STATE,
+            },
+        )
+        return VotingClassifier(
+            estimators=[
+                ("extra_trees", ExtraTreesClassifier(**extra_trees_params)),
+                ("random_forest", RandomForestClassifier(**random_forest_params)),
+                ("logistic_regression", LogisticRegression(**logistic_params)),
+            ],
+            voting=voting,
+            n_jobs=1,
+        )
+    return ExtraTreesClassifier(**config["classifier"])
+
+
 def build_pipeline() -> Pipeline:
+    config = selected_training_configuration()
     preprocessor = ColumnTransformer(
         transformers=[
             (
@@ -92,7 +176,7 @@ def build_pipeline() -> Pipeline:
         remainder="drop",
         sparse_threshold=0,
     )
-    model = ExtraTreesClassifier(**MODEL_HYPERPARAMETERS["classifier"])
+    model = _selected_classifier(config)
     return Pipeline(steps=[("preprocessor", preprocessor), ("classifier", model)])
 
 
@@ -119,6 +203,7 @@ def train_model(
     )
     pipeline = build_pipeline()
     pipeline.fit(x_train, y_train)
+    selected_config = selected_training_configuration()
 
     raw_hash = file_sha256(RAW_DATA_PATH) if RAW_DATA_PATH.exists() else DATA_SHA256
     training_timestamp = datetime.now(UTC).replace(microsecond=0).isoformat()
@@ -150,6 +235,12 @@ def train_model(
         "random_state": RANDOM_STATE,
         "test_size": TEST_SIZE,
         "hyperparameters": MODEL_HYPERPARAMETERS,
+        "selected_model": {
+            "model_name": selected_config["model_name"],
+            "algorithm": selected_config["algorithm"],
+            "source": selected_config["source"],
+        },
+        "selected_hyperparameters": selected_config["classifier"],
         "training_timestamp": training_timestamp,
         "training_command": TRAINING_COMMAND,
         "model_path": str(model_path),
@@ -184,6 +275,8 @@ def main() -> None:
         "random_state": bundle["random_state"],
         "test_size": bundle["test_size"],
         "hyperparameters": bundle["hyperparameters"],
+        "selected_model": bundle["selected_model"],
+        "selected_hyperparameters": bundle["selected_hyperparameters"],
         "training_timestamp": bundle["training_timestamp"],
         "training_command": TRAINING_COMMAND,
         "training_rows": bundle["training_rows"],

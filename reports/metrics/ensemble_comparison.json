@@ -1,0 +1,155 @@
+{
+  "base_models": [
+    "ExtraTreesClassifier",
+    "RandomForestClassifier",
+    "LogisticRegression"
+  ],
+  "cross_validation_scores": {
+    "accuracy": {
+      "mean": 0.8021905637254901,
+      "per_fold": [
+        0.828125,
+        0.76953125,
+        0.796875,
+        0.8125,
+        0.803921568627451
+      ],
+      "std": 0.019374012645216997
+    },
+    "balanced_accuracy": {
+      "mean": 0.801199165797706,
+      "per_fold": [
+        0.8283751456787094,
+        0.7692142550450838,
+        0.797521928479421,
+        0.8104643317180886,
+        0.8004201680672269
+      ],
+      "std": 0.01929528755752144
+    },
+    "f1_macro": {
+      "mean": 0.8011155509459311,
+      "per_fold": [
+        0.8276094276094277,
+        0.768737272434965,
+        0.7964276975776854,
+        0.8111049621840989,
+        0.8016983949234788
+      ],
+      "std": 0.019351394953252467
+    },
+    "f1_weighted": {
+      "mean": 0.8020811061683057,
+      "per_fold": [
+        0.8282723063973064,
+        0.7696900455130069,
+        0.7970986512111573,
+        0.8122463567607452,
+        0.8030981709593131
+      ],
+      "std": 0.019309849184325933
+    },
+    "folds": 5,
+    "precision_macro": {
+      "mean": 0.8019208803777002,
+      "per_fold": [
+        0.8272510544654319,
+        0.7684732077318326,
+        0.7962137404580153,
+        0.8121492445266728,
+        0.8055171547065476
+      ],
+      "std": 0.01954731998518002
+    },
+    "primary_metric": "f1_macro",
+    "recall_macro": {
+      "mean": 0.801199165797706,
+      "per_fold": [
+        0.8283751456787094,
+        0.7692142550450838,
+        0.797521928479421,
+        0.8104643317180886,
+        0.8004201680672269
+      ],
+      "std": 0.01929528755752144
+    }
+  },
+  "ensemble_type": "VotingClassifier",
+  "generated_at": "2026-05-16T19:15:05+00:00",
+  "held_out_test_scores": {
+    "accuracy": 0.809375,
+    "balanced_accuracy": 0.8086855842066014,
+    "f1_macro": 0.8085504957875225,
+    "f1_weighted": 0.809414262105356,
+    "precision_macro": 0.8084313725490195,
+    "precision_weighted": 0.809469362745098,
+    "recall_macro": 0.8086855842066014,
+    "recall_weighted": 0.809375
+  },
+  "hyperparameters": {
+    "extra_trees": {
+      "bootstrap": false,
+      "ccp_alpha": 0.0,
+      "class_weight": "balanced",
+      "criterion": "gini",
+      "max_depth": null,
+      "max_features": "sqrt",
+      "max_leaf_nodes": null,
+      "max_samples": null,
+      "min_impurity_decrease": 0.0,
+      "min_samples_leaf": 1,
+      "min_samples_split": 2,
+      "min_weight_fraction_leaf": 0.0,
+      "monotonic_cst": null,
+      "n_estimators": 300,
+      "n_jobs": 1,
+      "oob_score": false,
+      "random_state": 42,
+      "verbose": 0,
+      "warm_start": false
+    },
+    "logistic_regression": {
+      "C": 1.0,
+      "class_weight": "balanced",
+      "dual": false,
+      "fit_intercept": true,
+      "intercept_scaling": 1,
+      "l1_ratio": null,
+      "max_iter": 1000,
+      "multi_class": "deprecated",
+      "n_jobs": null,
+      "penalty": "l2",
+      "random_state": 42,
+      "solver": "lbfgs",
+      "tol": 0.0001,
+      "verbose": 0,
+      "warm_start": false
+    },
+    "random_forest": {
+      "bootstrap": true,
+      "ccp_alpha": 0.0,
+      "class_weight": "balanced_subsample",
+      "criterion": "gini",
+      "max_depth": null,
+      "max_features": "sqrt",
+      "max_leaf_nodes": null,
+      "max_samples": null,
+      "min_impurity_decrease": 0.0,
+      "min_samples_leaf": 1,
+      "min_samples_split": 2,
+      "min_weight_fraction_leaf": 0.0,
+      "monotonic_cst": null,
+      "n_estimators": 220,
+      "n_jobs": 1,
+      "oob_score": false,
+      "random_state": 42,
+      "verbose": 0,
+      "warm_start": false
+    },
+    "voting": "soft"
+  },
+  "reason_selected_or_rejected": "Rejected for final deployment because the tuned ExtraTrees model offered a better balance of macro F1, runtime, deployment simplicity, and explainability.",
+  "selected": false,
+  "status": "completed",
+  "voting": "soft"
+}

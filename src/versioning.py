@@ -29,8 +29,8 @@ def parse_version(version_str: str) -> tuple[int, int, int]:
         raise ValueError(f"Invalid semantic version: {version_str}")
     try:
         return (int(parts[0]), int(parts[1]), int(parts[2]))
-    except ValueError:
-        raise ValueError(f"Invalid semantic version: {version_str}")
+    except ValueError as exc:
+        raise ValueError(f"Invalid semantic version: {version_str}") from exc
 
 
 def increment_patch_version(current_version: str) -> str:

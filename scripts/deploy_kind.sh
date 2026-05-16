@@ -30,7 +30,7 @@ echo "Restarting deployment so Kind uses the freshly loaded local image"
 kubectl rollout restart deployment/mlops-flask-api
 
 echo "Waiting for rollout"
-kubectl rollout status deployment/mlops-flask-api --timeout=180s
+kubectl rollout status deployment/mlops-flask-api --timeout=360s
 
 echo "Deployment resources:"
 kubectl get all -l app=mlops-flask-api -o wide

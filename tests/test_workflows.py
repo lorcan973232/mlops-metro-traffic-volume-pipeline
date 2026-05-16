@@ -12,6 +12,7 @@ EXPECTED_WORKFLOWS = {
     "docker-build.yml",
     "deploy.yml",
     "monitoring.yml",
+    "model-analysis.yml",
     "repository-visibility-check.yml",
     "security-scan.yml",
 }
@@ -21,6 +22,9 @@ REQUIRED_COMMAND_PATHS = [
     "scripts/smoke_test_api.sh",
     "scripts/monitor.py",
     "scripts/check_drift.py",
+    "scripts/explain_model.py",
+    "scripts/fairness_audit.py",
+    "scripts/cost_benefit_analysis.py",
     "deployment/kind/",
     "scripts/security_scan.py",
 ]
@@ -76,6 +80,16 @@ def test_workflow_triggers_and_dependencies_show_lifecycle() -> None:
     monitoring_text = Path(".github/workflows/monitoring.yml").read_text(encoding="utf-8")
     assert "missing_monitoring_fields" in monitoring_text
     assert "missing_drift_fields" in monitoring_text
+
+    model_analysis = load_workflow("model-analysis.yml")
+    assert model_analysis["jobs"]["tier3-analysis"]["env"]["FAST_MODE"] == "1"
+    model_analysis_text = Path(".github/workflows/model-analysis.yml").read_text(
+        encoding="utf-8"
+    )
+    assert "python scripts/explain_model.py" in model_analysis_text
+    assert "python scripts/fairness_audit.py" in model_analysis_text
+    assert "python scripts/cost_benefit_analysis.py" in model_analysis_text
+    assert "tier3-model-analysis-reports" in model_analysis_text
 
     visibility = load_workflow("repository-visibility-check.yml")
     assert "schedule" in visibility["on"]
@@ -204,9 +218,10 @@ def test_monitoring_workflow_and_scripts_emit_required_model_management_fields()
     assert "reports/monitoring/" in workflow
     assert "model_metadata.json" in workflow
     assert "--api-url" in monitor_script
-    assert "api_aware_monitoring" in monitor_script
-    assert "offline_simulated_monitoring" in monitor_script
+    assert "api_aware" in monitor_script
+    assert "offline_simulated" in monitor_script
     assert "retraining_required" in monitor_script
+    assert "data_quality_report.json" in monitor_script
     assert "retraining_required" in drift_script
     assert "drift_score" in drift_script
     assert "model_registry_summary" in registry

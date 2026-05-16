@@ -28,6 +28,7 @@ from src.preprocess import PROCESSED_DATA_PATH, preprocess_dataset
 
 MONITORING_REPORT_PATH = Path("reports/monitoring/monitoring_report.json")
 API_MONITORING_REPORT_PATH = Path("reports/monitoring/api_monitoring_report.json")
+DATA_QUALITY_REPORT_PATH = Path("reports/monitoring/data_quality_report.json")
 
 
 def utc_now() -> str:
@@ -56,6 +57,11 @@ def validate_monitoring_schema(frame: pd.DataFrame) -> dict[str, Any]:
         if column in frame and not pd.api.types.is_numeric_dtype(frame[column])
     ]
     missing_values = int(frame[FEATURE_COLUMNS].isna().sum().sum()) if not missing_columns else None
+    missing_by_feature = (
+        {column: int(frame[column].isna().sum()) for column in FEATURE_COLUMNS}
+        if not missing_columns
+        else {}
+    )
     checks_passed = (
         not missing_columns
         and not unexpected_columns
@@ -69,6 +75,8 @@ def validate_monitoring_schema(frame: pd.DataFrame) -> dict[str, Any]:
         "unexpected_columns": unexpected_columns,
         "non_numeric_columns": non_numeric_columns,
         "missing_values": missing_values,
+        "missing_by_feature": missing_by_feature,
+        "row_count": int(len(frame)),
     }
 
 
@@ -92,11 +100,24 @@ def offline_monitor(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any
     frame = pd.read_csv(processed_path)
     metadata = load_metadata()
     data_quality = validate_monitoring_schema(frame)
+    data_quality_report = {
+        "status": data_quality["status"],
+        "timestamp_utc": utc_now(),
+        "monitoring_mode": "offline_simulated",
+        "reference_data_source": str(processed_path),
+        "schema_validation": data_quality,
+        "missing_value_checks": {
+            "total_missing_values": data_quality["missing_values"],
+            "missing_by_feature": data_quality["missing_by_feature"],
+        },
+        "feature_distribution_checks": feature_summary(frame),
+        "computed_from_data": True,
+    }
     retraining_required = data_quality["status"] != "passed"
     report = {
         "status": "monitored",
         "timestamp_utc": utc_now(),
-        "monitoring_mode": "offline_simulated_monitoring",
+        "monitoring_mode": "offline_simulated",
         "production_claim": "simulated_only",
         "production_limitation": (
             "No live production telemetry is available in this student artefact; monitoring "
@@ -111,6 +132,7 @@ def offline_monitor(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any
         "response_status": "simulated_batch_available",
         "rows": int(len(frame)),
         "data_quality": data_quality,
+        "data_quality_report_path": str(DATA_QUALITY_REPORT_PATH),
         "feature_summary": feature_summary(frame),
         "target_summary": {
             "target": TARGET_COLUMN,
@@ -128,6 +150,7 @@ def offline_monitor(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any
             else "No retraining required from offline schema and data-quality checks."
         ),
     }
+    write_json(DATA_QUALITY_REPORT_PATH, data_quality_report)
     write_json(MONITORING_REPORT_PATH, report)
     return report
 
@@ -233,7 +256,7 @@ def api_monitor(api_url: str) -> dict[str, Any]:
     report = {
         "status": "monitored",
         "timestamp_utc": utc_now(),
-        "monitoring_mode": "api_aware_monitoring",
+        "monitoring_mode": "api_aware",
         "production_claim": "api_check_only",
         "api_url": base_url,
         "dataset_name": metadata.get("dataset_name", "UCI Wine Quality - Red Wine"),

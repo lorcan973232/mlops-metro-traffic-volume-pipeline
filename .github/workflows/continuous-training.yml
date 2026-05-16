@@ -27,12 +27,17 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run CT data, training, and evaluation stages
+        env:
+          FAST_MODE: "1"
         run: |
           python -m src.data
           python -m src.preprocess
           python -m src.model_selection
           python -m src.train
           python -m src.evaluate
+          python scripts/explain_model.py
+          python scripts/fairness_audit.py
+          python scripts/cost_benefit_analysis.py
 
       - name: Upload candidate model and metric reports
         uses: actions/upload-artifact@v7.0.1
@@ -41,6 +46,9 @@ jobs:
           path: |
             models/
             reports/metrics/
+            reports/explainability/
+            reports/fairness/
+            reports/business/
 
   quality-gate:
     name: Compare latest metrics against baseline and thresholds
@@ -65,7 +73,9 @@ jobs:
           latest = json.loads(Path("reports/metrics/latest_metrics.json").read_text())
           gate = json.loads(Path("reports/metrics/quality_gate_report.json").read_text())
           feature_imp = json.loads(Path("reports/metrics/feature_importance.json").read_text())
-          fairness = json.loads(Path("reports/metrics/fairness_analysis.json").read_text())
+          fairness = json.loads(Path("reports/fairness/fairness_report.json").read_text())
+          explainability = json.loads(Path("reports/explainability/shap_summary.json").read_text())
+          cost = json.loads(Path("reports/business/cost_benefit_report.json").read_text())
           required_checks = {
               "accuracy_above_minimum",
               "balanced_accuracy_above_minimum",
@@ -79,9 +89,13 @@ jobs:
               raise SystemExit(f"Quality gate is missing checks: {missing_checks}")
           if feature_imp.get("status") != "computed":
               raise SystemExit("Feature importance not computed")
-          if fairness.get("status") != "fairness_analyzed":
+          if fairness.get("status") != "completed":
               raise SystemExit("Fairness analysis not completed")
-          print(json.dumps({"latest_metrics": latest["metric_summary"], "quality_gate": gate, "feature_importance_status": feature_imp["status"], "fairness_status": fairness["status"]}, indent=2))
+          if not explainability.get("computed_from_model"):
+              raise SystemExit("Explainability report was not computed from model")
+          if cost["assumptions"]["assumption_type"] != "SIMULATED_ASSUMPTIONS":
+              raise SystemExit("Cost-benefit assumptions not labelled simulated")
+          print(json.dumps({"latest_metrics": latest["metric_summary"], "quality_gate": gate, "feature_importance_status": feature_imp["status"], "fairness_status": fairness["status"], "explainability_status": explainability["status"], "cost_benefit_status": cost["status"]}, indent=2))
           if not gate["passed"]:
               raise SystemExit("Continuous Training rejected candidate model.")
           PY
@@ -126,3 +140,6 @@ jobs:
           path: |
             models/
             reports/metrics/
+            reports/explainability/
+            reports/fairness/
+            reports/business/

@@ -55,15 +55,16 @@
     },
     "selection": {
       "cross_validation": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42)",
-      "main_scoring_metric": "weighted_f1",
-      "method": "controlled scikit-learn classifier comparison for a compact public dataset",
+      "main_scoring_metric": "f1_macro",
+      "method": "reproducible GridSearchCV plus ensemble comparison",
       "secondary_metrics": [
+        "balanced_accuracy",
         "accuracy",
-        "macro_f1",
-        "precision_weighted",
-        "recall_weighted"
+        "precision_macro",
+        "recall_macro",
+        "f1_weighted"
       ],
-      "selection_rule": "highest held-out weighted F1 with stable CV performance and fast runtime"
+      "selection_rule": "highest macro F1 unless an ensemble improves enough to justify extra runtime"
     },
     "train_test_split": {
       "random_state": 42,
@@ -73,8 +74,23 @@
     }
   },
   "model_path": "models\\wine_quality_classifier.joblib",
-  "model_version": "wine-quality-extra-trees-v1",
+  "model_version": "wine-quality-tier3-selected-v1",
   "random_state": 42,
+  "selected_hyperparameters": {
+    "class_weight": "balanced",
+    "max_depth": null,
+    "max_leaf_nodes": null,
+    "min_samples_leaf": 1,
+    "min_samples_split": 2,
+    "n_estimators": 300,
+    "n_jobs": 1,
+    "random_state": 42
+  },
+  "selected_model": {
+    "algorithm": "ExtraTreesClassifier",
+    "model_name": "extra_trees_tuned",
+    "source": "reports\\metrics\\hyperparameter_search_results.json"
+  },
   "status": "trained",
   "target_definition": {
     "description": "Predict whether a red wine sample is good quality from 11 physicochemical inputs.",
@@ -102,5 +118,5 @@
   "test_size": 0.2,
   "training_command": "python -m src.train",
   "training_rows": 1279,
-  "training_timestamp": "2026-05-16T14:00:50+00:00"
+  "training_timestamp": "2026-05-16T19:15:11+00:00"
 }

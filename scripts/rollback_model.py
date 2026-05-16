@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import json
 import sys
-from pathlib import Path
 
-from src.model_registry import MODEL_REGISTRY_PATH, MODEL_METADATA_PATH
-from src.versioning import get_version_record, get_rollback_candidates, VERSION_MANIFEST_PATH
+from src.model_registry import MODEL_REGISTRY_PATH
+from src.versioning import VERSION_MANIFEST_PATH, get_rollback_candidates, get_version_record
 
 
 def rollback_model(target_version: str) -> None:

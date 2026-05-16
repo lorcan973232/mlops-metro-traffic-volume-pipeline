@@ -16,6 +16,7 @@ from src.model_registry import MODEL_METADATA_PATH, load_model_metadata
 from src.preprocess import PROCESSED_DATA_PATH, preprocess_dataset
 
 DRIFT_REPORT_PATH = Path("reports/monitoring/drift_report.json")
+DATA_QUALITY_REPORT_PATH = Path("reports/monitoring/data_quality_report.json")
 DRIFT_THRESHOLD = 0.2
 
 
@@ -35,6 +36,50 @@ def validate_feature_schema(frame: pd.DataFrame) -> None:
     missing_values = int(frame[FEATURE_COLUMNS].isna().sum().sum())
     if missing_values:
         raise ValueError(f"Drift batch contains {missing_values} missing feature values.")
+
+
+def data_quality_checks(frame: pd.DataFrame) -> dict[str, Any]:
+    missing_columns = [column for column in FEATURE_COLUMNS if column not in frame.columns]
+    non_numeric_columns = [
+        column
+        for column in FEATURE_COLUMNS
+        if column in frame.columns and not pd.api.types.is_numeric_dtype(frame[column])
+    ]
+    missing_by_feature = (
+        {column: int(frame[column].isna().sum()) for column in FEATURE_COLUMNS}
+        if not missing_columns
+        else {}
+    )
+    total_missing = sum(missing_by_feature.values()) if missing_by_feature else None
+    status = (
+        "passed"
+        if not missing_columns and not non_numeric_columns and total_missing == 0
+        else "failed"
+    )
+    return {
+        "status": status,
+        "expected_feature_schema": FEATURE_COLUMNS,
+        "missing_columns": missing_columns,
+        "non_numeric_columns": non_numeric_columns,
+        "missing_values": total_missing,
+        "missing_by_feature": missing_by_feature,
+        "row_count": int(len(frame)),
+    }
+
+
+def feature_distribution_checks(
+    reference: pd.DataFrame,
+    current: pd.DataFrame,
+) -> dict[str, Any]:
+    checks = {}
+    for column in FEATURE_COLUMNS:
+        checks[column] = {
+            "reference_mean": float(reference[column].mean()),
+            "current_mean": float(current[column].mean()),
+            "reference_std": float(reference[column].std()),
+            "current_std": float(current[column].std()),
+        }
+    return checks
 
 
 def population_stability_index(
@@ -98,6 +143,7 @@ def drift_report(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any]:
     validate_feature_schema(reference)
     validate_feature_schema(current)
     validate_feature_schema(simulated)
+    current_quality = data_quality_checks(current)
 
     current_scores = {
         column: population_stability_index(reference[column], current[column])
@@ -111,12 +157,36 @@ def drift_report(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any]:
     simulated_max = float(max(simulated_scores.values()))
     current_drift_detected = current_max >= DRIFT_THRESHOLD
     simulated_drift_detected = simulated_max >= DRIFT_THRESHOLD
+    per_feature_drift_flags = {
+        column: score >= DRIFT_THRESHOLD for column, score in current_scores.items()
+    }
+    simulated_feature_drift_flags = {
+        column: score >= DRIFT_THRESHOLD for column, score in simulated_scores.items()
+    }
     retraining_required = current_drift_detected
+    timestamp = utc_now()
+    data_quality_report = {
+        "status": current_quality["status"],
+        "timestamp_utc": timestamp,
+        "monitoring_mode": "offline_simulated",
+        "reference_data_source": str(processed_path),
+        "current_data_source": str(processed_path),
+        "schema_validation": current_quality,
+        "missing_value_checks": {
+            "total_missing_values": current_quality["missing_values"],
+            "missing_by_feature": current_quality["missing_by_feature"],
+        },
+        "feature_distribution_checks": feature_distribution_checks(reference, current),
+        "computed_from_data": True,
+    }
     report = {
         "status": "checked",
-        "timestamp_utc": utc_now(),
-        "monitoring_mode": "simulated_drift_check",
+        "timestamp_utc": timestamp,
+        "monitoring_mode": "offline_simulated",
         "production_claim": "simulated_only",
+        "reference_data_source": str(processed_path),
+        "current_data_source": str(processed_path),
+        "simulated_data_source": "deterministic perturbation of processed reference data",
         "dataset_name": metadata.get("dataset_name", "UCI Wine Quality - Red Wine"),
         "dataset_source": metadata.get("dataset_source", DATA_SOURCE_PAGE),
         "model_version": metadata.get("model_version"),
@@ -124,14 +194,19 @@ def drift_report(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any]:
         "drift_metric": "population_stability_index",
         "threshold": DRIFT_THRESHOLD,
         "ct_quality_gate_reference": metadata.get("quality_gate", {}).get("thresholds", {}),
-        "data_quality_status": "passed",
+        "data_quality_status": current_quality["status"],
+        "schema_validation": current_quality,
+        "missing_value_checks": data_quality_report["missing_value_checks"],
+        "feature_distribution_checks": data_quality_report["feature_distribution_checks"],
         "current_batch": {
             "feature_psi": current_scores,
+            "per_feature_drift_flags": per_feature_drift_flags,
             "max_psi": current_max,
             "drift_detected": current_drift_detected,
         },
         "simulated_drift_batch": {
             "feature_psi": simulated_scores,
+            "per_feature_drift_flags": simulated_feature_drift_flags,
             "max_psi": simulated_max,
             "drift_detected": simulated_drift_detected,
         },
@@ -151,6 +226,7 @@ def drift_report(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any]:
             ),
         },
     }
+    write_json(DATA_QUALITY_REPORT_PATH, data_quality_report)
     write_json(DRIFT_REPORT_PATH, report)
     return report
 

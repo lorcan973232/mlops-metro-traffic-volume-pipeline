@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "mlops-wine-quality-pipeline-python-dependencies",
-  "documentNamespace": "https://github.com/lorcan973232/mlops-wine-quality-pipeline/sbom/20260516141831",
+  "documentNamespace": "https://github.com/lorcan973232/mlops-wine-quality-pipeline/sbom/20260516194315",
   "creationInfo": {
-    "created": "2026-05-16T14:18:31+00:00",
+    "created": "2026-05-16T19:43:15+00:00",
     "creators": [
       "Tool: scripts/security_scan.py"
     ]
@@ -120,6 +120,16 @@
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
       "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-Package-shap",
+      "name": "shap",
+      "versionInfo": "0.46.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
     }
   ],
   "relationships": [
@@ -177,6 +187,11 @@
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
       "relatedSpdxElement": "SPDXRef-Package-scikit-learn"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-shap"
     }
   ]
 }

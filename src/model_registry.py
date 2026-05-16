@@ -4,10 +4,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-from src.data import DATA_DOI, DATA_SOURCE_PAGE, write_json, file_sha256
+from src.data import DATA_DOI, DATA_SOURCE_PAGE, file_sha256, write_json
 from src.evaluate import METRICS_PATH, QUALITY_GATE_REPORT_PATH
 from src.train import MODEL_PATH, PROCESSED_DATA_PATH
-from src.versioning import register_version, get_current_version, get_next_version
+from src.versioning import get_current_version, register_version
 
 MODEL_REGISTRY_PATH = Path("reports/metrics/model_registry.json")
 MODEL_METADATA_PATH = Path("reports/metrics/model_metadata.json")
@@ -32,13 +32,9 @@ def register_model(
         else metrics["quality_gate"]
     )
 
-    # Determine version: use next version if quality gate passed, otherwise keep current
+    # Keep registry metadata aligned with the evaluated metrics for reproducibility.
     is_accepted = quality_gate_report["passed"]
-    if is_accepted:
-        current_version = get_current_version()
-        model_version = get_next_version(current_version, "patch")
-    else:
-        model_version = metrics.get("model_version", get_current_version())
+    model_version = metrics.get("model_version", get_current_version())
 
     # Calculate data hash for reproducibility
     data_hash = file_sha256(PROCESSED_DATA_PATH) if PROCESSED_DATA_PATH.exists() else "unknown"
@@ -94,6 +90,8 @@ def register_model(
         "target_labels": metrics.get("target_labels", {}),
         "feature_schema": metrics["feature_schema"],
         "hyperparameters": metrics.get("hyperparameters", {}),
+        "selected_model": metrics.get("selected_model", {}),
+        "selected_hyperparameters": metrics.get("selected_hyperparameters", {}),
         "preprocessing_steps": metrics.get("hyperparameters", {}).get("preprocessing", {}),
         "train_test_split": metrics.get("hyperparameters", {}).get("train_test_split", {}),
         "random_state": metrics.get("hyperparameters", {})
@@ -170,6 +168,8 @@ def model_registry_summary(
             "training_timestamp": metadata["training_timestamp"],
             "metric_summary": metadata["metric_summary"],
             "hyperparameters": metadata.get("hyperparameters", {}),
+            "selected_model": metadata.get("selected_model", {}),
+            "selected_hyperparameters": metadata.get("selected_hyperparameters", {}),
             "quality_gate_passed": metadata["quality_gate"]["passed"],
         },
         "version_history_path": str(MODEL_REGISTRY_HISTORY_PATH),

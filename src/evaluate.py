@@ -216,11 +216,16 @@ def evaluate_model(
     bundle = joblib.load(model_path)
     model = bundle["model"]
     feature_importance: dict[str, float] | None = None
-    classifier = model.named_steps.get("classifier", model) if hasattr(model, "named_steps") else model
+    classifier = (
+        model.named_steps.get("classifier", model)
+        if hasattr(model, "named_steps")
+        else model
+    )
     if hasattr(classifier, "feature_importances_"):
         importances = classifier.feature_importances_
         feature_importance = {
-            feature: float(imp) for feature, imp in zip(FEATURE_COLUMNS, importances)
+            feature: float(imp)
+            for feature, imp in zip(FEATURE_COLUMNS, importances, strict=False)
         }
     predictions = model.predict(x_test)
     positive_probabilities = _positive_class_probabilities(model, x_test)
@@ -294,6 +299,8 @@ def evaluate_model(
         "target_labels": bundle.get("target_labels", TARGET_LABELS),
         "feature_schema": bundle.get("feature_columns", FEATURE_COLUMNS),
         "hyperparameters": bundle.get("hyperparameters", {}),
+        "selected_model": bundle.get("selected_model", {}),
+        "selected_hyperparameters": bundle.get("selected_hyperparameters", {}),
         "training_timestamp": bundle.get("training_timestamp"),
         "training_command": bundle.get("training_command", "python -m src.train"),
         "evaluation_command": EVALUATION_COMMAND,
@@ -315,6 +322,8 @@ def evaluate_model(
         "target_labels": metrics["target_labels"],
         "feature_schema": metrics["feature_schema"],
         "hyperparameters": metrics["hyperparameters"],
+        "selected_model": metrics["selected_model"],
+        "selected_hyperparameters": metrics["selected_hyperparameters"],
         "metric_summary": {
             "accuracy": metrics["accuracy"],
             "balanced_accuracy": metrics["balanced_accuracy"],
@@ -406,6 +415,8 @@ def evaluate_model(
             "target_labels": metrics["target_labels"],
             "feature_schema": metrics["feature_schema"],
             "hyperparameters": metrics["hyperparameters"],
+            "selected_model": metrics["selected_model"],
+            "selected_hyperparameters": metrics["selected_hyperparameters"],
             "metric_summary": latest_metrics["metric_summary"],
             "confusion_matrix": matrix.tolist(),
             "quality_gate": metrics["quality_gate"],
@@ -416,8 +427,10 @@ def evaluate_model(
             "cross_validation_method": "StratifiedKFold",
         },
     )
-    write_json(MODEL_COMPARISON_PATH, model_comparison)
-    write_json(HYPERPARAMETER_SEARCH_RESULTS_PATH, search_report)
+    if not MODEL_COMPARISON_PATH.exists():
+        write_json(MODEL_COMPARISON_PATH, model_comparison)
+    if not HYPERPARAMETER_SEARCH_RESULTS_PATH.exists():
+        write_json(HYPERPARAMETER_SEARCH_RESULTS_PATH, search_report)
     write_json(CLASSIFICATION_REPORT_JSON_PATH, report_dict)
     CLASSIFICATION_REPORT_TEXT_PATH.write_text(report_text, encoding="utf-8")
     write_json(CONFUSION_MATRIX_PATH, confusion_report)

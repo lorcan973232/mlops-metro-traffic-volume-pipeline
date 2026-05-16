@@ -6,7 +6,7 @@
   "f1_weighted": 0.8249175047140165,
   "metrics_path": "reports\\metrics\\metrics.json",
   "model_path": "models\\wine_quality_classifier.joblib",
-  "model_version": "wine-quality-extra-trees-v1",
+  "model_version": "1.0.1",
   "precision_weighted": 0.8248997286775982,
   "promotion_decision": "accepted",
   "quality_gate_passed": true,

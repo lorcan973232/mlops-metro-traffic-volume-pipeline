@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import Any
 
-from src.versioning import get_version_record, VERSION_MANIFEST_PATH
+from src.versioning import VERSION_MANIFEST_PATH
 
 
 def get_recent_versions(count: int = 5) -> list[dict[str, Any]]:
@@ -109,7 +108,7 @@ def detect_regressions(
 
 def main() -> None:
     print("Regression detection system initialized")
-    print(f"  Configuration: Max accuracy drop = 0.5%, F1 drop = 0%, Balanced accuracy drop = 2%")
+    print("  Configuration: Max accuracy drop = 0.5%, F1 drop = 0%, Balanced accuracy drop = 2%")
 
 
 if __name__ == "__main__":

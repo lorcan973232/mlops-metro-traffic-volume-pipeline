@@ -27,7 +27,11 @@ def benchmark_api(api_url: str, samples: int = 100, warmup_samples: int = 10) ->
     for i in range(warmup_samples):
         try:
             start = time.perf_counter()
-            req = Request(endpoint, data=example_payload, headers={"Content-Type": "application/json"})
+            req = Request(
+                endpoint,
+                data=example_payload,
+                headers={"Content-Type": "application/json"},
+            )
             with urlopen(req, timeout=10) as response:
                 response.read()
             latency_ms = (time.perf_counter() - start) * 1000
@@ -41,7 +45,11 @@ def benchmark_api(api_url: str, samples: int = 100, warmup_samples: int = 10) ->
     for i in range(samples):
         try:
             start = time.perf_counter()
-            req = Request(endpoint, data=example_payload, headers={"Content-Type": "application/json"})
+            req = Request(
+                endpoint,
+                data=example_payload,
+                headers={"Content-Type": "application/json"},
+            )
             with urlopen(req, timeout=10) as response:
                 response.read()
             latency_ms = (time.perf_counter() - start) * 1000
@@ -83,10 +91,23 @@ def benchmark_api(api_url: str, samples: int = 100, warmup_samples: int = 10) ->
 def main() -> None:
     parser = argparse.ArgumentParser(description="Benchmark Flask API latency and SLA compliance")
     parser.add_argument("api_url", help="Base URL of the API (e.g., http://127.0.0.1:5000)")
-    parser.add_argument("--samples", type=int, default=100, help="Number of samples to benchmark (default: 100)")
-    parser.add_argument("--warmup", type=int, default=10, help="Number of warmup samples (default: 10)")
     parser.add_argument(
-        "--output", type=str, default="reports/benchmarks/api_sla_report.json", help="Output JSON file"
+        "--samples",
+        type=int,
+        default=100,
+        help="Number of samples to benchmark (default: 100)",
+    )
+    parser.add_argument(
+        "--warmup",
+        type=int,
+        default=10,
+        help="Number of warmup samples (default: 10)",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="reports/benchmarks/api_sla_report.json",
+        help="Output JSON file",
     )
 
     args = parser.parse_args()
@@ -100,17 +121,23 @@ def main() -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
 
-    print(f"\nBenchmark Results:")
+    print("\nBenchmark Results:")
     print(f"  P50 (50th percentile): {report['p50_ms']}ms")
     print(f"  P95 (95th percentile): {report['p95_ms']}ms")
     print(f"  P99 (99th percentile): {report['p99_ms']}ms")
     print(f"  Mean: {report['mean_ms']}ms")
     print(f"  Stdev: {report['stdev_ms']}ms")
-    print(f"  SLA (P99 < {report['sla_threshold_ms']}ms): {'PASS' if report['sla_met'] else 'FAIL'}")
+    print(
+        f"  SLA (P99 < {report['sla_threshold_ms']}ms): "
+        f"{'PASS' if report['sla_met'] else 'FAIL'}"
+    )
     print(f"\nReport saved to: {output_path}")
 
     if not report["sla_met"]:
-        print(f"WARNING: SLA not met! P99 is {report['p99_ms']}ms, threshold is {report['sla_threshold_ms']}ms")
+        print(
+            f"WARNING: SLA not met! P99 is {report['p99_ms']}ms, "
+            f"threshold is {report['sla_threshold_ms']}ms"
+        )
         sys.exit(1)
 
 

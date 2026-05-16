@@ -368,9 +368,9 @@ http://127.0.0.1:5001/
 
 ## Kind Kubernetes
 
-Kind Kubernetes is the selected deployment target because the assignment allows a
-Google VM or Kind Kubernetes cluster. This artefact does not claim a persistent public
-cloud service. The Kind deployment is automated and ephemeral: it runs locally or on a
+Kind Kubernetes is the selected deployment target for this artefact. This artefact does
+not claim a persistent public cloud service. The Kind deployment is automated and
+ephemeral: it runs locally or on a
 GitHub Actions runner, verifies Kubernetes rollout, port-forwards the service, and
 smoke-tests the deployed Flask API.
 
@@ -575,6 +575,98 @@ python scripts/monitor.py --api-url http://127.0.0.1:8080
 
 Reports are written under `reports/monitoring/`. The artefact does not claim production telemetry; monitoring uses deterministic batch checks, schema validation, simulated drift, and optional deployed API checks.
 
+## Advanced Tier 3 Evidence
+
+The repository now includes research-grade artefact evidence beyond the core MLOps path. These features are implemented as reproducible scripts, tests, reports, and a dedicated GitHub Actions workflow. They are artefact outputs only and do not create the report, slides, video, or script.
+
+| Tier 3 component | Purpose | Command | Main outputs | Workflow |
+|---|---|---|---|---|
+| SHAP explainability | Explain global and local drivers of good-quality predictions | `python scripts/explain_model.py` | `reports/explainability/shap_summary.json`, `shap_feature_importance.json`, `local_explanation_example.json` | `.github/workflows/model-analysis.yml` |
+| Statistical fairness audit | Check proxy subgroup performance because no protected attributes exist | `python scripts/fairness_audit.py` | `reports/fairness/fairness_report.json`, `group_metrics.json`, `fairness_summary.txt` | `.github/workflows/model-analysis.yml` |
+| Hyperparameter optimisation | Reproducible GridSearchCV using macro F1 primary scoring and balanced accuracy secondary evidence | `python -m src.model_selection` | `reports/metrics/hyperparameter_search_results.json`, `model_comparison.json` | `.github/workflows/model-analysis.yml`, `train-and-evaluate.yml`, `continuous-training.yml` |
+| Ensemble comparison | Soft-voting ensemble compared against tuned ExtraTrees | `python -m src.model_selection` | `reports/metrics/ensemble_comparison.json` | `.github/workflows/model-analysis.yml` |
+| Cost-benefit analysis | Demonstrate decision value under labelled simulated assumptions | `python scripts/cost_benefit_analysis.py` | `reports/business/cost_benefit_report.json`, `cost_benefit_summary.txt` | `.github/workflows/model-analysis.yml` |
+| Drift/data monitoring | Offline simulated schema, data-quality, feature distribution, and PSI drift checks | `python scripts/monitor.py`; `python scripts/check_drift.py` | `reports/monitoring/monitoring_report.json`, `data_quality_report.json`, `drift_report.json` | `.github/workflows/monitoring.yml`, `.github/workflows/model-analysis.yml` |
+
+### SHAP and Explainability
+
+SHAP explains a prediction by estimating how much each feature contributes to the model output. `scripts/explain_model.py` uses `shap.TreeExplainer` for the selected tree model. If SHAP is unavailable or incompatible on a runner, the script falls back to sklearn permutation importance and labels the report with `status: shap_fallback` instead of pretending SHAP ran.
+
+The current explainability evidence identifies `alcohol`, `sulphates`, `volatile_acidity`, and `total_sulfur_dioxide` as leading drivers in the generated report. Exact values are stored in `reports/explainability/shap_feature_importance.json`. Local explanation evidence for one held-out example is stored in `reports/explainability/local_explanation_example.json`.
+
+### Fairness Analysis
+
+The UCI wine dataset has physicochemical measurements and a quality score only; it has no demographic protected attributes. The fairness audit therefore uses clearly labelled non-sensitive proxy groups: alcohol tertiles and sulphates tertiles. These are operational subgroup checks, not protected-characteristic claims.
+
+The audit reports group counts, accuracy, precision, recall, F1, true positive rate, false positive rate, false negative rate, disparity gaps, and an equalized-odds-style gap. Current evidence shows some proxy subgroup gaps, so the responsible interpretation is that subgroup behavior should be reviewed before any real operational use.
+
+### Hyperparameter Optimisation and Ensemble Modelling
+
+`src/model_selection.py` performs reproducible GridSearchCV with `f1_macro` as the primary scoring metric and balanced accuracy as secondary evidence. It compares the dummy baseline, default ExtraTrees, tuned ExtraTrees, and a soft-voting ensemble. `FAST_MODE=1` reduces the search space for GitHub Actions while preserving the same evidence structure.
+
+The final model selection rule is conservative: use the ensemble only if it materially improves macro F1 and keeps cross-validation stability acceptable. Otherwise, retain tuned ExtraTrees for runtime, API compatibility, Docker/Kind reliability, and explainability.
+
+### Cost-Benefit Analysis
+
+`scripts/cost_benefit_analysis.py` demonstrates how predictions could support decision-making in a quality-screening workflow. The values are explicitly labelled `SIMULATED_ASSUMPTIONS`; they are not real business facts. The report uses the held-out confusion matrix to estimate relative decision value versus a majority-class baseline and records limitations.
+
+### Drift and Data Monitoring
+
+Monitoring is `offline_simulated` because this student artefact has no production telemetry. `scripts/monitor.py` validates schema and missing values and writes `reports/monitoring/data_quality_report.json`. `scripts/check_drift.py` computes Population Stability Index per feature, flags drift above the threshold, and includes a deterministic simulated drift batch to prove retraining-trigger logic. If a deployed API is available, run:
+
+```powershell
+python scripts/monitor.py --api-url http://127.0.0.1:8080
+```
+
+### Tier 3 Reproduction Commands
+
+```powershell
+python -m src.model_selection
+python -m src.train
+python -m src.evaluate
+python scripts/explain_model.py
+python scripts/fairness_audit.py
+python scripts/cost_benefit_analysis.py
+python scripts/monitor.py
+python scripts/check_drift.py
+pytest -q
+ruff check src tests scripts
+```
+
+For Actions-safe execution:
+
+```powershell
+$env:FAST_MODE="1"
+python -m src.model_selection
+python scripts/explain_model.py
+Remove-Item Env:\FAST_MODE
+```
+
+### Tier 3 Mark Mapping
+
+| Mark evidence | Repository evidence |
+|---|---|
+| Advanced explainability | Real SHAP TreeExplainer reports or explicit fallback, global and local outputs |
+| Responsible ML/fairness | Proxy subgroup audit with limitations and no false protected-attribute claims |
+| Optimisation | Reproducible GridSearchCV with macro F1, balanced accuracy, CV, saved results |
+| Ensemble evidence | Soft-voting model compared and selected/rejected by documented rule |
+| Practical impact | Confusion-matrix-informed decision analysis with simulated assumptions |
+| Continuous monitoring | Data quality, PSI drift, retraining flags, offline/API-aware modes |
+| CI/CD/CT/CM integration | `model-analysis.yml`, `train-and-evaluate.yml`, `continuous-training.yml`, `monitoring.yml` |
+| Reproducibility | Fixed random state, committed dataset hash, deterministic split, tests, reports |
+
+### Tier 3 Live Demo Checklist
+
+1. Open `reports/explainability/shap_summary.json` and `shap_feature_importance.json`.
+2. Open `reports/fairness/fairness_report.json` and explain proxy groups and limitations.
+3. Open `reports/metrics/hyperparameter_search_results.json`.
+4. Open `reports/metrics/ensemble_comparison.json`.
+5. Open `reports/business/cost_benefit_report.json` and point to `SIMULATED_ASSUMPTIONS`.
+6. Open `reports/monitoring/drift_report.json` and `data_quality_report.json`.
+7. Show `.github/workflows/model-analysis.yml` and its uploaded `tier3-model-analysis-reports`.
+8. Show Continuous Training quality gate in `reports/metrics/quality_gate_report.json`.
+9. Show Monitoring workflow output and `retraining_required`.
+
 ## Live Demo Checklist
 
 1. Show the public GitHub repo and this README.
@@ -606,10 +698,16 @@ Reports are written under `reports/monitoring/`. The artefact does not claim pro
 | CI | `.github/workflows/ci.yml`, `tests/` | `python -m compileall app src tests`; `ruff check src tests`; `pytest -q` | `ci.yml` | `ci-artifacts` | compile, lint, Flask import, pytest, ML smoke path | Implemented and verifiable in Actions | Check latest run for submitted SHA |
 | Data acquisition/preprocessing | `src/data.py`, `src/preprocess.py`, `data/raw/winequality-red.csv` | `python -m src.data`; `python -m src.preprocess` | `data-preprocessing.yml` | processed CSV, ingestion and preprocessing reports | SHA-256, schema validation, processed CSV exists | Implemented and verifiable in Actions | Check latest run for submitted SHA |
 | Training/evaluation | `src/model_selection.py`, `src/train.py`, `src/evaluate.py` | `python -m src.model_selection`; `python -m src.train`; `python -m src.evaluate` | `train-and-evaluate.yml` | model, latest metrics, reports, metadata | metric package exists; quality gate in evaluation | Implemented and verifiable in Actions | Check latest run for submitted SHA |
+| Tier 3 SHAP explainability | `scripts/explain_model.py`, `reports/explainability/` | `python scripts/explain_model.py` | `model-analysis.yml`, `ci.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | `shap_summary.json`, `shap_feature_importance.json`, `local_explanation_example.json` | `tests/test_explainability.py`; report must be model-derived; fallback is labelled if used | Implemented with real SHAP plus explicit fallback | Show top features and one local explanation |
+| Tier 3 fairness audit | `scripts/fairness_audit.py`, `reports/fairness/` | `python scripts/fairness_audit.py` | `model-analysis.yml`, `ci.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | `fairness_report.json`, `group_metrics.json`, `fairness_summary.txt` | `tests/test_fairness.py`; proxy groups disclosed as non-protected | Implemented | Explain subgroup gaps and limitations |
+| Tier 3 hyperparameter optimisation | `src/model_selection.py` | `python -m src.model_selection` | `model-analysis.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | `hyperparameter_search_results.json`, `model_comparison.json` | `tests/test_model_selection.py`; `f1_macro` primary and balanced accuracy secondary | Implemented | Show GridSearchCV best params and selected model reason |
+| Tier 3 ensemble comparison | `src/model_selection.py` | `python -m src.model_selection` | `model-analysis.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | `ensemble_comparison.json` | `tests/test_model_selection.py`; selection/rejection reason required | Implemented | Show soft-voting comparison and why final model was retained or changed |
+| Tier 3 cost-benefit analysis | `scripts/cost_benefit_analysis.py`, `reports/business/` | `python scripts/cost_benefit_analysis.py` | `model-analysis.yml`, `ci.yml`, `train-and-evaluate.yml`, `continuous-training.yml` | `cost_benefit_report.json`, `cost_benefit_summary.txt` | `tests/test_cost_benefit.py`; assumptions must be `SIMULATED_ASSUMPTIONS` | Implemented | Explain confusion-matrix-informed practical value |
 | Docker build | `Dockerfile`, `.dockerignore`, `scripts/smoke_test_api.sh` | `docker build -t mlops-flask-api:latest .` | `docker-build.yml` | Docker smoke logs | image builds, container healthy, `/predict` smoke passes | Implemented and verifiable in Actions | Check latest run for submitted SHA |
 | Continuous Deployment | `deployment/kind/`, `scripts/deploy_kind.*` | `scripts/deploy_kind.ps1` or `scripts/deploy_kind.sh` | `deploy.yml` | deployment image archive, Kind deployment logs | Kind cluster, image load, manifest apply, rollout, API smoke | Implemented and verifiable in Actions | Check latest run for submitted SHA |
 | Continuous Training | `continuous-training.yml`, `src/evaluate.py`, `src/model_registry.py` | `python -m src.data`; `python -m src.preprocess`; `python -m src.model_selection`; `python -m src.train`; `python -m src.evaluate`; `python -m src.model_registry` | `continuous-training.yml` | CT candidate, quality gate, promoted metadata | accuracy, balanced accuracy, macro F1, weighted F1, CV accuracy, baseline improvement | Implemented and verifiable in Actions | Check latest scheduled/manual run |
 | Continuous Monitoring | `monitoring.yml`, `scripts/monitor.py`, `scripts/check_drift.py` | `python scripts/monitor.py`; `python scripts/check_drift.py` | `monitoring.yml` | monitoring and drift reports | required CM fields, schema/data-quality checks, drift score, retraining flag | Implemented and verifiable in Actions | Check latest scheduled/manual run |
+| Tier 3 drift/data quality monitoring | `scripts/monitor.py`, `scripts/check_drift.py`, `reports/monitoring/` | `python scripts/monitor.py`; `python scripts/check_drift.py`; optional `python scripts/monitor.py --api-url http://127.0.0.1:8080` | `model-analysis.yml`, `monitoring.yml` | `monitoring_report.json`, `data_quality_report.json`, `drift_report.json` | `tests/test_monitoring.py`; offline simulated mode and PSI flags required | Implemented | Show `retraining_required`, simulated drift signal, and data-quality checks |
 | Model management | `src/model_registry.py`, `reports/metrics/model_metadata.json`, `reports/metrics/model_registry.json`, `reports/model_registry/version_history.json` | `python -m src.model_registry` | `train-and-evaluate.yml`, `continuous-training.yml`, `monitoring.yml` | model metadata, registry record, version history, CT artefacts | quality gate passed before registration in CT | Implemented as lightweight repository/Actions artefact model management, not external MLflow/GHCR promotion | None |
 | Branching strategy | README Branching Strategy section, `reports/submission/branching_evidence.md` | `git branch -a`; `gh pr list --state all` | CI, Docker, Deploy, CT, Monitoring workflows | PR and run evidence in GitHub | CI before merge; `main` deploys; schedules run from workflow definitions | Documented and evidence file present | Check PR links and latest run status |
 | Security evidence | `.github/workflows/security-scan.yml`, `scripts/security_scan.py`, `reports/security/` | `python scripts/security_scan.py`; `python -m pip_audit -r requirements.txt --progress-spinner off`; `docker build -t mlops-flask-api:latest .` | `security-scan.yml` | dependency scan, secret scan, Docker non-root notes, Trivy report, SBOM | no hard-coded credential findings, dependency audit, Docker non-root check, root-runtime check | Implemented and verifiable in Actions | Check latest security workflow for submitted SHA |

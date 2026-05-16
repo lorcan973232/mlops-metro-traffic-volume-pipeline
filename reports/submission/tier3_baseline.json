@@ -1,0 +1,69 @@
+{
+  "baseline_recorded_at": "2026-05-16T18:59:31.5819957Z",
+  "scope": "Current working baseline recorded before Tier 3 file modifications in this session.",
+  "model_metrics": {
+    "source": "reports/metrics/latest_metrics.json",
+    "accuracy": 0.825,
+    "balanced_accuracy": 0.8237371953373366,
+    "precision_macro": 0.8243482364043884,
+    "recall_macro": 0.8237371953373366,
+    "f1_macro": 0.8240100565681961,
+    "precision_weighted": 0.8248997286775982,
+    "recall_weighted": 0.825,
+    "f1_weighted": 0.8249175047140165,
+    "roc_auc": 0.9192668472075041
+  },
+  "model_file_path": "models/wine_quality_classifier.joblib",
+  "docker_build_status": {
+    "command": "docker build -t mlops-flask-api:baseline .",
+    "status": "PARTIAL",
+    "reason": "Baseline Docker build command timed out after 184 seconds in local verification; no failure was inferred."
+  },
+  "kind_deployment_status": {
+    "kind_version_available": true,
+    "kind_version": "kind version 0.31.0",
+    "existing_cluster": "mlops-kind",
+    "status": "available_existing_cluster_not_redeployed_before_changes"
+  },
+  "tests_status": {
+    "command": "python -m pytest -q",
+    "status": "passed",
+    "result": "29 passed in 44.15s"
+  },
+  "github_actions_yaml_status": {
+    "workflow_directory": ".github/workflows",
+    "status": "present",
+    "workflows_observed": [
+      "ci.yml",
+      "continuous-training.yml",
+      "data-preprocessing.yml",
+      "deploy.yml",
+      "docker-build.yml",
+      "monitoring.yml",
+      "repository-visibility-check.yml",
+      "security-scan.yml",
+      "train-and-evaluate.yml"
+    ]
+  },
+  "readme_status": {
+    "path": "README.md",
+    "status": "present",
+    "pre_tier3_section_status": "README already contained core MLOps, metrics, CI/CD/CT/CM, Docker, Kind, security, live demo, and traceability sections."
+  },
+  "git_status_before_changes": {
+    "modified": [
+      "models/wine_quality_classifier.joblib",
+      "reports/metrics/latest_metrics.json",
+      "reports/metrics/metrics.json",
+      "reports/metrics/model_comparison.json",
+      "reports/metrics/model_metadata.json",
+      "reports/metrics/model_registry.json",
+      "reports/metrics/train_metadata.json",
+      "reports/model_registry/version_history.json"
+    ],
+    "untracked": [
+      "TIER3_COMPLETE_IMPLEMENTATION.md"
+    ],
+    "note": "Existing dirty workspace state was preserved and not reverted."
+  }
+}

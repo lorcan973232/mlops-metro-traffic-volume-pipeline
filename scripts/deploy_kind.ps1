@@ -52,7 +52,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host "Waiting for rollout"
-& kubectl rollout status deployment/mlops-flask-api --timeout=180s
+& kubectl rollout status deployment/mlops-flask-api --timeout=360s
 if ($LASTEXITCODE -ne 0) {
     throw "Kubernetes rollout failed."
 }

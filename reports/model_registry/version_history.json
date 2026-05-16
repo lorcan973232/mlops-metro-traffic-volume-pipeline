@@ -12,10 +12,10 @@
       "metadata_path": "reports\\metrics\\model_metadata.json",
       "metrics_path": "reports\\metrics\\metrics.json",
       "model_path": "models\\wine_quality_classifier.joblib",
-      "model_version": "wine-quality-extra-trees-v1",
+      "model_version": "1.0.1",
       "promotion_decision": "accepted",
       "quality_gate_passed": true,
-      "training_timestamp": "2026-05-16T14:00:50+00:00"
+      "training_timestamp": "2026-05-16T19:15:11+00:00"
     }
   ],
   "registry_type": "lightweight_repository_metadata"

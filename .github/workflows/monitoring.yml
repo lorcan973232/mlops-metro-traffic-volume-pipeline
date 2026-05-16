@@ -85,7 +85,8 @@ jobs:
           drift = json.loads(Path("reports/monitoring/drift_report.json").read_text())
           metadata = json.loads(Path("reports/metrics/model_metadata.json").read_text())
           required_monitoring = {"timestamp_utc", "monitoring_mode", "model_version", "data_quality", "retraining_required", "reason"}
-          required_drift = {"timestamp_utc", "monitoring_mode", "model_version", "data_quality_status", "drift_score", "retraining_required", "reason"}
+          data_quality = json.loads(Path("reports/monitoring/data_quality_report.json").read_text())
+          required_drift = {"timestamp_utc", "monitoring_mode", "model_version", "data_quality_status", "drift_score", "retraining_required", "reason", "schema_validation", "missing_value_checks", "feature_distribution_checks"}
           missing_monitoring = sorted(required_monitoring - set(monitoring))
           missing_drift = sorted(required_drift - set(drift))
           if missing_monitoring or missing_drift:
@@ -95,6 +96,7 @@ jobs:
               })
           print(json.dumps({
               "monitoring_mode": monitoring["monitoring_mode"],
+              "data_quality_status": data_quality["status"],
               "model_version": metadata["model_version"],
               "retraining_required": drift["retraining_required"],
               "retraining_recommended": drift["retraining_recommended"],

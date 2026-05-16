@@ -1,0 +1,47 @@
+{
+  "assumptions": {
+    "assumption_type": "SIMULATED_ASSUMPTIONS",
+    "false_negative_cost": -3.0,
+    "false_positive_cost": -4.0,
+    "rationale": "Values are illustrative only. They model a quality-screening scenario where correctly identifying good wines has higher value, while false premium routing and missed good wines both carry practical cost.",
+    "true_negative_benefit": 1.0,
+    "true_positive_benefit": 5.0,
+    "unit": "relative decision-value points per held-out wine sample"
+  },
+  "computed_from_model": true,
+  "confusion_matrix": {
+    "false_negative": 27,
+    "false_positive": 29,
+    "labels": [
+      "standard quality",
+      "good quality"
+    ],
+    "true_negative": 120,
+    "true_positive": 144
+  },
+  "generated_at": "2026-05-16T19:44:07+00:00",
+  "incremental_value_vs_majority_baseline": 384.0,
+  "limitations": [
+    "The values are simulated and are not real business figures.",
+    "A real deployment would need domain-calibrated costs, intervention capacity, and risk review.",
+    "The analysis uses a held-out public dataset split rather than production outcomes."
+  ],
+  "majority_class_baseline": {
+    "decision_value": 259.0,
+    "false_negative": 0,
+    "false_positive": 149,
+    "predicted_class": "good quality",
+    "true_negative": 0,
+    "true_positive": 171
+  },
+  "model_decision_value": 643.0,
+  "model_path": "models\\wine_quality_classifier.joblib",
+  "model_version": "wine-quality-tier3-selected-v1",
+  "practical_value": "Positive simulated value indicates that the model could support prioritised quality review under the stated assumptions.",
+  "prediction_action_mapping": {
+    "good quality": "route_to_good_quality_or_premium_review",
+    "standard quality": "route_to_standard_quality_review"
+  },
+  "status": "completed",
+  "use_case": "Demonstration of how a winery or quality-control team could triage samples for premium review using model predictions."
+}

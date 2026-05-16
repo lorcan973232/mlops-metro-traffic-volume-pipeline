@@ -17,6 +17,7 @@ REQUIRED_METRIC_FILES = [
     "cross_validation_results.json",
     "feature_importance.json",
     "fairness_analysis.json",
+    "ensemble_comparison.json",
 ]
 
 REQUIRED_WORKFLOW_FILES = [
@@ -27,6 +28,7 @@ REQUIRED_WORKFLOW_FILES = [
     "deploy.yml",
     "continuous-training.yml",
     "monitoring.yml",
+    "model-analysis.yml",
     "repository-visibility-check.yml",
 ]
 
@@ -104,6 +106,7 @@ def test_readme_exposes_marker_facing_artefact_evidence() -> None:
         "reports/submission/branching_evidence.md",
         "remain public until 21 June 2026",
         "## MLOps Workflow Detail: CI/CD/CT/CM",
+        "## Advanced Tier 3 Evidence",
         "## Branching Strategy",
         "## Live Demo Checklist",
         "## Traceability Matrix",
@@ -154,6 +157,9 @@ def test_live_demo_scripts_cover_python_windows_docker_and_kind_paths() -> None:
         "ruff",
         "scripts/monitor.py",
         "scripts/check_drift.py",
+        "scripts/explain_model.py",
+        "scripts/fairness_audit.py",
+        "scripts/cost_benefit_analysis.py",
     ]:
         assert stage in powershell_runner
 
@@ -176,6 +182,7 @@ def test_required_workflows_exist_and_upload_marker_evidence() -> None:
         "kind-deployment-logs",
         "continuous-training-artifacts",
         "monitoring-artifacts",
+        "tier3-model-analysis-reports",
         "repository-visibility-evidence",
     ]:
         assert artefact_name in workflow_text

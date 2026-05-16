@@ -53,10 +53,10 @@ jobs:
           pip install -r requirements.txt
 
       - name: Static checks
-        run: ruff check src tests
+        run: ruff check src tests scripts
 
       - name: Compile Python modules
-        run: python -m compileall app src tests
+        run: python -m compileall app src tests scripts
 
       - name: Verify Flask import path
         run: python -c "from app.main import app; print('Flask import OK')"
@@ -78,6 +78,14 @@ jobs:
         run: |
           python scripts/monitor.py
           python scripts/check_drift.py
+
+      - name: Run Tier 3 analysis smoke path
+        env:
+          FAST_MODE: "1"
+        run: |
+          python scripts/explain_model.py
+          python scripts/fairness_audit.py
+          python scripts/cost_benefit_analysis.py
 
       - name: Upload CI artefacts
         uses: actions/upload-artifact@v7.0.1

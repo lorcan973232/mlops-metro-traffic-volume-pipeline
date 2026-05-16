@@ -1,0 +1,35 @@
+{
+  "computed_from_model": true,
+  "fallback_reason": null,
+  "fallback_used": false,
+  "generated_at": "2026-05-16T19:16:00+00:00",
+  "interpretation": "Features with larger mean absolute SHAP values have greater average influence on good-quality predictions for the evaluated sample.",
+  "method": "shap.TreeExplainer",
+  "model_path": "models\\wine_quality_classifier.joblib",
+  "model_version": "wine-quality-tier3-selected-v1",
+  "sample_size": 200,
+  "status": "computed",
+  "target_class_explained": "good quality",
+  "top_features": [
+    [
+      "alcohol",
+      0.12246130429657369
+    ],
+    [
+      "sulphates",
+      0.061611534676787504
+    ],
+    [
+      "volatile_acidity",
+      0.05877899939501938
+    ],
+    [
+      "total_sulfur_dioxide",
+      0.05135430739443219
+    ],
+    [
+      "density",
+      0.02694438380269057
+    ]
+  ]
+}

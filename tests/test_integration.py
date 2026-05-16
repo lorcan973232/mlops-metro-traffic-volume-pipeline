@@ -3,28 +3,19 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import numpy as np
-import pandas as pd
-
 from app.main import create_app
 from app.schemas import FEATURE_COLUMNS, PredictionRequestExample
 from src.data import FEATURE_COLUMNS as DATA_FEATURE_COLUMNS
-from src.evaluate import FAIRNESS_ANALYSIS_PATH, FEATURE_IMPORTANCE_PATH
-from src.preprocess import PROCESSED_DATA_PATH, preprocess_dataset
 from src.train import (
-    MODEL_HYPERPARAMETERS,
-    MODEL_PATH,
     RANDOM_STATE,
     TEST_SIZE,
     build_pipeline,
     load_processed_data,
-    train_model,
 )
 
 
 def test_full_pipeline_data_to_prediction_produces_identical_results() -> None:
     """Verify the full pipeline (data → preprocess → train → predict) is deterministic."""
-    import joblib
     from sklearn.model_selection import train_test_split
 
     data_1 = load_processed_data()
@@ -49,15 +40,13 @@ def test_full_pipeline_data_to_prediction_produces_identical_results() -> None:
     pipeline_2.fit(x_train_2, y_train_2)
     predictions_2 = [int(p) for p in pipeline_2.predict(x_test_2)]
 
-    assert predictions_1 == predictions_2, "Predictions must be identical across runs with same random state"
+    assert predictions_1 == predictions_2, (
+        "Predictions must be identical across runs with same random state"
+    )
 
 
 def test_integration_pipeline_generates_all_required_artifacts() -> None:
     """Verify the pipeline generates all required artifact JSON files."""
-    from src.train import train_model as train_model_func
-
-    train_model_func()
-
     required_files = [
         "reports/metrics/latest_metrics.json",
         "reports/metrics/model_metadata.json",
@@ -85,7 +74,7 @@ def test_api_can_load_model_and_handle_predictions() -> None:
     bundle = load_model()
 
     assert bundle["model"] is not None
-    assert bundle["model_version"] == "wine-quality-extra-trees-v1"
+    assert bundle["model_version"] == "wine-quality-tier3-selected-v1"
     assert bundle["feature_columns"] == FEATURE_COLUMNS
     assert bundle["task_type"] == "classification"
 
@@ -96,7 +85,7 @@ def test_api_can_load_model_and_handle_predictions() -> None:
     assert health.status_code == 200
     health_data = health.get_json()
     assert health_data["status"] == "healthy"
-    assert health_data["model_version"] == "wine-quality-extra-trees-v1"
+    assert health_data["model_version"] == "wine-quality-tier3-selected-v1"
 
     prediction_response = client.post("/predict", json=PredictionRequestExample().as_payload())
     assert prediction_response.status_code == 200
@@ -105,7 +94,7 @@ def test_api_can_load_model_and_handle_predictions() -> None:
     assert pred_data["prediction"] in [0, 1]
     assert "confidence" in pred_data
     assert 0.0 <= pred_data["confidence"] <= 1.0
-    assert pred_data["model_version"] == "wine-quality-extra-trees-v1"
+    assert pred_data["model_version"] == "wine-quality-tier3-selected-v1"
 
 
 def test_api_rejects_invalid_prediction_requests() -> None:

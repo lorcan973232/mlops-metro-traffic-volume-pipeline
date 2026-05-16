@@ -1,0 +1,112 @@
+name: Tier 3 Model Analysis
+
+permissions:
+  contents: read
+
+"on":
+  workflow_dispatch:
+  push:
+    branches: [main, develop]
+    paths:
+      - "src/**"
+      - "scripts/**"
+      - "tests/**"
+      - "requirements.txt"
+      - ".github/workflows/model-analysis.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "src/**"
+      - "scripts/**"
+      - "tests/**"
+      - "requirements.txt"
+      - ".github/workflows/model-analysis.yml"
+
+jobs:
+  tier3-analysis:
+    name: Reproducible Tier 3 analysis evidence
+    runs-on: ubuntu-latest
+    env:
+      FAST_MODE: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+
+      - name: Set up Python
+        uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run safe model selection and evaluation path
+        run: |
+          python -m src.data
+          python -m src.preprocess
+          python -m src.model_selection
+          python -m src.train
+          python -m src.evaluate
+          python -m src.model_registry
+
+      - name: Generate Tier 3 evidence reports
+        run: |
+          python scripts/explain_model.py
+          python scripts/fairness_audit.py
+          python scripts/cost_benefit_analysis.py
+          python scripts/monitor.py
+          python scripts/check_drift.py
+
+      - name: Validate required Tier 3 report package
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          required = [
+              "reports/explainability/shap_summary.json",
+              "reports/explainability/shap_feature_importance.json",
+              "reports/explainability/local_explanation_example.json",
+              "reports/fairness/fairness_report.json",
+              "reports/fairness/group_metrics.json",
+              "reports/fairness/fairness_summary.txt",
+              "reports/business/cost_benefit_report.json",
+              "reports/business/cost_benefit_summary.txt",
+              "reports/monitoring/drift_report.json",
+              "reports/monitoring/data_quality_report.json",
+              "reports/monitoring/monitoring_report.json",
+              "reports/metrics/hyperparameter_search_results.json",
+              "reports/metrics/model_comparison.json",
+              "reports/metrics/ensemble_comparison.json",
+          ]
+          missing = [path for path in required if not Path(path).is_file()]
+          if missing:
+              raise SystemExit(f"Missing Tier 3 evidence reports: {missing}")
+          summary = json.loads(Path("reports/explainability/shap_summary.json").read_text())
+          fairness = json.loads(Path("reports/fairness/fairness_report.json").read_text())
+          cost = json.loads(Path("reports/business/cost_benefit_report.json").read_text())
+          drift = json.loads(Path("reports/monitoring/drift_report.json").read_text())
+          if not summary.get("computed_from_model"):
+              raise SystemExit("Explainability report is not model-derived.")
+          if fairness.get("dataset_has_protected_attributes") is not False:
+              raise SystemExit("Fairness audit must disclose lack of protected attributes.")
+          if cost["assumptions"]["assumption_type"] != "SIMULATED_ASSUMPTIONS":
+              raise SystemExit("Cost-benefit assumptions must be labelled simulated.")
+          if drift["monitoring_mode"] != "offline_simulated":
+              raise SystemExit("Drift report must identify offline_simulated mode.")
+          print("Tier 3 report package validated.")
+          PY
+
+      - name: Upload Tier 3 analysis reports
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: tier3-model-analysis-reports
+          path: |
+            reports/explainability/
+            reports/fairness/
+            reports/business/
+            reports/monitoring/
+            reports/metrics/
+            models/

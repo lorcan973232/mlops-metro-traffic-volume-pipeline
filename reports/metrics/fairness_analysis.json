@@ -5,7 +5,7 @@
     "recall_disparity": 0.0367
   },
   "is_balanced": true,
-  "model_version": "wine-quality-extra-trees-v1",
+  "model_version": "wine-quality-tier3-selected-v1",
   "per_class_metrics": {
     "good quality": {
       "f1_score": 0.8372093023255814,

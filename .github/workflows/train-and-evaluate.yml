@@ -73,6 +73,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run training and evaluation pipeline
+        env:
+          FAST_MODE: "1"
         run: |
           python -m src.data
           python -m src.preprocess
@@ -81,6 +83,9 @@ jobs:
           python -m src.evaluate
           python -m src.model_registry
           python -m src.predict
+          python scripts/explain_model.py
+          python scripts/fairness_audit.py
+          python scripts/cost_benefit_analysis.py
 
       - name: Validate full metric and metadata package
         run: |
@@ -100,6 +105,10 @@ jobs:
               "reports/metrics/cross_validation_results.json",
               "reports/metrics/feature_importance.json",
               "reports/metrics/fairness_analysis.json",
+              "reports/metrics/ensemble_comparison.json",
+              "reports/explainability/shap_summary.json",
+              "reports/fairness/fairness_report.json",
+              "reports/business/cost_benefit_report.json",
           ]
           missing = [path for path in required if not Path(path).is_file()]
           if missing:
@@ -114,3 +123,6 @@ jobs:
           path: |
             models/
             reports/metrics/
+            reports/explainability/
+            reports/fairness/
+            reports/business/

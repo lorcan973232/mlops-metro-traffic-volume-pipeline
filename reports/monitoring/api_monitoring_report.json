@@ -3,7 +3,7 @@
   "dataset_name": "UCI Wine Quality - Red Wine",
   "dataset_source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
   "error": null,
-  "expected_model_version": "wine-quality-extra-trees-v1",
+  "expected_model_version": "1.0.1",
   "feature_schema": [
     "fixed_acidity",
     "volatile_acidity",
@@ -33,7 +33,7 @@
       "feature_count": 11,
       "model_loaded": true,
       "model_path": "models/wine_quality_classifier.joblib",
-      "model_version": "wine-quality-extra-trees-v1",
+      "model_version": "wine-quality-tier3-selected-v1",
       "status": "healthy",
       "target": "quality_label",
       "target_label": "Wine Quality Class",
@@ -45,12 +45,12 @@
     },
     "status_code": 200
   },
-  "model_version": "wine-quality-extra-trees-v1",
-  "monitoring_mode": "api_aware_monitoring",
+  "model_version": "wine-quality-tier3-selected-v1",
+  "monitoring_mode": "api_aware",
   "predict": {
     "response": {
       "confidence": 1.0,
-      "model_version": "wine-quality-extra-trees-v1",
+      "model_version": "wine-quality-tier3-selected-v1",
       "prediction": 0,
       "prediction_label": "standard quality",
       "predictions": [
@@ -95,5 +95,5 @@
   "retraining_recommended": false,
   "retraining_required": false,
   "status": "monitored",
-  "timestamp_utc": "2026-05-16T14:07:44+00:00"
+  "timestamp_utc": "2026-05-16T19:39:26+00:00"
 }

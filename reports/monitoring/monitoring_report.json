@@ -13,12 +13,27 @@
       "sulphates",
       "alcohol"
     ],
+    "missing_by_feature": {
+      "alcohol": 0,
+      "chlorides": 0,
+      "citric_acid": 0,
+      "density": 0,
+      "fixed_acidity": 0,
+      "free_sulfur_dioxide": 0,
+      "ph": 0,
+      "residual_sugar": 0,
+      "sulphates": 0,
+      "total_sulfur_dioxide": 0,
+      "volatile_acidity": 0
+    },
     "missing_columns": [],
     "missing_values": 0,
     "non_numeric_columns": [],
+    "row_count": 1599,
     "status": "passed",
     "unexpected_columns": []
   },
+  "data_quality_report_path": "reports\\monitoring\\data_quality_report.json",
   "dataset_name": "UCI Wine Quality - Red Wine",
   "dataset_source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
   "feature_schema": [
@@ -103,8 +118,8 @@
     }
   },
   "model_path": "models\\wine_quality_classifier.joblib",
-  "model_version": "wine-quality-extra-trees-v1",
-  "monitoring_mode": "offline_simulated_monitoring",
+  "model_version": "1.0.1",
+  "monitoring_mode": "offline_simulated",
   "prediction_request_schema": {
     "features": [
       "fixed_acidity",
@@ -136,5 +151,5 @@
     "source_target": "quality",
     "target": "quality_label"
   },
-  "timestamp_utc": "2026-05-16T14:07:39+00:00"
+  "timestamp_utc": "2026-05-16T19:45:18+00:00"
 }

@@ -1,0 +1,47 @@
+{
+  "computed_from_model": true,
+  "dataset_has_protected_attributes": false,
+  "disparities": {
+    "alcohol_tertile_proxy": {
+      "accuracy_gap": 0.14081207704320664,
+      "equalized_odds_style_gap": 0.5918604651162791,
+      "f1_gap": 0.19712707182320444,
+      "false_negative_rate_gap": 0.30980392156862746,
+      "false_positive_rate_gap": 0.5918604651162791,
+      "largest_gap_metric": "false_positive_rate_gap",
+      "precision_gap": 0.08197463768115942,
+      "recall_gap": 0.30980392156862746,
+      "true_positive_rate_gap": 0.30980392156862746
+    },
+    "sulphates_tertile_proxy": {
+      "accuracy_gap": 0.2196765498652291,
+      "equalized_odds_style_gap": 0.22619047619047616,
+      "f1_gap": 0.22406947890818862,
+      "false_negative_rate_gap": 0.20453190220632084,
+      "false_positive_rate_gap": 0.22619047619047616,
+      "largest_gap_metric": "precision_gap",
+      "precision_gap": 0.2573352573352573,
+      "recall_gap": 0.20453190220632078,
+      "true_positive_rate_gap": 0.20453190220632078
+    }
+  },
+  "generated_at": "2026-05-16T19:44:36+00:00",
+  "group_metrics_path": "reports\\fairness\\group_metrics.json",
+  "grouping_variables": [
+    "alcohol_tertile_proxy",
+    "sulphates_tertile_proxy"
+  ],
+  "interpretation": "At least one proxy subgroup gap exceeds 0.15; review subgroup errors before use.",
+  "limitations": [
+    "No demographic protected attributes are available in this dataset.",
+    "Proxy feature bins cannot support legal or demographic fairness claims.",
+    "Small subgroup counts can make precision, recall, and F1 volatile."
+  ],
+  "max_equalized_odds_style_gap": 0.5918604651162791,
+  "model_path": "models\\wine_quality_classifier.joblib",
+  "model_version": "wine-quality-tier3-selected-v1",
+  "performance_balanced_across_proxy_groups": false,
+  "protected_attribute_statement": "The UCI red wine quality dataset contains physicochemical measurements and a quality score; it does not contain demographic protected attributes.",
+  "proxy_group_statement": "This is a proxy subgroup performance audit using non-sensitive operational feature bins. These proxy groups are not protected characteristics.",
+  "status": "completed"
+}

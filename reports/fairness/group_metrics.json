@@ -1,0 +1,95 @@
+{
+  "computed_from_model": true,
+  "disparities": {
+    "alcohol_tertile_proxy": {
+      "accuracy_gap": 0.14081207704320664,
+      "equalized_odds_style_gap": 0.5918604651162791,
+      "f1_gap": 0.19712707182320444,
+      "false_negative_rate_gap": 0.30980392156862746,
+      "false_positive_rate_gap": 0.5918604651162791,
+      "largest_gap_metric": "false_positive_rate_gap",
+      "precision_gap": 0.08197463768115942,
+      "recall_gap": 0.30980392156862746,
+      "true_positive_rate_gap": 0.30980392156862746
+    },
+    "sulphates_tertile_proxy": {
+      "accuracy_gap": 0.2196765498652291,
+      "equalized_odds_style_gap": 0.22619047619047616,
+      "f1_gap": 0.22406947890818862,
+      "false_negative_rate_gap": 0.20453190220632084,
+      "false_positive_rate_gap": 0.22619047619047616,
+      "largest_gap_metric": "precision_gap",
+      "precision_gap": 0.2573352573352573,
+      "recall_gap": 0.20453190220632078,
+      "true_positive_rate_gap": 0.20453190220632078
+    }
+  },
+  "generated_at": "2026-05-16T19:44:36+00:00",
+  "group_metrics": {
+    "alcohol_tertile_proxy": {
+      "high": {
+        "accuracy": 0.8571428571428571,
+        "count": 105,
+        "f1": 0.9171270718232044,
+        "false_negative_rate": 0.023529411764705882,
+        "false_positive_rate": 0.65,
+        "precision": 0.8645833333333334,
+        "recall": 0.9764705882352941,
+        "true_positive_rate": 0.9764705882352941
+      },
+      "low": {
+        "accuracy": 0.8761061946902655,
+        "count": 113,
+        "f1": 0.72,
+        "false_negative_rate": 0.3333333333333333,
+        "false_positive_rate": 0.05813953488372093,
+        "precision": 0.782608695652174,
+        "recall": 0.6666666666666666,
+        "true_positive_rate": 0.6666666666666666
+      },
+      "medium": {
+        "accuracy": 0.7352941176470589,
+        "count": 102,
+        "f1": 0.7610619469026548,
+        "false_negative_rate": 0.2711864406779661,
+        "false_positive_rate": 0.2558139534883721,
+        "precision": 0.7962962962962963,
+        "recall": 0.7288135593220338,
+        "true_positive_rate": 0.7288135593220338
+      }
+    },
+    "sulphates_tertile_proxy": {
+      "high": {
+        "accuracy": 0.9339622641509434,
+        "count": 106,
+        "f1": 0.9548387096774194,
+        "false_negative_rate": 0.05128205128205128,
+        "false_positive_rate": 0.10714285714285714,
+        "precision": 0.961038961038961,
+        "recall": 0.9487179487179487,
+        "true_positive_rate": 0.9487179487179487
+      },
+      "low": {
+        "accuracy": 0.8189655172413793,
+        "count": 116,
+        "f1": 0.7529411764705882,
+        "false_negative_rate": 0.2558139534883721,
+        "false_positive_rate": 0.136986301369863,
+        "precision": 0.7619047619047619,
+        "recall": 0.7441860465116279,
+        "true_positive_rate": 0.7441860465116279
+      },
+      "medium": {
+        "accuracy": 0.7142857142857143,
+        "count": 98,
+        "f1": 0.7307692307692307,
+        "false_negative_rate": 0.24,
+        "false_positive_rate": 0.3333333333333333,
+        "precision": 0.7037037037037037,
+        "recall": 0.76,
+        "true_positive_rate": 0.76
+      }
+    }
+  },
+  "status": "completed"
+}

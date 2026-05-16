@@ -28,7 +28,7 @@ def generate_alerts_from_metrics(
     model_version = metrics.get("model_version", "unknown")
     training_timestamp = metrics.get("training_timestamp", "unknown")
 
-    for rule_name, rule in ALERT_RULES.items():
+    for _rule_name, rule in ALERT_RULES.items():
         if check_alert_triggered(metrics, rule):
             metric_value = metrics.get(rule.metric_name, 0)
             alert = generate_alert(
@@ -77,7 +77,7 @@ def generate_alerts_from_drift(
             append_alert_history(alert)
             create_incident(alert)
 
-            print(f"[DRIFT ALERT] [medium]: Data drift detected")
+            print("[DRIFT ALERT] [medium]: Data drift detected")
             print(f"   Max PSI: {drift_report.get('max_psi')}")
 
     return alerts
