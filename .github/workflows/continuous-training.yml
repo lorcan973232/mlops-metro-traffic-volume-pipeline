@@ -1,5 +1,8 @@
 name: Continuous Training
 
+permissions:
+  contents: read
+
 "on":
   schedule:
     - cron: "0 6 * * 1"
@@ -61,6 +64,17 @@ jobs:
 
           latest = json.loads(Path("reports/metrics/latest_metrics.json").read_text())
           gate = json.loads(Path("reports/metrics/quality_gate_report.json").read_text())
+          required_checks = {
+              "accuracy_above_minimum",
+              "balanced_accuracy_above_minimum",
+              "weighted_f1_above_minimum",
+              "macro_f1_above_minimum",
+              "cv_accuracy_above_minimum",
+              "accuracy_beats_baseline_margin",
+          }
+          missing_checks = sorted(required_checks - set(gate["checks"]))
+          if missing_checks:
+              raise SystemExit(f"Quality gate is missing checks: {missing_checks}")
           print(json.dumps({"latest_metrics": latest["metric_summary"], "quality_gate": gate}, indent=2))
           if not gate["passed"]:
               raise SystemExit("Continuous Training rejected candidate model.")

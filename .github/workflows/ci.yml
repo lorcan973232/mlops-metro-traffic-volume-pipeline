@@ -1,5 +1,8 @@
 name: CI
 
+permissions:
+  contents: read
+
 "on":
   push:
     branches: [main, develop]
@@ -47,13 +50,16 @@ jobs:
           pip install -r requirements.txt
 
       - name: Static checks
-        run: ruff check .
+        run: ruff check src tests
 
       - name: Compile Python modules
         run: python -m compileall app src tests
 
+      - name: Verify Flask import path
+        run: python -c "from app.main import app; print('Flask import OK')"
+
       - name: Run pytest suite
-        run: pytest
+        run: pytest -q
 
       - name: Run dataset and ML pipeline smoke path
         run: |

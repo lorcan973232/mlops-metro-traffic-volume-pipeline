@@ -15,6 +15,7 @@
   "model_version": "dummy-most-frequent-baseline",
   "quality_thresholds": {
     "min_accuracy": 0.8,
+    "min_balanced_accuracy": 0.8,
     "min_baseline_accuracy_improvement": 0.2,
     "min_cv_accuracy": 0.77,
     "min_macro_f1": 0.8,

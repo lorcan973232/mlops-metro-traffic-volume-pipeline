@@ -73,6 +73,7 @@ Quality gate thresholds:
 | Gate | Threshold | Status |
 |---|---:|---|
 | Accuracy | `>= 0.80` | Passed |
+| Balanced accuracy | `>= 0.80` | Passed |
 | Weighted F1 | `>= 0.80` | Passed |
 | Macro F1 | `>= 0.80` | Passed |
 | CV accuracy mean | `>= 0.77` | Passed |
@@ -270,30 +271,120 @@ powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl http
 python scripts/monitor.py --api-url http://127.0.0.1:8080
 ```
 
-## GitHub Actions
+## MLOps Workflow Detail: CI/CD/CT/CM
 
-| Workflow | Purpose | Trigger | Main evidence |
-|---|---|---|---|
-| `.github/workflows/ci.yml` | Compile, lint, tests, ML smoke path | Push/PR/manual | `compileall`, `ruff`, `pytest`, pipeline scripts |
-| `.github/workflows/data-preprocessing.yml` | Ingest and preprocess public dataset | Push/PR/manual | `data_ingestion.json`, processed CSV |
-| `.github/workflows/train-and-evaluate.yml` | Train, evaluate, register | Push/PR/manual | model and metrics artefacts |
-| `.github/workflows/docker-build.yml` | Build and smoke-test image | Push/PR/manual | Docker health/predict smoke test |
-| `.github/workflows/continuous-training.yml` | Scheduled/manual retraining | Schedule/manual | `quality_gate_report.json` |
-| `.github/workflows/deploy.yml` | Kind deployment only | Push/manual/workflow_run | rollout and smoke logs |
-| `.github/workflows/monitoring.yml` | Offline monitoring and drift | Schedule/manual | monitoring and drift reports |
+The workflow implementation is intentionally evidence-first: every stage runs repository
+commands, writes reports or logs, fails on broken contracts, and uploads artefacts for
+inspection in the GitHub Actions run. The marker should assess the YAML files together
+with the generated files under `reports/`, the test suite, and the Actions run logs.
 
-Post-push verification is required in the GitHub Actions tab. If a workflow has not run after the final push, run it manually from Actions using `Run workflow`.
+```mermaid
+flowchart LR
+  PR["feature/* or develop PR"] --> CI["CI: compile, lint, tests"]
+  DATA["Data workflow"] --> TRAIN["Train/evaluate workflow"]
+  TRAIN --> REG["Model registry metadata"]
+  MAIN["merge/push to main"] --> DOCKER["Docker build + API smoke"]
+  DOCKER --> DEPLOY["Kind CD rollout + smoke tests"]
+  SCHED1["weekly/manual CT"] --> CT["retrain, evaluate, quality gate"]
+  SCHED2["daily/manual CM"] --> CM["schema, data-quality, drift checks"]
+  CT --> REG
+  CM --> INVESTIGATE["retraining_required flag / investigation"]
+```
+
+| Workflow | MLOps stage | Trigger | Main commands | Artefacts/logs | Quality gate/failure condition | Evidence path | Live demo evidence |
+|---|---|---|---|---|---|---|---|
+| CI | Continuous Integration | `push`/`pull_request` on `main`, `develop`; manual | `python -m compileall app src tests`; `ruff check src tests`; `pytest -q`; `python -c "from app.main import app; print('Flask import OK')"`; pipeline smoke commands | `ci-artifacts` containing `reports/` and `models/` | Any compile, lint, test, Flask import, pipeline, prediction, or monitoring command exits non-zero | `.github/workflows/ci.yml`, `tests/` | Show CI run log and pytest output in Actions tab |
+| Data Preprocessing | Data acquisition and preprocessing | Manual; `push`/PR when data/preprocess files change | `python -m src.data`; `python -m src.preprocess`; processed-data summary check | `data-ingestion-report`; `preprocessing-artifacts` with processed CSV and reports | Dataset hash/schema validation fails, preprocessing fails, or processed CSV missing | `.github/workflows/data-preprocessing.yml`, `reports/metrics/data_ingestion.json`, `reports/metrics/preprocessing.json` | Show uploaded processed CSV/report artefact |
+| Train and Evaluate | Model training, model selection, evaluation | Manual; `push`/PR when `src/`, `app/`, `tests/`, requirements, or workflow changes | `python -m src.data`; `python -m src.preprocess`; `python -m src.model_selection`; `python -m src.train`; `python -m src.evaluate`; `python -m src.model_registry`; `python -m src.predict` | `train-evaluate-artifacts` with `models/` and `reports/metrics/` | Training/evaluation fails, quality gate in `src.evaluate` fails, or required metric package files are missing | `.github/workflows/train-and-evaluate.yml`, `models/wine_quality_classifier.joblib`, `reports/metrics/*` | Show `latest_metrics.json`, `model_metadata.json`, confusion matrix, classification report |
+| Docker Build | Container build and API verification | Manual; `push`/PR on `main`, `develop` | `docker build -t mlops-flask-api:${{ github.sha }}`; `docker run`; `curl /health`; `bash scripts/smoke_test_api.sh http://127.0.0.1:5001` | `docker-smoke-logs` | Image build fails, container does not become healthy, or `/predict` smoke test fails | `.github/workflows/docker-build.yml`, `Dockerfile`, `scripts/smoke_test_api.sh` | Show Docker run log and smoke-test JSON |
+| Deploy Kind | Continuous Delivery/Deployment | Manual; `push` to `main`; successful Docker Build `workflow_run` on `main` | `docker build`; `docker save`; `kind create cluster`; `kind load docker-image`; `kubectl apply -f deployment/kind/`; `kubectl rollout status`; `kubectl get pods`; `kubectl get svc`; smoke test on `8080` | `deployment-image`; `kind-deployment-logs` including pods, services, describe, port-forward, smoke test, API logs | Kind setup, image load, manifest apply, rollout, port-forward, `/health`, or `/predict` smoke test fails | `.github/workflows/deploy.yml`, `deployment/kind/` | Show rollout log, pod/service output, smoke-test log, and local `http://127.0.0.1:8080/` |
+| Continuous Training | Scheduled/manual retraining and model acceptance | Weekly cron `0 6 * * 1`; manual | data/preprocess/model-selection/train/evaluate; quality-gate contract check; `python -m src.model_registry` after acceptance | `ct-candidate`; `ct-quality-gate`; `continuous-training-artifacts` | Fails if quality gate lacks required checks or `passed` is false; candidate is rejected instead of silently accepted | `.github/workflows/continuous-training.yml`, `reports/metrics/quality_gate_report.json` | Show CT run, gate JSON, accepted/rejected decision |
+| Monitoring | Continuous Monitoring and model management | Daily cron `0 7 * * *`; manual | `python -m src.data`; `python -m src.preprocess`; `python -m src.train`; `python -m src.evaluate`; `python -m src.model_registry`; `python scripts/monitor.py`; `python scripts/check_drift.py` | `monitoring-model-metadata`; `monitoring-artifacts` with `reports/monitoring/` | Fails if model metadata cannot be built, monitoring/drift scripts fail, or required monitoring fields are missing | `.github/workflows/monitoring.yml`, `scripts/monitor.py`, `scripts/check_drift.py`, `reports/monitoring/` | Show monitoring report, drift score, `retraining_required`, and reason |
+
+### Continuous Integration Details
+
+CI is not a superficial syntax check. It gates branch and pull-request work by compiling
+all Python modules, running Ruff against production and test code, importing the Flask
+application, executing API/UI/model/data/workflow tests, and running the deterministic
+ML smoke path. The workflow is allowed only read access to repository contents and
+does not use credentials.
+
+### Continuous Delivery and Deployment Details
+
+The Docker workflow proves that the artefact is containerised and serving real
+predictions by starting the built image and calling `/health` and `/predict`. The
+deployment workflow then proves delivery into Kind, not a cloud VM: it installs Kind
+and kubectl, creates `mlops-kind`, loads the local image into the cluster, applies
+`deployment/kind/`, waits for `deployment/mlops-flask-api`, captures pods/services,
+port-forwards `service/mlops-flask-api` to `8080`, and runs the same smoke test used
+locally and in Docker. Failure at any step fails the workflow.
+
+### Continuous Training Details
+
+Continuous Training is scheduled and manually runnable. It retrains from the public
+dataset, regenerates all metrics, compares against the dummy baseline, and accepts the
+candidate only when the quality gate passes. The gate is implemented in `src/evaluate.py`
+and enforced again in `.github/workflows/continuous-training.yml`; it checks:
+
+- accuracy >= `0.80`;
+- balanced accuracy >= `0.80`;
+- weighted F1 >= `0.80`;
+- macro F1 >= `0.80`;
+- CV accuracy mean >= `0.77`;
+- accuracy improvement over the baseline >= `0.20`.
+
+If `reports/metrics/quality_gate_report.json` has `passed: false`, the CT workflow
+exits non-zero and the candidate is rejected. Accepted candidates are registered by
+`src/model_registry.py`, producing model metadata for deployment and monitoring.
+
+### Continuous Monitoring and Model Management Details
+
+Continuous Monitoring is scheduled and manually runnable. It is honest about the
+student setting: there is no live production telemetry claim. Instead, it performs
+deterministic batch monitoring on the public dataset, validates the feature schema,
+computes feature summaries, runs a simulated drift check, emits `retraining_required`
+and `reason`, and uploads reports. API-aware monitoring is also supported locally
+after Kind port-forward:
+
+```powershell
+python scripts/monitor.py --api-url http://127.0.0.1:8080
+```
+
+Model-management evidence is stored in `reports/metrics/model_metadata.json` and
+`reports/metrics/model_registry.json`. These include model version, model path,
+dataset source/hash, feature schema, target mapping, hyperparameters, metrics summary,
+training timestamp, and quality-gate result. Monitoring uses this metadata to report
+the model version and schema context for any retraining investigation.
+
+### How To Verify Workflows As A Marker
+
+1. Open the Actions tab for <https://github.com/lorcan973232/mlops-wine-quality-pipeline>.
+2. Open the latest run for each workflow listed above.
+3. Confirm the run SHA matches the submitted `main` commit.
+4. Inspect the logs for the exact commands listed in this section.
+5. Download artefacts from each run and compare them to the evidence paths in this README.
+6. For CT, inspect `quality_gate_report.json`.
+7. For CM, inspect `monitoring_report.json`, `drift_report.json`, and the `retraining_required` fields.
+8. For CD, inspect the Kind rollout, pod/service, port-forward, and smoke-test logs.
 
 ## Branching Strategy
 
 | Branch | Purpose |
 |---|---|
-| `main` | Stable release branch; deployment workflow is scoped to `main` |
-| `develop` | Integration branch before release |
-| `feature/*` | Feature work through pull requests |
-| `hotfix/*` | Optional urgent corrections |
+| `main` | Stable release/deployment branch. Pushes trigger CI, Docker Build, Train and Evaluate when relevant, and Kind deployment. Scheduled CT and CM run from the workflow definitions on this stable branch. |
+| `develop` | Integration branch before release. Pushes and PRs trigger CI, data, training, and Docker checks where relevant without deploying to Kind as the release environment. |
+| `feature/*` | Isolated feature work. Pull requests into `develop` or `main` trigger CI and relevant stage workflows before merge. |
+| `hotfix/*` | Optional urgent corrections. The same PR checks apply; no direct untested change should be merged into `main`. |
 
-Pull requests trigger CI. CI must pass before merge. Continuous Training and Monitoring are scheduled from the repository workflow definitions and can also be run manually.
+Workflow policy:
+
+1. Pull requests trigger CI; CI must pass before merge.
+2. `develop` validates integration before promotion to `main`.
+3. Merge/push to `main` triggers Docker Build and Kind deployment.
+4. Data and training workflows run when their source files change and can be run manually for evidence.
+5. Continuous Training runs weekly and manually; it can reject a candidate model.
+6. Continuous Monitoring runs daily and manually; it produces drift/data-quality reports and a retraining flag.
+7. Direct untested changes to `main` are not part of the intended workflow.
 
 ## Continuous Training and Monitoring
 
@@ -317,33 +408,32 @@ Reports are written under `reports/monitoring/`. The artefact does not claim pro
 ## Live Demo Checklist
 
 1. Show the public GitHub repo and this README.
-2. Run `python -m compileall app src tests`, `pytest -q`, and `ruff check src tests`.
-3. Run `python -m src.data`, `python -m src.preprocess`, `python -m src.model_selection`, `python -m src.train`, `python -m src.evaluate`, `python -m src.model_registry`, and `python -m src.predict`.
-4. Show `latest_metrics.json`, `classification_report.json`, `confusion_matrix.json`, `model_metadata.json`, `model_comparison.json`, and `quality_gate_report.json`.
-5. Start Flask and open `http://127.0.0.1:5000/`.
-6. Click `Use Example`, then `Predict Quality`.
-7. Build Docker, open `http://127.0.0.1:5001/`, and run the smoke test.
-8. Deploy to Kind, port-forward the service, open `http://127.0.0.1:8080/`, and run the smoke test.
-9. Run offline monitoring, drift check, and API-aware monitoring.
-10. Show GitHub Actions workflows and recent runs.
+2. Open the GitHub Actions tab and show latest successful runs for CI, Data Preprocessing, Train and Evaluate, Docker Build, Deploy Kind, Continuous Training, and Monitoring.
+3. Open one workflow log and point to the real commands, not just the YAML.
+4. Download or open uploaded artefacts: CI artefacts, preprocessing artefacts, train/evaluate artefacts, Docker logs, Kind deployment logs, CT quality gate, and monitoring reports.
+5. Run `python -m compileall app src tests`, `pytest -q`, and `ruff check src tests`.
+6. Run `python -m src.data`, `python -m src.preprocess`, `python -m src.model_selection`, `python -m src.train`, `python -m src.evaluate`, `python -m src.model_registry`, and `python -m src.predict`.
+7. Show `latest_metrics.json`, `classification_report.json`, `confusion_matrix.json`, `model_metadata.json`, `model_comparison.json`, and `quality_gate_report.json`.
+8. Explain the CT quality gate and show `passed`, thresholds, baseline comparison, and accepted/rejected decision.
+9. Start Flask and open `http://127.0.0.1:5000/`; click `Use Example`, then `Predict Quality`.
+10. Build Docker, open `http://127.0.0.1:5001/`, and run the smoke test.
+11. Deploy to Kind, port-forward the service, open `http://127.0.0.1:8080/`, and run the smoke test.
+12. Run offline monitoring, drift check, and API-aware monitoring; show `retraining_required` and `reason`.
 
 ## Traceability Matrix
 
-| Artefact requirement | File/path | Local command | GitHub Actions workflow | Quality gate/test | Status | Remaining action |
-|---|---|---|---|---|---|---|
-| Public dataset ingestion | `src/data.py`, `data/raw/winequality-red.csv` | `python -m src.data` | `data-preprocessing.yml` | SHA-256/schema validation, `tests/test_data.py` | Verified locally | Confirm final GitHub run |
-| Preprocessing | `src/preprocess.py` | `python -m src.preprocess` | `data-preprocessing.yml` | deterministic processed CSV | Verified locally | Confirm final GitHub run |
-| Model selection | `src/model_selection.py` | `python -m src.model_selection` | `train-and-evaluate.yml` | model comparison JSON | Verified locally | Confirm final GitHub run |
-| Training | `src/train.py` | `python -m src.train` | `train-and-evaluate.yml`, `continuous-training.yml` | saved model and metadata | Verified locally | Confirm final GitHub run |
-| Evaluation | `src/evaluate.py` | `python -m src.evaluate` | `train-and-evaluate.yml`, `continuous-training.yml` | accuracy/F1/baseline gate | Verified locally | Confirm final GitHub run |
-| Flask API/UI | `app/` | `python -m app.main` | `ci.yml`, Docker/Deploy workflows | `tests/test_api.py`, `tests/test_ui.py` | Verified locally | Open UI during demo |
-| Docker | `Dockerfile`, `.dockerignore` | `docker build -t mlops-flask-api:latest .` | `docker-build.yml` | smoke test script | Verified locally | Confirm final GitHub run |
-| Kind Kubernetes | `deployment/kind/`, `scripts/deploy_kind.*` | `scripts/deploy_kind.ps1` or `.sh` | `deploy.yml` | rollout + smoke test | Verified locally | Confirm final GitHub run |
-| Continuous Training | `continuous-training.yml` | `python -m src.evaluate` | `continuous-training.yml` | `quality_gate_report.json` | Verified locally | Confirm final GitHub run |
-| Continuous Monitoring | `scripts/monitor.py`, `scripts/check_drift.py` | `python scripts/monitor.py` | `monitoring.yml` | drift/API reports | Verified locally | Confirm final GitHub run |
-| Tests | `tests/` | `pytest -q` | `ci.yml` | pytest suite | Verified locally | Confirm final GitHub run |
-| Branching | README | `git status --short --branch` | PR workflows | CI before merge | Documented | None |
-| Public GitHub | README, remote repo | `gh repo view` | GitHub Actions tab | repo public check | Documented | Keep public until 21 June 2026 |
+| Requirement | File/path | Local command | GitHub Actions workflow | Artefact produced | Quality gate/test | Status | Remaining action |
+|---|---|---|---|---|---|---|---|
+| CI | `.github/workflows/ci.yml`, `tests/` | `python -m compileall app src tests`; `ruff check src tests`; `pytest -q` | `ci.yml` | `ci-artifacts` | compile, lint, Flask import, pytest, ML smoke path | Implemented and verifiable in Actions | Check latest run for submitted SHA |
+| Data acquisition/preprocessing | `src/data.py`, `src/preprocess.py`, `data/raw/winequality-red.csv` | `python -m src.data`; `python -m src.preprocess` | `data-preprocessing.yml` | processed CSV, ingestion and preprocessing reports | SHA-256, schema validation, processed CSV exists | Implemented and verifiable in Actions | Check latest run for submitted SHA |
+| Training/evaluation | `src/model_selection.py`, `src/train.py`, `src/evaluate.py` | `python -m src.model_selection`; `python -m src.train`; `python -m src.evaluate` | `train-and-evaluate.yml` | model, latest metrics, reports, metadata | metric package exists; quality gate in evaluation | Implemented and verifiable in Actions | Check latest run for submitted SHA |
+| Docker build | `Dockerfile`, `.dockerignore`, `scripts/smoke_test_api.sh` | `docker build -t mlops-flask-api:latest .` | `docker-build.yml` | Docker smoke logs | image builds, container healthy, `/predict` smoke passes | Implemented and verifiable in Actions | Check latest run for submitted SHA |
+| Continuous Deployment | `deployment/kind/`, `scripts/deploy_kind.*` | `scripts/deploy_kind.ps1` or `scripts/deploy_kind.sh` | `deploy.yml` | deployment image archive, Kind deployment logs | Kind cluster, image load, manifest apply, rollout, API smoke | Implemented and verifiable in Actions | Check latest run for submitted SHA |
+| Continuous Training | `continuous-training.yml`, `src/evaluate.py`, `src/model_registry.py` | `python -m src.data`; `python -m src.preprocess`; `python -m src.model_selection`; `python -m src.train`; `python -m src.evaluate`; `python -m src.model_registry` | `continuous-training.yml` | CT candidate, quality gate, promoted metadata | accuracy, balanced accuracy, macro F1, weighted F1, CV accuracy, baseline improvement | Implemented and verifiable in Actions | Check latest scheduled/manual run |
+| Continuous Monitoring | `monitoring.yml`, `scripts/monitor.py`, `scripts/check_drift.py` | `python scripts/monitor.py`; `python scripts/check_drift.py` | `monitoring.yml` | monitoring and drift reports | required CM fields, schema/data-quality checks, drift score, retraining flag | Implemented and verifiable in Actions | Check latest scheduled/manual run |
+| Model management | `src/model_registry.py`, `reports/metrics/model_metadata.json`, `reports/metrics/model_registry.json` | `python -m src.model_registry` | `train-and-evaluate.yml`, `continuous-training.yml`, `monitoring.yml` | model metadata and registry record | quality gate passed before registration in CT | Implemented | None |
+| Branching strategy | README Branching Strategy section | `git status --short --branch` | CI, Docker, Deploy, CT, Monitoring workflows | PR and run evidence in GitHub | CI before merge; `main` deploys; schedules run from workflow definitions | Documented | Follow policy during future changes |
+| Live demonstration evidence | README Live Demo Checklist | commands in checklist | Actions tab plus local commands | workflow artefacts, API responses, reports | marker observes real commands and artefacts | Documented | Student must show during video |
 
 ## Limitations
 

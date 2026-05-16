@@ -112,11 +112,13 @@
     "baseline_accuracy": 0.534375,
     "baseline_f1_weighted": 0.37221232179226066,
     "candidate_accuracy": 0.825,
+    "candidate_balanced_accuracy": 0.8237371953373366,
     "candidate_f1_macro": 0.8240100565681961,
     "candidate_f1_weighted": 0.8249175047140165,
     "checks": {
       "accuracy_above_minimum": true,
       "accuracy_beats_baseline_margin": true,
+      "balanced_accuracy_above_minimum": true,
       "cv_accuracy_above_minimum": true,
       "macro_f1_above_minimum": true,
       "weighted_f1_above_minimum": true
@@ -130,6 +132,7 @@
     "status": "passed",
     "thresholds": {
       "min_accuracy": 0.8,
+      "min_balanced_accuracy": 0.8,
       "min_baseline_accuracy_improvement": 0.2,
       "min_cv_accuracy": 0.77,
       "min_macro_f1": 0.8,
@@ -166,5 +169,5 @@
     "test_size": 0.2
   },
   "training_command": "python -m src.train",
-  "training_timestamp": "2026-05-15T23:03:43+00:00"
+  "training_timestamp": "2026-05-16T00:35:39+00:00"
 }

@@ -1,5 +1,8 @@
 name: Deploy Kind
 
+permissions:
+  contents: read
+
 "on":
   workflow_dispatch:
   push:
@@ -81,16 +84,25 @@ jobs:
       - name: Post-deployment health and prediction smoke tests
         run: |
           kubectl get pods -o wide | tee deployment-pods.log
+          kubectl get svc -o wide | tee deployment-services.log
           kubectl describe deployment/mlops-flask-api | tee deployment-describe.log
           kubectl port-forward service/mlops-flask-api 8080:80 > port-forward.log 2>&1 &
           port_forward_pid=$!
           trap "kill ${port_forward_pid}" EXIT
+          ready=0
           for attempt in $(seq 1 30); do
             if curl -fsS http://127.0.0.1:8080/health; then
+              ready=1
               break
             fi
             sleep 2
           done
+          if [ "${ready}" -ne 1 ]; then
+            cat port-forward.log
+            kubectl get all -o wide
+            kubectl logs deployment/mlops-flask-api || true
+            exit 1
+          fi
           bash scripts/smoke_test_api.sh http://127.0.0.1:8080 | tee smoke-test.log
 
       - name: Capture Kubernetes logs
@@ -106,6 +118,7 @@ jobs:
           name: kind-deployment-logs
           path: |
             deployment-pods.log
+            deployment-services.log
             deployment-describe.log
             port-forward.log
             smoke-test.log

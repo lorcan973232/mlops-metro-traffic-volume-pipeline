@@ -1,5 +1,8 @@
 name: Monitoring
 
+permissions:
+  contents: read
+
 "on":
   schedule:
     - cron: "0 7 * * *"
@@ -81,6 +84,15 @@ jobs:
           monitoring = json.loads(Path("reports/monitoring/monitoring_report.json").read_text())
           drift = json.loads(Path("reports/monitoring/drift_report.json").read_text())
           metadata = json.loads(Path("reports/metrics/model_metadata.json").read_text())
+          required_monitoring = {"timestamp_utc", "monitoring_mode", "model_version", "data_quality", "retraining_required", "reason"}
+          required_drift = {"timestamp_utc", "monitoring_mode", "model_version", "data_quality_status", "drift_score", "retraining_required", "reason"}
+          missing_monitoring = sorted(required_monitoring - set(monitoring))
+          missing_drift = sorted(required_drift - set(drift))
+          if missing_monitoring or missing_drift:
+              raise SystemExit({
+                  "missing_monitoring_fields": missing_monitoring,
+                  "missing_drift_fields": missing_drift,
+              })
           print(json.dumps({
               "monitoring_mode": monitoring["monitoring_mode"],
               "model_version": metadata["model_version"],

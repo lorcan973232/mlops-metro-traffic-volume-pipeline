@@ -43,6 +43,7 @@ def test_required_github_actions_workflows_are_present_and_valid_yaml() -> None:
         workflow = load_workflow(workflow_name)
         assert workflow["jobs"]
         assert workflow["name"]
+        assert workflow["permissions"] == {"contents": "read"}
 
 
 def test_workflow_triggers_and_dependencies_show_lifecycle() -> None:
@@ -61,10 +62,16 @@ def test_workflow_triggers_and_dependencies_show_lifecycle() -> None:
     assert "schedule" in ct["on"]
     assert ct["jobs"]["quality-gate"]["needs"] == "retrain-candidate"
     assert ct["jobs"]["promote-model"]["needs"] == "quality-gate"
+    ct_text = Path(".github/workflows/continuous-training.yml").read_text(encoding="utf-8")
+    assert "balanced_accuracy_above_minimum" in ct_text
+    assert "raise SystemExit(\"Continuous Training rejected candidate model.\")" in ct_text
 
     monitoring = load_workflow("monitoring.yml")
     assert "schedule" in monitoring["on"]
     assert monitoring["jobs"]["batch-monitoring"]["needs"] == "prepare-model-metadata"
+    monitoring_text = Path(".github/workflows/monitoring.yml").read_text(encoding="utf-8")
+    assert "missing_monitoring_fields" in monitoring_text
+    assert "missing_drift_fields" in monitoring_text
 
 
 def test_deploy_workflow_and_kind_manifests_are_kind_only() -> None:
@@ -110,7 +117,12 @@ def test_workflows_reference_existing_commands_and_upload_artifacts() -> None:
     assert "actions/download-artifact@v4" not in workflow_text
     assert "latest_metrics.json" in workflow_text
     assert "quality_gate_report.json" in workflow_text
+    assert "model_metadata.json" in workflow_text
+    assert "confusion_matrix_normalized.json" in workflow_text
+    assert "cross_validation_results.json" in workflow_text
     assert "mlops-flask-api:${{ github.sha }}" in workflow_text
+    assert "python -c \"from app.main import app; print('Flask import OK')\"" in workflow_text
+    assert "kubectl get svc -o wide" in workflow_text
 
 
 def test_workflows_do_not_hardcode_credentials() -> None:
@@ -176,3 +188,10 @@ def test_monitoring_workflow_and_scripts_emit_required_model_management_fields()
     assert "retraining_required" in drift_script
     assert "drift_score" in drift_script
     assert "model_registry_summary" in registry
+
+
+def test_quality_gate_includes_balanced_accuracy_contract() -> None:
+    evaluate = Path("src/evaluate.py").read_text(encoding="utf-8")
+    assert "MIN_BALANCED_ACCURACY" in evaluate
+    assert "balanced_accuracy_above_minimum" in evaluate
+    assert "candidate_balanced_accuracy" in evaluate

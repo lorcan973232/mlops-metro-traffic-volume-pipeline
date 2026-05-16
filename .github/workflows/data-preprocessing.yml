@@ -1,5 +1,8 @@
 name: Data Preprocessing
 
+permissions:
+  contents: read
+
 "on":
   workflow_dispatch:
   push:
@@ -71,6 +74,24 @@ jobs:
 
       - name: Verify processed data output
         run: test -s data/processed/winequality-red-processed.csv
+
+      - name: Show processed-data summary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          ingestion = json.loads(Path("reports/metrics/data_ingestion.json").read_text())
+          preprocessing = json.loads(Path("reports/metrics/preprocessing.json").read_text())
+          print(json.dumps({
+              "dataset": ingestion["dataset"],
+              "download_status": ingestion["ingestion"]["status"],
+              "raw_sha256": ingestion["ingestion"]["sha256"],
+              "rows": preprocessing["rows"],
+              "target_distribution": preprocessing["target_distribution"],
+              "processed_output": preprocessing["output"],
+          }, indent=2))
+          PY
 
       - name: Upload preprocessing artefacts
         uses: actions/upload-artifact@v7.0.1

@@ -1,5 +1,8 @@
 name: Train and Evaluate
 
+permissions:
+  contents: read
+
 "on":
   workflow_dispatch:
   push:
@@ -78,6 +81,29 @@ jobs:
           python -m src.evaluate
           python -m src.model_registry
           python -m src.predict
+
+      - name: Validate full metric and metadata package
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          required = [
+              "reports/metrics/latest_metrics.json",
+              "reports/metrics/baseline_metrics.json",
+              "reports/metrics/quality_gate_report.json",
+              "reports/metrics/model_metadata.json",
+              "reports/metrics/model_comparison.json",
+              "reports/metrics/hyperparameter_search_results.json",
+              "reports/metrics/classification_report.json",
+              "reports/metrics/confusion_matrix.json",
+              "reports/metrics/confusion_matrix_normalized.json",
+              "reports/metrics/cross_validation_results.json",
+          ]
+          missing = [path for path in required if not Path(path).is_file()]
+          if missing:
+              raise SystemExit(f"Missing required evaluation artefacts: {missing}")
+          print("Full model metric and metadata package is present.")
+          PY
 
       - name: Upload model, metrics, and metadata
         uses: actions/upload-artifact@v7.0.1

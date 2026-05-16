@@ -36,6 +36,7 @@ CONFUSION_MATRIX_PATH = Path("reports/metrics/confusion_matrix.json")
 CONFUSION_MATRIX_NORMALIZED_PATH = Path("reports/metrics/confusion_matrix_normalized.json")
 
 MIN_ACCURACY = 0.80
+MIN_BALANCED_ACCURACY = 0.80
 MIN_WEIGHTED_F1 = 0.80
 MIN_MACRO_F1 = 0.80
 MIN_CV_ACCURACY = 0.77
@@ -96,6 +97,7 @@ def _evaluate_baseline(x_train: Any, y_train: Any, x_test: Any, y_test: Any) -> 
         "metric_summary": metrics,
         "quality_thresholds": {
             "min_accuracy": MIN_ACCURACY,
+            "min_balanced_accuracy": MIN_BALANCED_ACCURACY,
             "min_weighted_f1": MIN_WEIGHTED_F1,
             "min_macro_f1": MIN_MACRO_F1,
             "min_cv_accuracy": MIN_CV_ACCURACY,
@@ -158,6 +160,9 @@ def _quality_gate(
     baseline_summary = baseline["metric_summary"]
     checks = {
         "accuracy_above_minimum": metrics["accuracy"] >= MIN_ACCURACY,
+        "balanced_accuracy_above_minimum": (
+            metrics["balanced_accuracy"] >= MIN_BALANCED_ACCURACY
+        ),
         "weighted_f1_above_minimum": metrics["f1_weighted"] >= MIN_WEIGHTED_F1,
         "macro_f1_above_minimum": metrics["f1_macro"] >= MIN_MACRO_F1,
         "cv_accuracy_above_minimum": cv_report["accuracy"]["mean"] >= MIN_CV_ACCURACY,
@@ -172,6 +177,7 @@ def _quality_gate(
         "decision": "accept_candidate_model" if passed else "reject_candidate_model",
         "thresholds": baseline["quality_thresholds"],
         "candidate_accuracy": metrics["accuracy"],
+        "candidate_balanced_accuracy": metrics["balanced_accuracy"],
         "candidate_f1_weighted": metrics["f1_weighted"],
         "candidate_f1_macro": metrics["f1_macro"],
         "cv_accuracy_mean": cv_report["accuracy"]["mean"],
