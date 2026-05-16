@@ -20,8 +20,8 @@ Feature branch evidence was created from `develop` for the final artefact verifi
 | `develop` branch | Created from `main` and pushed to `origin/develop` |
 | Feature branch | `feature/final-artefact-verification` |
 | Feature branch purpose | Safe evidence-only change proving the `feature/* -> develop` path |
-| Feature-to-develop PR | To be created after this feature commit is pushed |
-| CI status | To be recorded from the real GitHub PR checks |
+| Feature-to-develop PR | <https://github.com/lorcan973232/mlops-wine-quality-pipeline/pull/1> |
+| CI status | Pending at the time this evidence update was committed; final status must be checked on GitHub |
 | Merge status | To be recorded only after the PR is actually merged |
 
 No PR success, CI success, or merge success is claimed here until the GitHub pull requests and checks actually exist.
