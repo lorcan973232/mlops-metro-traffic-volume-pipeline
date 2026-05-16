@@ -7,7 +7,7 @@
   },
   "dataset": "UCI Wine Quality - Red Wine",
   "fast_mode": false,
-  "generated_at": "2026-05-16T22:16:42+00:00",
+  "generated_at": "2026-05-16T22:56:55+00:00",
   "grid_search": {
     "best_cv_f1_macro": 0.808498079302489,
     "best_params": {

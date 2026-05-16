@@ -3,7 +3,7 @@
   "versions": [
     {
       "version": "1.0.1",
-      "timestamp": "2026-05-16T22:16:48+00:00",
+      "timestamp": "2026-05-16T22:57:04+00:00",
       "model_path": "models\\wine_quality_classifier.joblib",
       "metadata_path": "reports\\metrics\\model_metadata.json",
       "metrics": {
@@ -18,7 +18,7 @@
       "quality_gate_passed": true,
       "status": "active",
       "data_hash": "717553f075c0853b67baf203fb0cf0e0ee2172eae7b1574ae1cc7ce81585f6ec",
-      "training_timestamp": "2026-05-16T22:16:48+00:00"
+      "training_timestamp": "2026-05-16T22:57:04+00:00"
     }
   ],
   "rollback_candidates": [
