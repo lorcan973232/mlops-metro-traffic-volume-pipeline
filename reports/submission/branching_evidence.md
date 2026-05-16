@@ -12,12 +12,16 @@ This file records real branch and pull-request evidence for the artefact branchi
 
 ## Current Evidence
 
-This file is intentionally committed before the final branch exercise. The final post-push verifier updates this section with:
+Feature branch evidence was created from `develop` for the final artefact verification exercise.
 
-- branch SHAs;
-- feature-to-develop PR URL;
-- develop-to-main PR URL or documented promotion path;
-- CI status;
-- merge status.
+| Evidence item | Value |
+|---|---|
+| `main` branch | Created and pushed before this branch exercise |
+| `develop` branch | Created from `main` and pushed to `origin/develop` |
+| Feature branch | `feature/final-artefact-verification` |
+| Feature branch purpose | Safe evidence-only change proving the `feature/* -> develop` path |
+| Feature-to-develop PR | <https://github.com/lorcan973232/mlops-wine-quality-pipeline/pull/1> |
+| CI status | Pending at the time this evidence update was committed; final status must be checked on GitHub |
+| Merge status | To be recorded only after the PR is actually merged |
 
-No success is claimed here until the GitHub pull requests and checks actually exist.
+No PR success, CI success, or merge success is claimed here until the GitHub pull requests and checks actually exist.
