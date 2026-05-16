@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "mlops-wine-quality-pipeline-python-dependencies",
-  "documentNamespace": "https://github.com/lorcan973232/mlops-wine-quality-pipeline/sbom/20260516140126",
+  "documentNamespace": "https://github.com/lorcan973232/mlops-wine-quality-pipeline/sbom/20260516141831",
   "creationInfo": {
-    "created": "2026-05-16T14:01:26+00:00",
+    "created": "2026-05-16T14:18:31+00:00",
     "creators": [
       "Tool: scripts/security_scan.py"
     ]
@@ -14,7 +14,7 @@
     {
       "SPDXID": "SPDXRef-Package-flask",
       "name": "Flask",
-      "versionInfo": "3.0.3",
+      "versionInfo": "3.1.3",
       "downloadLocation": "NOASSERTION",
       "filesAnalyzed": false,
       "licenseConcluded": "NOASSERTION",
@@ -74,7 +74,7 @@
     {
       "SPDXID": "SPDXRef-Package-pytest",
       "name": "pytest",
-      "versionInfo": "8.2.2",
+      "versionInfo": "9.0.3",
       "downloadLocation": "NOASSERTION",
       "filesAnalyzed": false,
       "licenseConcluded": "NOASSERTION",
@@ -94,7 +94,7 @@
     {
       "SPDXID": "SPDXRef-Package-requests",
       "name": "requests",
-      "versionInfo": "2.32.3",
+      "versionInfo": "2.33.0",
       "downloadLocation": "NOASSERTION",
       "filesAnalyzed": false,
       "licenseConcluded": "NOASSERTION",
