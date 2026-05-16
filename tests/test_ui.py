@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -42,6 +44,8 @@ def test_root_page_renders_clear_wine_ui() -> None:
     assert "UCI Wine Quality - Red Wine" in html
     assert "test-ui-wine-v1" in html
     assert "Predict Quality" in html
+    assert 'healthUrl: "/health"' in html
+    assert 'predictUrl: "/predict"' in html
 
 
 def test_root_page_form_fields_match_prediction_schema() -> None:
@@ -53,6 +57,14 @@ def test_root_page_form_fields_match_prediction_schema() -> None:
     assert html.count("data-feature-input") == len(FEATURE_COLUMNS)
     assert "Use Example" in html
     assert "Predict Quality" in html
+
+
+def test_ui_javascript_handles_unreachable_prediction_api() -> None:
+    script = Path("app/static/app.js").read_text(encoding="utf-8")
+
+    assert 'endpointUrl("healthUrl", "/health")' in script
+    assert 'endpointUrl("predictUrl", "/predict")' in script
+    assert "Prediction API is not reachable" in script
 
 
 def test_use_example_payload_matches_model_schema() -> None:

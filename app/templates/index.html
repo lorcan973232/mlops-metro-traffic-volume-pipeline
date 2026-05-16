@@ -87,7 +87,9 @@
         expectedFeatures: {{ feature_columns | tojson }},
         examplePayload: {{ example_payload | tojson }},
         modelVersion: {{ model_status.model_version | tojson }},
-        targetLabel: {{ model_status.target_label | tojson }}
+        targetLabel: {{ model_status.target_label | tojson }},
+        healthUrl: {{ url_for('health') | tojson }},
+        predictUrl: {{ url_for('predict') | tojson }}
       };
     </script>
     <script src="{{ url_for('static', filename='app.js') }}"></script>

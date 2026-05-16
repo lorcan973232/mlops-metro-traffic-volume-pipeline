@@ -19,6 +19,34 @@
     setPanelVisibility(false, true);
   }
 
+  function endpointUrl(configKey, fallbackPath) {
+    const configured = config[configKey] || fallbackPath;
+    return new URL(configured, window.location.origin).toString();
+  }
+
+  async function requestJson(url, options) {
+    let response;
+    try {
+      response = await fetch(url, options);
+    } catch (error) {
+      throw new Error(
+        "Prediction API is not reachable. Start the Flask server or restart the Docker/Kind port-forward, then reload this page."
+      );
+    }
+
+    let data;
+    try {
+      data = await response.json();
+    } catch (error) {
+      throw new Error("Prediction API returned a non-JSON response.");
+    }
+
+    if (!response.ok) {
+      throw new Error(data.error || "The prediction API returned an error.");
+    }
+    return data;
+  }
+
   function collectPayload() {
     const payload = {};
     const inputs = [...document.querySelectorAll("[data-feature-input]")];
@@ -75,15 +103,16 @@
     }
 
     try {
-      const response = await fetch("/predict", {
+      const health = await requestJson(endpointUrl("healthUrl", "/health"), {method: "GET"});
+      if (health.status !== "healthy" || health.model_loaded !== true) {
+        throw new Error("Prediction API is not healthy. Check that the model is loaded.");
+      }
+
+      const data = await requestJson(endpointUrl("predictUrl", "/predict"), {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({features: payload}),
       });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "The prediction API returned an error.");
-      }
       renderPrediction(data);
     } catch (error) {
       showError(error.message || "The prediction request failed.");
