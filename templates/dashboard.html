@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLOps Model Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MLOps Model Performance Dashboard</h1>
+            <p class="subtitle">Real-time model metrics, SLA compliance, and drift monitoring</p>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="performance">Performance Trends</button>
+            <button class="tab-btn" data-tab="sla">API SLA &amp; Latency</button>
+            <button class="tab-btn" data-tab="fairness">Fairness &amp; Bias</button>
+            <button class="tab-btn" data-tab="drift">Data Drift</button>
+            <button class="tab-btn" data-tab="comparison">Version Comparison</button>
+        </nav>
+
+        <div id="performance" class="tab-content active">
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <h3>Accuracy Over Versions</h3>
+                    <canvas id="accuracyChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>F1 Score Progression</h3>
+                    <canvas id="f1Chart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>ROC AUC Over Time</h3>
+                    <canvas id="rocChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Balanced Accuracy</h3>
+                    <canvas id="balAccChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="sla" class="tab-content">
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <h3>API Latency Percentiles</h3>
+                    <canvas id="latencyChart"></canvas>
+                </div>
+                <div class="metrics-box">
+                    <h3>Current SLA Status</h3>
+                    {% if sla_metrics %}
+                    <div class="metric-row">
+                        <span>P99 Latency:</span>
+                        <span class="value">{{ "%.2f" | format(sla_metrics.p99_ms) }} ms</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>SLA Threshold:</span>
+                        <span class="value">200 ms</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Status:</span>
+                        <span class="value {% if sla_metrics.sla_met %}pass{% else %}fail{% endif %}">
+                            {% if sla_metrics.sla_met %}✓ MET{% else %}✗ BREACHED{% endif %}
+                        </span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Mean Latency:</span>
+                        <span class="value">{{ "%.2f" | format(sla_metrics.mean_ms) }} ms</span>
+                    </div>
+                    {% else %}
+                    <p>No SLA data available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div id="fairness" class="tab-content">
+            <div class="chart-grid">
+                <div class="metrics-box">
+                    <h3>Fairness Metrics</h3>
+                    {% if fairness_metrics %}
+                    <div class="metric-row">
+                        <span>F1 Disparity:</span>
+                        <span class="value">{{ "%.4f" | format(fairness_metrics.disparities.f1_disparity) }}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Status:</span>
+                        <span class="value {% if fairness_metrics.is_balanced %}balanced{% else %}alert{% endif %}">
+                            {% if fairness_metrics.is_balanced %}✓ Balanced{% else %}⚠ Alert{% endif %}
+                        </span>
+                    </div>
+                    <h4>Class 0 (Standard Quality)</h4>
+                    <div class="metric-row">
+                        <span>F1:</span>
+                        <span class="value">{{ "%.4f" | format(fairness_metrics.per_class_metrics.class_0.f1) }}</span>
+                    </div>
+                    <h4>Class 1 (Good Quality)</h4>
+                    <div class="metric-row">
+                        <span>F1:</span>
+                        <span class="value">{{ "%.4f" | format(fairness_metrics.per_class_metrics.class_1.f1) }}</span>
+                    </div>
+                    {% else %}
+                    <p>No fairness data available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div id="drift" class="tab-content">
+            <div class="chart-grid">
+                <div class="metrics-box">
+                    <h3>Data Drift Status</h3>
+                    {% if drift_metrics %}
+                    <div class="metric-row">
+                        <span>Max PSI:</span>
+                        <span class="value">{{ "%.4f" | format(drift_metrics.max_psi) }}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Drift Threshold:</span>
+                        <span class="value">0.2</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Status:</span>
+                        <span class="value {% if not drift_metrics.drift_detected %}stable{% else %}alert{% endif %}">
+                            {% if not drift_metrics.drift_detected %}✓ Stable{% else %}⚠ Drift Detected{% endif %}
+                        </span>
+                    </div>
+                    <p style="margin-top: 20px; font-size: 12px; color: #666;">
+                        Top drifting features:
+                        {% for feature, psi in drift_metrics.feature_psi.items() %}
+                            <br>{{ feature }}: {{ "%.4f" | format(psi) }}
+                        {% endfor %}
+                    </p>
+                    {% else %}
+                    <p>No drift data available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div id="comparison" class="tab-content">
+            <div class="table-container">
+                <h3>Version Comparison (Latest 5)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Version</th>
+                            <th>Accuracy</th>
+                            <th>F1 (Weighted)</th>
+                            <th>ROC AUC</th>
+                            <th>Timestamp</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for version in versions %}
+                        <tr>
+                            <td><code>{{ version.version }}</code></td>
+                            <td>{{ "%.4f" | format(version.accuracy) }}</td>
+                            <td>{{ "%.4f" | format(version.f1_weighted) }}</td>
+                            <td>{{ "%.4f" | format(version.roc_auc) if version.roc_auc else "N/A" }}</td>
+                            <td>{{ version.timestamp }}</td>
+                            <td><span class="badge badge-{{ version.status }}">{{ version.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer>
+            <p>Last updated: <span id="update-time">Loading...</span></p>
+            <p style="font-size: 12px; color: #666;">Data from reports/metrics/, reports/benchmarks/, and reports/monitoring/</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>

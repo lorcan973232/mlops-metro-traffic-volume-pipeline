@@ -11,6 +11,7 @@ import pandas as pd
 from flask import Flask, jsonify, render_template, request
 
 from app.model_loader import load_model
+from app.dashboard import dashboard_bp
 from app.schemas import (
     FEATURE_COLUMNS,
     TARGET_LABEL,
@@ -194,6 +195,7 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
         )
         return jsonify(response), 200
 
+    app.register_blueprint(dashboard_bp)
     return app
 
 

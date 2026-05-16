@@ -6,7 +6,12 @@ metadata:
     app: mlops-flask-api
     component: prediction-api
 spec:
-  replicas: 1
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
   selector:
     matchLabels:
       app: mlops-flask-api
@@ -30,7 +35,7 @@ spec:
             httpGet:
               path: /health
               port: 5000
-            initialDelaySeconds: 45
+            initialDelaySeconds: 15
             periodSeconds: 5
             timeoutSeconds: 10
             failureThreshold: 12
@@ -38,7 +43,7 @@ spec:
             httpGet:
               path: /health
               port: 5000
-            initialDelaySeconds: 75
+            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 6

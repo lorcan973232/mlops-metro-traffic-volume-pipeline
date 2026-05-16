@@ -4,9 +4,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-from src.data import DATA_DOI, DATA_SOURCE_PAGE, write_json
+from src.data import DATA_DOI, DATA_SOURCE_PAGE, write_json, file_sha256
 from src.evaluate import METRICS_PATH, QUALITY_GATE_REPORT_PATH
-from src.train import MODEL_PATH
+from src.train import MODEL_PATH, PROCESSED_DATA_PATH
+from src.versioning import register_version, get_current_version, get_next_version
 
 MODEL_REGISTRY_PATH = Path("reports/metrics/model_registry.json")
 MODEL_METADATA_PATH = Path("reports/metrics/model_metadata.json")
@@ -30,8 +31,20 @@ def register_model(
         if QUALITY_GATE_REPORT_PATH.exists()
         else metrics["quality_gate"]
     )
+
+    # Determine version: use next version if quality gate passed, otherwise keep current
+    is_accepted = quality_gate_report["passed"]
+    if is_accepted:
+        current_version = get_current_version()
+        model_version = get_next_version(current_version, "patch")
+    else:
+        model_version = metrics.get("model_version", get_current_version())
+
+    # Calculate data hash for reproducibility
+    data_hash = file_sha256(PROCESSED_DATA_PATH) if PROCESSED_DATA_PATH.exists() else "unknown"
+
     record = {
-        "model_version": metrics["model_version"],
+        "model_version": model_version,
         "model_path": str(model_path),
         "metrics_path": str(metrics_path),
         "dataset_source": DATA_SOURCE_PAGE,
@@ -72,7 +85,7 @@ def register_model(
         ],
     }
     metadata = {
-        "model_version": metrics["model_version"],
+        "model_version": model_version,
         "dataset_name": metrics["dataset"].get("name"),
         "dataset_source": metrics["dataset"].get("source", DATA_SOURCE_PAGE),
         "dataset_hash": metrics["dataset"].get("raw_sha256"),
@@ -106,6 +119,19 @@ def register_model(
         "evaluation_command": metrics["evaluation_command"],
         "quality_gate": quality_gate_report,
     }
+
+    # Register version in semantic versioning system
+    if is_accepted:
+        register_version(
+            version=model_version,
+            model_path=model_path,
+            metadata_path=metadata_path,
+            metrics=metadata["metric_summary"],
+            data_hash=data_hash,
+            training_timestamp=metrics["training_timestamp"],
+            quality_gate_passed=True,
+        )
+
     write_json(registry_path, record)
     write_json(metadata_path, metadata)
     write_json(history_path, version_history)

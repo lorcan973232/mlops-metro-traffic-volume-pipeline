@@ -20,6 +20,7 @@ from sklearn.model_selection import StratifiedKFold, cross_validate, train_test_
 from src.data import FEATURE_COLUMNS, TARGET_COLUMN, TARGET_LABELS, write_json
 from src.preprocess import PROCESSED_DATA_PATH
 from src.train import MODEL_PATH, RANDOM_STATE, TEST_SIZE, load_processed_data, train_model
+from src.versioning import get_current_version
 
 METRICS_PATH = Path("reports/metrics/metrics.json")
 BASELINE_METRICS_PATH = Path("reports/metrics/baseline_metrics.json")
@@ -285,7 +286,7 @@ def evaluate_model(
 
     metrics = {
         "status": "evaluated",
-        "model_version": bundle.get("model_version", "unknown"),
+        "model_version": get_current_version(),
         "model_path": str(model_path),
         "task_type": bundle.get("task_type", "classification"),
         "dataset": bundle.get("dataset", {}),
