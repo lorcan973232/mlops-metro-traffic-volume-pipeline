@@ -25,6 +25,7 @@ REQUIRED_COMMAND_PATHS = [
 WINDOWS_SCRIPT_PATHS = [
     "scripts/setup_local.ps1",
     "scripts/check_setup.ps1",
+    "scripts/run_pipeline.ps1",
     "scripts/smoke_test_api.ps1",
     "scripts/create_kind_cluster.ps1",
     "scripts/deploy_kind.ps1",

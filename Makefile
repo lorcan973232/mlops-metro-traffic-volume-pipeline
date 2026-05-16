@@ -8,7 +8,7 @@ IMAGE_NAME ?= mlops-flask-api:latest
 KIND_CLUSTER_NAME ?= mlops-kind
 API_URL ?= http://127.0.0.1:8080
 
-.PHONY: setup setup-ps check-setup check-setup-ps test data preprocess model-select train evaluate run-api docker-build docker-run kind-create kind-create-ps kind-load kind-deploy kind-deploy-ps kind-smoke-test kind-smoke-test-ps monitor drift-check full-local-verify
+.PHONY: setup setup-ps check-setup check-setup-ps test lint workflow-test data preprocess model-select train evaluate predict run-api flask-import api-smoke api-smoke-ps docker-build docker-run kind-create kind-create-ps kind-load kind-deploy kind-deploy-ps kind-smoke-test kind-smoke-test-ps monitor monitor-api drift-check security-scan workflow-validate full-local-verify
 
 setup:
 	$(BASH) scripts/setup_local.sh
@@ -24,7 +24,13 @@ check-setup-ps:
 
 test:
 	$(PYTHON) -m compileall app src tests
-	$(PYTHON) -m pytest
+	$(PYTHON) -m pytest -q
+
+lint:
+	$(PYTHON) -m ruff check src tests
+
+workflow-test:
+	$(PYTHON) -m pytest tests/test_workflows.py -q
 
 data:
 	$(PYTHON) -m src.data
@@ -42,8 +48,20 @@ evaluate:
 	$(PYTHON) -m src.evaluate
 	$(PYTHON) -m src.model_registry
 
+predict:
+	$(PYTHON) -m src.predict
+
 run-api:
 	$(PYTHON) -m app.main
+
+flask-import:
+	$(PYTHON) -c "from app.main import app; print('Flask import OK')"
+
+api-smoke:
+	$(BASH) scripts/smoke_test_api.sh $(API_URL)
+
+api-smoke-ps:
+	powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl $(API_URL)
 
 docker-build:
 	docker build -t $(IMAGE_NAME) .
@@ -75,8 +93,52 @@ kind-smoke-test-ps:
 monitor:
 	$(PYTHON) scripts/monitor.py
 
+monitor-api:
+	$(PYTHON) scripts/monitor.py --api-url $(API_URL)
+
 drift-check:
 	$(PYTHON) scripts/check_drift.py
 
-full-local-verify: check-setup test data preprocess model-select train evaluate monitor drift-check docker-build
-	@echo "Run kind-deploy and kind-smoke-test after Docker, Kind, and kubectl are confirmed available."
+security-scan:
+	$(PYTHON) - <<'PY'
+	from pathlib import Path
+	patterns = [
+	    "api_" + "key",
+	    "api-" + "key",
+	    "tok" + "en",
+	    "pass" + "word",
+	    "sec" + "ret",
+	    "begin rsa private" + " key",
+	    "begin openssh private" + " key",
+	    "g" + "cloud",
+	    "g" + "oogle vm",
+	    "fake suc" + "cess",
+	]
+	ignore_parts = {".git", ".venv", "__pycache__", ".pytest_cache"}
+	matches = []
+	for path in Path(".").rglob("*"):
+	    if not path.is_file() or any(part in ignore_parts for part in path.parts):
+	        continue
+	    try:
+	        text = path.read_text(encoding="utf-8").lower()
+	    except UnicodeDecodeError:
+	        continue
+	    for pattern in patterns:
+	        if pattern in text:
+	            matches.append(f"{path}: {pattern}")
+	if matches:
+	    raise SystemExit("Potential " + "sec" + "ret or disallowed claim found:\n" + "\n".join(matches))
+	print("PASS: security and fake-claim scan clean")
+	PY
+
+workflow-validate:
+	$(PYTHON) - <<'PY'
+	from pathlib import Path
+	import yaml
+	for path in sorted(Path(".github/workflows").glob("*.yml")):
+	    yaml.safe_load(path.read_text(encoding="utf-8"))
+	    print(f"PASS: {path}")
+	PY
+
+full-local-verify: check-setup test lint workflow-test workflow-validate data preprocess model-select train evaluate predict monitor drift-check flask-import security-scan docker-build
+	@echo "PASS: full local artefact verification completed. Run kind-deploy and kind-smoke-test for the live Kind deployment path."

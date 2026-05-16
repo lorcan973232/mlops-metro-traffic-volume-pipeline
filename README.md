@@ -177,6 +177,16 @@ ruff check src tests
 python -c "from app.main import app; print('Flask import OK')"
 ```
 
+One-command local artefact verification:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/run_pipeline.ps1
+```
+
+```bash
+bash scripts/run_pipeline.sh
+```
+
 ## Flask API and UI
 
 Run:
@@ -411,14 +421,15 @@ Reports are written under `reports/monitoring/`. The artefact does not claim pro
 2. Open the GitHub Actions tab and show latest successful runs for CI, Data Preprocessing, Train and Evaluate, Docker Build, Deploy Kind, Continuous Training, and Monitoring.
 3. Open one workflow log and point to the real commands, not just the YAML.
 4. Download or open uploaded artefacts: CI artefacts, preprocessing artefacts, train/evaluate artefacts, Docker logs, Kind deployment logs, CT quality gate, and monitoring reports.
-5. Run `python -m compileall app src tests`, `pytest -q`, and `ruff check src tests`.
-6. Run `python -m src.data`, `python -m src.preprocess`, `python -m src.model_selection`, `python -m src.train`, `python -m src.evaluate`, `python -m src.model_registry`, and `python -m src.predict`.
-7. Show `latest_metrics.json`, `classification_report.json`, `confusion_matrix.json`, `model_metadata.json`, `model_comparison.json`, and `quality_gate_report.json`.
-8. Explain the CT quality gate and show `passed`, thresholds, baseline comparison, and accepted/rejected decision.
-9. Start Flask and open `http://127.0.0.1:5000/`; click `Use Example`, then `Predict Quality`.
-10. Build Docker, open `http://127.0.0.1:5001/`, and run the smoke test.
-11. Deploy to Kind, port-forward the service, open `http://127.0.0.1:8080/`, and run the smoke test.
-12. Run offline monitoring, drift check, and API-aware monitoring; show `retraining_required` and `reason`.
+5. Run `powershell -ExecutionPolicy Bypass -File scripts/run_pipeline.ps1` on Windows or `bash scripts/run_pipeline.sh` in Bash to show the full local verification path.
+6. Run `python -m compileall app src tests`, `pytest -q`, and `ruff check src tests` if the marker wants to see the individual CI commands.
+7. Run `python -m src.data`, `python -m src.preprocess`, `python -m src.model_selection`, `python -m src.train`, `python -m src.evaluate`, `python -m src.model_registry`, and `python -m src.predict`.
+8. Show `latest_metrics.json`, `classification_report.json`, `confusion_matrix.json`, `model_metadata.json`, `model_comparison.json`, and `quality_gate_report.json`.
+9. Explain the CT quality gate and show `passed`, thresholds, baseline comparison, and accepted/rejected decision.
+10. Start Flask and open `http://127.0.0.1:5000/`; click `Use Example`, then `Predict Quality`.
+11. Build Docker, open `http://127.0.0.1:5001/`, and run the smoke test.
+12. Deploy to Kind, port-forward the service, open `http://127.0.0.1:8080/`, and run the smoke test.
+13. Run offline monitoring, drift check, and API-aware monitoring; show `retraining_required` and `reason`.
 
 ## Traceability Matrix
 
@@ -433,7 +444,7 @@ Reports are written under `reports/monitoring/`. The artefact does not claim pro
 | Continuous Monitoring | `monitoring.yml`, `scripts/monitor.py`, `scripts/check_drift.py` | `python scripts/monitor.py`; `python scripts/check_drift.py` | `monitoring.yml` | monitoring and drift reports | required CM fields, schema/data-quality checks, drift score, retraining flag | Implemented and verifiable in Actions | Check latest scheduled/manual run |
 | Model management | `src/model_registry.py`, `reports/metrics/model_metadata.json`, `reports/metrics/model_registry.json` | `python -m src.model_registry` | `train-and-evaluate.yml`, `continuous-training.yml`, `monitoring.yml` | model metadata and registry record | quality gate passed before registration in CT | Implemented | None |
 | Branching strategy | README Branching Strategy section | `git status --short --branch` | CI, Docker, Deploy, CT, Monitoring workflows | PR and run evidence in GitHub | CI before merge; `main` deploys; schedules run from workflow definitions | Documented | Follow policy during future changes |
-| Live demonstration evidence | README Live Demo Checklist | commands in checklist | Actions tab plus local commands | workflow artefacts, API responses, reports | marker observes real commands and artefacts | Documented | Student must show during video |
+| Live demonstration evidence | README Live Demo Checklist, `scripts/run_pipeline.sh`, `scripts/run_pipeline.ps1` | commands in checklist; `powershell -ExecutionPolicy Bypass -File scripts/run_pipeline.ps1`; `bash scripts/run_pipeline.sh` | Actions tab plus local commands | workflow artefacts, API responses, reports | marker observes real commands and artefacts | Documented | Student must show during video |
 
 ## Limitations
 
