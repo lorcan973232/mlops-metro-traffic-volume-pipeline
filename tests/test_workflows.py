@@ -13,6 +13,7 @@ EXPECTED_WORKFLOWS = {
     "deploy.yml",
     "monitoring.yml",
     "repository-visibility-check.yml",
+    "security-scan.yml",
 }
 
 REQUIRED_COMMAND_PATHS = [
@@ -21,6 +22,7 @@ REQUIRED_COMMAND_PATHS = [
     "scripts/monitor.py",
     "scripts/check_drift.py",
     "deployment/kind/",
+    "scripts/security_scan.py",
 ]
 
 WINDOWS_SCRIPT_PATHS = [
@@ -82,6 +84,14 @@ def test_workflow_triggers_and_dependencies_show_lifecycle() -> None:
     )
     assert "Repository is not public" in visibility_text
     assert "repository-visibility-evidence" in visibility_text
+
+    security = load_workflow("security-scan.yml")
+    security_text = Path(".github/workflows/security-scan.yml").read_text(encoding="utf-8")
+    assert security["jobs"]["security-scan"]
+    assert "pip_audit" in security_text
+    assert "docker build -t mlops-flask-api:security" in security_text
+    assert "trivy image" in security_text
+    assert "security-reports" in security_text
 
 
 def test_deploy_workflow_and_kind_manifests_are_kind_only() -> None:
@@ -158,7 +168,9 @@ def test_docker_workflow_has_verified_dataset_build_context() -> None:
     gitignore = Path(".gitignore").read_text(encoding="utf-8")
 
     assert raw_dataset.exists()
-    assert "COPY data/raw/ data/raw/" in dockerfile
+    assert "COPY --chown=appuser:app data/raw/ data/raw/" in dockerfile
+    assert "USER appuser" in dockerfile
+    assert "useradd --system" in dockerfile
     assert "data/raw/*.csv" not in dockerignore
     assert "!data/raw/winequality-red.csv" in gitignore
 

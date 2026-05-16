@@ -14,18 +14,24 @@ RUN pip install --no-cache-dir \
     --trusted-host files.pythonhosted.org \
     -r requirements.txt
 
-COPY app/ app/
-COPY src/ src/
-COPY data/raw/ data/raw/
-COPY models/ models/
-COPY reports/ reports/
+RUN groupadd --system app && \
+    useradd --system --gid app --home-dir /app --shell /usr/sbin/nologin appuser
+
+COPY --chown=appuser:app app/ app/
+COPY --chown=appuser:app src/ src/
+COPY --chown=appuser:app data/raw/ data/raw/
+COPY --chown=appuser:app models/ models/
+COPY --chown=appuser:app reports/ reports/
 
 RUN python -m compileall app src \
     && python -m src.data \
     && python -m src.preprocess \
     && python -m src.train \
     && python -m src.evaluate \
-    && python -m src.model_registry
+    && python -m src.model_registry \
+    && chown -R appuser:app /app
+
+USER appuser
 
 EXPOSE 5000
 

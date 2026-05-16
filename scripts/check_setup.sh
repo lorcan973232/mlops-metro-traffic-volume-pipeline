@@ -57,6 +57,18 @@ else
   pass "repository root" "$(pwd)"
 fi
 
+case "$(uname -s 2>/dev/null || echo unknown)" in
+  MINGW*|MSYS*|CYGWIN*)
+    pass "windows shell guidance" "Git Bash detected. PowerShell scripts remain the recommended Windows path."
+    ;;
+  Linux*)
+    pass "shell guidance" "Linux Bash detected. On Windows, do not use WSL bash unless WSL is configured."
+    ;;
+  *)
+    pass "shell guidance" "Use PowerShell on Windows, Git Bash explicitly on Windows, or Bash on Linux/macOS."
+    ;;
+esac
+
 require_command "${PYTHON_CMD}" "Install Python 3.11 or 3.12: https://www.python.org/downloads/"
 require_command git "Install Git: https://git-scm.com/downloads"
 

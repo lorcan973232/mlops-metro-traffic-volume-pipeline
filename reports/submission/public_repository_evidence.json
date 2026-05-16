@@ -4,8 +4,8 @@
   "visibility": "public",
   "private": false,
   "default_branch": "main",
-  "checked_at": "2026-05-16T12:32:25Z",
-  "command_used": "gh api repos/lorcan973232/mlops-wine-quality-pipeline",
+  "checked_at": "2026-05-16T13:56:18Z",
+  "command_used": "gh repo view --json nameWithOwner,url,visibility,isPrivate,defaultBranchRef",
   "requirement_note": "Current public visibility is verified at checked_at. The repository must remain public until 21 June 2026 for assignment compliance.",
   "future_public_until_proven": false
 }
