@@ -1,0 +1,90 @@
+name: Security Scan
+
+permissions:
+  contents: read
+
+"on":
+  workflow_dispatch:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  security-scan:
+    name: Secrets, dependencies, Docker, and SBOM evidence
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+
+      - name: Set up Python
+        uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.11"
+
+      - name: Install scanner dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pip-audit
+
+      - name: Generate repository security evidence
+        run: python scripts/security_scan.py
+
+      - name: Run pip-audit vulnerability scan
+        run: |
+          set +e
+          python -m pip_audit -r requirements.txt --progress-spinner off > reports/security/dependency_scan.txt 2>&1
+          audit_status=$?
+          set -e
+          cat reports/security/dependency_scan.txt
+          echo "${audit_status}" > reports/security/pip_audit_exit_code.txt
+          exit "${audit_status}"
+
+      - name: Build Docker image for image scan
+        if: always()
+        run: docker build -t mlops-flask-api:security .
+
+      - name: Verify Docker image runs as non-root
+        if: always()
+        run: |
+          docker run --rm --entrypoint id mlops-flask-api:security -u | tee reports/security/docker_runtime_user.txt
+          runtime_uid="$(cat reports/security/docker_runtime_user.txt)"
+          if [ "${runtime_uid}" = "0" ]; then
+            echo "Docker image is running as root" >&2
+            exit 1
+          fi
+
+      - name: Install Trivy
+        if: always()
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+            | sudo sh -s -- -b /usr/local/bin
+
+      - name: Run Trivy image vulnerability scan
+        if: always()
+        run: |
+          trivy image \
+            --no-progress \
+            --format table \
+            --output reports/security/docker_image_trivy.txt \
+            mlops-flask-api:security || true
+          cat reports/security/docker_image_trivy.txt || true
+
+      - name: Generate Trivy SPDX SBOM
+        if: always()
+        run: |
+          trivy image \
+            --no-progress \
+            --format spdx-json \
+            --output reports/security/sbom.spdx.json \
+            mlops-flask-api:security || true
+          test -s reports/security/sbom.spdx.json || python scripts/security_scan.py
+
+      - name: Upload security reports
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: security-reports
+          path: reports/security/

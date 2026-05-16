@@ -10,6 +10,7 @@ from src.train import MODEL_PATH
 
 MODEL_REGISTRY_PATH = Path("reports/metrics/model_registry.json")
 MODEL_METADATA_PATH = Path("reports/metrics/model_metadata.json")
+MODEL_REGISTRY_HISTORY_PATH = Path("reports/model_registry/version_history.json")
 
 
 def register_model(
@@ -17,6 +18,7 @@ def register_model(
     metrics_path: Path = METRICS_PATH,
     registry_path: Path = MODEL_REGISTRY_PATH,
     metadata_path: Path = MODEL_METADATA_PATH,
+    history_path: Path = MODEL_REGISTRY_HISTORY_PATH,
 ) -> dict[str, Any]:
     if not model_path.exists():
         raise FileNotFoundError(f"Model not found: {model_path}")
@@ -42,6 +44,32 @@ def register_model(
         "f1_macro": metrics["f1_macro"],
         "quality_gate_passed": quality_gate_report["passed"],
         "promotion_decision": "accepted" if quality_gate_report["passed"] else "rejected",
+    }
+    version_history = {
+        "registry_type": "lightweight_repository_metadata",
+        "external_registry": False,
+        "external_registry_claim": "none",
+        "model_management_scope": (
+            "Accepted model and metrics are stored as repository evidence and "
+            "GitHub Actions artefacts. This is not an MLflow, GHCR, or cloud "
+            "model-registry promotion."
+        ),
+        "records": [
+            {
+                "model_version": record["model_version"],
+                "model_path": record["model_path"],
+                "metrics_path": record["metrics_path"],
+                "metadata_path": str(metadata_path),
+                "dataset_source": record["dataset_source"],
+                "dataset_doi": record["dataset_doi"],
+                "quality_gate_passed": record["quality_gate_passed"],
+                "promotion_decision": record["promotion_decision"],
+                "training_timestamp": metrics["training_timestamp"],
+                "accuracy": record["accuracy"],
+                "f1_macro": record["f1_macro"],
+                "f1_weighted": record["f1_weighted"],
+            }
+        ],
     }
     metadata = {
         "model_version": metrics["model_version"],
@@ -80,6 +108,7 @@ def register_model(
     }
     write_json(registry_path, record)
     write_json(metadata_path, metadata)
+    write_json(history_path, version_history)
     return record
 
 
@@ -117,6 +146,7 @@ def model_registry_summary(
             "hyperparameters": metadata.get("hyperparameters", {}),
             "quality_gate_passed": metadata["quality_gate"]["passed"],
         },
+        "version_history_path": str(MODEL_REGISTRY_HISTORY_PATH),
     }
 
 

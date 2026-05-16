@@ -66,6 +66,8 @@ if ((Test-Path "README.md") -and (Test-Path "requirements.txt") -and (Test-Path 
     Fail-Check "repository root" "Run this script from the repository root."
 }
 
+Pass-Check "windows shell guidance" "PowerShell scripts are the recommended Windows path. Use Git Bash explicitly for .sh scripts: C:\Program Files\Git\bin\bash.exe. Do not use WSL bash unless WSL is configured."
+
 $pythonCommand = $PythonBin
 if (-not $pythonCommand) {
     if ($env:PYTHON_BIN) {

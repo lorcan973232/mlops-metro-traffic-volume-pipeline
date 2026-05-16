@@ -8,11 +8,12 @@
 ![Deploy](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/deploy.yml/badge.svg)
 ![Monitoring](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/monitoring.yml/badge.svg)
 ![Visibility](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/repository-visibility-check.yml/badge.svg)
+![Security](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/security-scan.yml/badge.svg)
 ![Dataset](https://img.shields.io/badge/dataset-UCI%20Wine%20Quality-red)
 
 Public GitHub repository: <https://github.com/lorcan973232/mlops-wine-quality-pipeline>
 
-This repository is the artefact component only. It implements a reproducible MLOps pipeline around a Flask prediction service, Docker image, Kind Kubernetes deployment, GitHub Actions CI/CD/CT/CM workflows, tests, monitoring, and traceability evidence. The repository is currently public and must remain public until 21 June 2026.
+This repository is the artefact component only. It implements a reproducible MLOps pipeline around a Flask prediction service, Docker image, Kind Kubernetes deployment, GitHub Actions CI/CD/CT/CM workflows, tests, monitoring, security evidence, and traceability evidence. The repository is currently public and must remain public until 21 June 2026.
 
 | Public repository evidence | Value |
 |---|---|
@@ -150,7 +151,9 @@ flowchart LR
 
 Run setup first. Bare system Python is not expected to run this artefact until `requirements.txt` has been installed. The supported reproducibility path is either activating `.venv`, using the `.venv` Python directly, or using the Makefile/script targets below.
 
-PowerShell:
+Windows users should use the PowerShell scripts by default. Do not use `C:\Windows\System32\bash.exe` unless WSL is installed and configured. If using Git Bash on Windows, call Git Bash explicitly from `C:\Program Files\Git\bin\bash.exe`.
+
+Recommended Windows PowerShell path:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/setup_local.ps1
@@ -164,6 +167,13 @@ Bash or Git Bash:
 bash scripts/setup_local.sh
 bash scripts/check_setup.sh
 source .venv/bin/activate 2>/dev/null || source .venv/Scripts/activate
+```
+
+Explicit Git Bash on Windows:
+
+```powershell
+& "C:\Program Files\Git\bin\bash.exe" scripts/setup_local.sh
+& "C:\Program Files\Git\bin\bash.exe" scripts/check_setup.sh
 ```
 
 If the environment is not activated, run the verification commands with
@@ -183,6 +193,7 @@ make run-api
 make docker-build
 make kind-deploy
 make monitor
+make security-scan
 make full-local-verify
 ```
 
@@ -201,6 +212,7 @@ python -m src.model_registry
 python -m src.predict
 python scripts/monitor.py
 python scripts/check_drift.py
+python scripts/security_scan.py
 pytest -q
 ruff check src tests
 python -c "from app.main import app; print('Flask import OK')"
@@ -260,6 +272,10 @@ powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl http
 
 ## Docker
 
+The Docker image is built with a non-root runtime user (`USER appuser`). Dependency
+installation and model/report generation happen during the image build, then the
+Flask/Gunicorn process runs without root privileges.
+
 ```powershell
 docker build -t mlops-flask-api:latest .
 docker run --rm -d --name mlops-flask-demo -p 5001:5000 mlops-flask-api:latest
@@ -274,6 +290,12 @@ http://127.0.0.1:5001/
 ```
 
 ## Kind Kubernetes
+
+Kind Kubernetes is the selected deployment target because the assignment allows a
+Google VM or Kind Kubernetes cluster. This artefact does not claim a persistent public
+cloud service. The Kind deployment is automated and ephemeral: it runs locally or on a
+GitHub Actions runner, verifies Kubernetes rollout, port-forwards the service, and
+smoke-tests the deployed Flask API.
 
 PowerShell:
 
@@ -310,6 +332,26 @@ powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl http
 python scripts/monitor.py --api-url http://127.0.0.1:8080
 ```
 
+## Security Evidence
+
+Security checks are artefact evidence, not report/video material. The repository includes:
+
+| Evidence | Path |
+|---|---|
+| Security workflow | `.github/workflows/security-scan.yml` |
+| Local security evidence generator | `scripts/security_scan.py` |
+| Dependency scan report | `reports/security/dependency_scan.txt` |
+| Secret scan report | `reports/security/secret_scan.txt` |
+| Docker security notes | `reports/security/docker_security_notes.md` |
+| SBOM | `reports/security/sbom.spdx.json` |
+
+The Security Scan workflow runs a no-secrets check, a Dockerfile non-root check,
+`pip-audit` against `requirements.txt`, a Docker runtime-user check, a Trivy image
+scan, and SBOM generation. The Docker image scan is evidence output; it does not
+pretend that third-party base images are permanently free of CVEs. The workflow uploads
+`security-reports` so a marker can inspect the current dependency, image, and SBOM
+evidence for the submitted SHA.
+
 ## MLOps Workflow Detail: CI/CD/CT/CM
 
 The workflow implementation is intentionally evidence-first: every stage runs repository
@@ -340,6 +382,7 @@ flowchart LR
 | Continuous Training | Scheduled/manual retraining and model acceptance | Weekly cron `0 6 * * 1`; manual | data/preprocess/model-selection/train/evaluate; quality-gate contract check; `python -m src.model_registry` after acceptance | `ct-candidate`; `ct-quality-gate`; `continuous-training-artifacts` | Fails if quality gate lacks required checks or `passed` is false; candidate is rejected instead of silently accepted | `.github/workflows/continuous-training.yml`, `reports/metrics/quality_gate_report.json` | Show CT run, gate JSON, accepted/rejected decision |
 | Monitoring | Continuous Monitoring and model management | Daily cron `0 7 * * *`; manual | `python -m src.data`; `python -m src.preprocess`; `python -m src.train`; `python -m src.evaluate`; `python -m src.model_registry`; `python scripts/monitor.py`; `python scripts/check_drift.py` | `monitoring-model-metadata`; `monitoring-artifacts` with `reports/monitoring/` | Fails if model metadata cannot be built, monitoring/drift scripts fail, or required monitoring fields are missing | `.github/workflows/monitoring.yml`, `scripts/monitor.py`, `scripts/check_drift.py`, `reports/monitoring/` | Show monitoring report, drift score, `retraining_required`, and reason |
 | Repository Visibility Check | Public-repository evidence | Weekly cron `0 8 * * 1`; manual | GitHub repository API visibility check | `repository-visibility-evidence` | Fails if the repository is private or visibility is not `public` | `.github/workflows/repository-visibility-check.yml`, `reports/submission/public_repository_evidence.json` | Show current public visibility evidence and deadline note |
+| Security Scan | Security/reproducibility evidence | `push`/PR on `main`, `develop`; manual | `python scripts/security_scan.py`; `python -m pip_audit -r requirements.txt`; Docker build; Docker runtime-user check; Trivy image scan; SBOM generation | `security-reports` with dependency, secret, Docker, Trivy, and SBOM evidence | Fails on hard-coded credential findings, missing non-root Docker user, dependency audit failure, or root runtime user | `.github/workflows/security-scan.yml`, `reports/security/` | Show no-secrets report, dependency scan, Docker non-root evidence, Trivy report, and SBOM |
 
 ### Continuous Integration Details
 
@@ -376,6 +419,11 @@ and enforced again in `.github/workflows/continuous-training.yml`; it checks:
 If `reports/metrics/quality_gate_report.json` has `passed: false`, the CT workflow
 exits non-zero and the candidate is rejected. Accepted candidates are registered by
 `src/model_registry.py`, producing model metadata for deployment and monitoring.
+The model-management approach is deliberately lightweight and explicit: accepted
+models, metrics, quality gates, and metadata are stored as repository evidence and
+GitHub Actions artefacts. Version-history evidence is written to
+`reports/model_registry/version_history.json`. This artefact does not claim an
+external MLflow, GHCR, or cloud model-registry promotion.
 
 ### Continuous Monitoring and Model Management Details
 
@@ -391,10 +439,11 @@ python scripts/monitor.py --api-url http://127.0.0.1:8080
 ```
 
 Model-management evidence is stored in `reports/metrics/model_metadata.json` and
-`reports/metrics/model_registry.json`. These include model version, model path,
-dataset source/hash, feature schema, target mapping, hyperparameters, metrics summary,
-training timestamp, and quality-gate result. Monitoring uses this metadata to report
-the model version and schema context for any retraining investigation.
+`reports/metrics/model_registry.json`, with version-history evidence under
+`reports/model_registry/version_history.json`. These include model version, model
+path, dataset source/hash, feature schema, target mapping, hyperparameters, metrics
+summary, training timestamp, and quality-gate result. Monitoring uses this metadata
+to report the model version and schema context for any retraining investigation.
 
 ### How To Verify Workflows As A Marker
 
@@ -407,6 +456,7 @@ the model version and schema context for any retraining investigation.
 7. For CM, inspect `monitoring_report.json`, `drift_report.json`, and the `retraining_required` fields.
 8. For CD, inspect the Kind rollout, pod/service, port-forward, and smoke-test logs.
 9. For public visibility, inspect `reports/submission/public_repository_evidence.json` and the Repository Visibility Check workflow.
+10. For security, inspect the Security Scan workflow and the `security-reports` artefact.
 
 ## Branching Strategy
 
@@ -427,7 +477,7 @@ Workflow policy:
 6. Continuous Monitoring runs daily and manually; it produces drift/data-quality reports and a retraining flag.
 7. Direct untested changes to `main` are not part of the intended workflow.
 
-Real branch and pull-request evidence is recorded in `reports/submission/branching_evidence.md`. It maps the actual `feature/final-artefact-verification -> develop -> main` evidence path back to this strategy.
+Real branch and pull-request evidence is recorded in `reports/submission/branching_evidence.md`. It maps the actual `feature/* -> develop -> main` evidence path back to this strategy and records whether `develop` is currently synced with `main`.
 
 ## Continuous Training and Monitoring
 
@@ -453,10 +503,10 @@ Reports are written under `reports/monitoring/`. The artefact does not claim pro
 1. Show the public GitHub repo and this README.
 2. Show `reports/submission/public_repository_evidence.json` and explain that current public visibility is verified while the repo must remain public until 21 June 2026.
 3. Show `reports/submission/branching_evidence.md` and the linked GitHub pull request evidence.
-4. Open the GitHub Actions tab and show latest successful runs for CI, Data Preprocessing, Train and Evaluate, Docker Build, Deploy Kind, Continuous Training, Monitoring, and Repository Visibility Check.
+4. Open the GitHub Actions tab and show latest successful runs for CI, Data Preprocessing, Train and Evaluate, Docker Build, Deploy Kind, Continuous Training, Monitoring, Repository Visibility Check, and Security Scan.
 5. Open one workflow log and point to the real commands, not just the YAML.
-6. Download or open uploaded artefacts: CI artefacts, preprocessing artefacts, train/evaluate artefacts, Docker logs, Kind deployment logs, CT quality gate, monitoring reports, and visibility evidence.
-7. Run `powershell -ExecutionPolicy Bypass -File scripts/run_pipeline.ps1` on Windows or `bash scripts/run_pipeline.sh` in Bash to show the full local verification path.
+6. Download or open uploaded artefacts: CI artefacts, preprocessing artefacts, train/evaluate artefacts, Docker logs, Kind deployment logs, CT quality gate, monitoring reports, security reports, and visibility evidence.
+7. On Windows, run `powershell -ExecutionPolicy Bypass -File scripts/run_pipeline.ps1` to show the full local verification path. Use `& "C:\Program Files\Git\bin\bash.exe" scripts/run_pipeline.sh` only when using Git Bash explicitly.
 8. Run `python -m compileall app src tests`, `pytest -q`, and `ruff check src tests` if the marker wants to see the individual CI commands.
 9. Run `python -m src.data`, `python -m src.preprocess`, `python -m src.model_selection`, `python -m src.train`, `python -m src.evaluate`, `python -m src.model_registry`, and `python -m src.predict`.
 10. Show `latest_metrics.json`, `classification_report.json`, `confusion_matrix.json`, `model_metadata.json`, `model_comparison.json`, and `quality_gate_report.json`.
@@ -465,12 +515,13 @@ Reports are written under `reports/monitoring/`. The artefact does not claim pro
 13. Build Docker, open `http://127.0.0.1:5001/`, and run the smoke test.
 14. Deploy to Kind, port-forward the service, open `http://127.0.0.1:8080/`, and run the smoke test.
 15. Run offline monitoring, drift check, and API-aware monitoring; show `retraining_required` and `reason`.
+16. Show `reports/security/secret_scan.txt`, `reports/security/docker_security_notes.md`, and `reports/security/sbom.spdx.json`, plus the latest Security Scan workflow.
 
 ## Traceability Matrix
 
 | Requirement | File/path | Local command | GitHub Actions workflow | Artefact produced | Quality gate/test | Status | Remaining action |
 |---|---|---|---|---|---|---|---|
-| Public repository visibility | `reports/submission/public_repository_evidence.json`, `.github/workflows/repository-visibility-check.yml` | `gh api repos/lorcan973232/mlops-wine-quality-pipeline` | `repository-visibility-check.yml` | `repository-visibility-evidence` | Fails if repository is private or visibility is not `public` | Current visibility verified; must remain public until 21 June 2026 | Check latest visibility workflow for submitted SHA |
+| Public repository visibility | `reports/submission/public_repository_evidence.json`, `.github/workflows/repository-visibility-check.yml` | `gh repo view --json name,url,visibility,isPrivate` | `repository-visibility-check.yml` | `repository-visibility-evidence` | Fails if repository is private or visibility is not `public` | Current visibility verified; must remain public until 21 June 2026 | Check latest visibility workflow for submitted SHA |
 | CI | `.github/workflows/ci.yml`, `tests/` | `python -m compileall app src tests`; `ruff check src tests`; `pytest -q` | `ci.yml` | `ci-artifacts` | compile, lint, Flask import, pytest, ML smoke path | Implemented and verifiable in Actions | Check latest run for submitted SHA |
 | Data acquisition/preprocessing | `src/data.py`, `src/preprocess.py`, `data/raw/winequality-red.csv` | `python -m src.data`; `python -m src.preprocess` | `data-preprocessing.yml` | processed CSV, ingestion and preprocessing reports | SHA-256, schema validation, processed CSV exists | Implemented and verifiable in Actions | Check latest run for submitted SHA |
 | Training/evaluation | `src/model_selection.py`, `src/train.py`, `src/evaluate.py` | `python -m src.model_selection`; `python -m src.train`; `python -m src.evaluate` | `train-and-evaluate.yml` | model, latest metrics, reports, metadata | metric package exists; quality gate in evaluation | Implemented and verifiable in Actions | Check latest run for submitted SHA |
@@ -478,10 +529,18 @@ Reports are written under `reports/monitoring/`. The artefact does not claim pro
 | Continuous Deployment | `deployment/kind/`, `scripts/deploy_kind.*` | `scripts/deploy_kind.ps1` or `scripts/deploy_kind.sh` | `deploy.yml` | deployment image archive, Kind deployment logs | Kind cluster, image load, manifest apply, rollout, API smoke | Implemented and verifiable in Actions | Check latest run for submitted SHA |
 | Continuous Training | `continuous-training.yml`, `src/evaluate.py`, `src/model_registry.py` | `python -m src.data`; `python -m src.preprocess`; `python -m src.model_selection`; `python -m src.train`; `python -m src.evaluate`; `python -m src.model_registry` | `continuous-training.yml` | CT candidate, quality gate, promoted metadata | accuracy, balanced accuracy, macro F1, weighted F1, CV accuracy, baseline improvement | Implemented and verifiable in Actions | Check latest scheduled/manual run |
 | Continuous Monitoring | `monitoring.yml`, `scripts/monitor.py`, `scripts/check_drift.py` | `python scripts/monitor.py`; `python scripts/check_drift.py` | `monitoring.yml` | monitoring and drift reports | required CM fields, schema/data-quality checks, drift score, retraining flag | Implemented and verifiable in Actions | Check latest scheduled/manual run |
-| Model management | `src/model_registry.py`, `reports/metrics/model_metadata.json`, `reports/metrics/model_registry.json` | `python -m src.model_registry` | `train-and-evaluate.yml`, `continuous-training.yml`, `monitoring.yml` | model metadata and registry record | quality gate passed before registration in CT | Implemented | None |
+| Model management | `src/model_registry.py`, `reports/metrics/model_metadata.json`, `reports/metrics/model_registry.json`, `reports/model_registry/version_history.json` | `python -m src.model_registry` | `train-and-evaluate.yml`, `continuous-training.yml`, `monitoring.yml` | model metadata, registry record, version history, CT artefacts | quality gate passed before registration in CT | Implemented as lightweight repository/Actions artefact model management, not external MLflow/GHCR promotion | None |
 | Branching strategy | README Branching Strategy section, `reports/submission/branching_evidence.md` | `git branch -a`; `gh pr list --state all` | CI, Docker, Deploy, CT, Monitoring workflows | PR and run evidence in GitHub | CI before merge; `main` deploys; schedules run from workflow definitions | Documented and evidence file present | Check PR links and latest run status |
-| Live demonstration evidence | README Live Demo Checklist, `scripts/run_pipeline.sh`, `scripts/run_pipeline.ps1` | commands in checklist; `powershell -ExecutionPolicy Bypass -File scripts/run_pipeline.ps1`; `bash scripts/run_pipeline.sh` | Actions tab plus local commands | workflow artefacts, API responses, reports | marker observes real commands and artefacts | Documented | Student must show during video |
+| Security evidence | `.github/workflows/security-scan.yml`, `scripts/security_scan.py`, `reports/security/` | `python scripts/security_scan.py`; `python -m pip_audit -r requirements.txt --progress-spinner off`; `docker build -t mlops-flask-api:latest .` | `security-scan.yml` | dependency scan, secret scan, Docker non-root notes, Trivy report, SBOM | no hard-coded credential findings, dependency audit, Docker non-root check, root-runtime check | Implemented and verifiable in Actions | Check latest security workflow for submitted SHA |
+| Live demonstration evidence | README Live Demo Checklist, `scripts/run_pipeline.sh`, `scripts/run_pipeline.ps1` | commands in checklist; `powershell -ExecutionPolicy Bypass -File scripts/run_pipeline.ps1`; explicit Git Bash if needed | Actions tab plus local commands | workflow artefacts, API responses, reports, security evidence | marker observes real commands and artefacts | Documented | Student must show during video |
 
 ## Limitations
 
-The dataset is a fixed public research dataset rather than live production telemetry. Monitoring is therefore simulated and API-aware rather than production-grade observability. The model is intended for MLOps pipeline demonstration, not wine-production decision making.
+The dataset is a fixed public research dataset rather than live production telemetry.
+Monitoring is therefore simulated and API-aware rather than production-grade
+observability. Kind deployment is automated but ephemeral, either local or
+GitHub-runner based, not a persistent public cloud service. Model management is a
+lightweight repository/Actions artefact registry, not an external production registry.
+Security reports are current evidence for the submitted SHA, not a permanent guarantee
+that future dependency or base-image CVEs will never appear. The model is intended for
+MLOps pipeline demonstration, not wine-production decision making.
