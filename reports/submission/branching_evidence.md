@@ -21,7 +21,7 @@ This file records real branch and pull-request evidence for the artefact branchi
 | Current feature SHA | `c77d4cf38cea994a249530f95d3fd97f39487cf1` |
 | Current `main` SHA before final promotion | `681e1388d834a0ffd130e51ca1f4acc3b09fc1dc` |
 | Current `develop` SHA after PR #3 merge | `4b5f42d6a3620db189404c5fbda5a8f7fe3f0444` |
-| Develop synced with main before PR #4 merge | No. PR #4 promotes `develop` to `main`; after merge, `develop` is fast-forwarded to the final `main` commit and checked with `git rev-list --left-right --count origin/develop...origin/main`. |
+| Develop synced with main after PR #4 merge | Yes. After PR #4 merged, `develop` was fast-forwarded to `main`; `git rev-list --left-right --count origin/develop...origin/main` returned `0 0`. |
 
 ## Pull Request Evidence
 
@@ -35,7 +35,8 @@ This file records real branch and pull-request evidence for the artefact branchi
 | Final hardening PR status | Merged into `develop` at `2026-05-16T14:30:31Z`; PR checks passed for CI, Data Preprocessing, Train and Evaluate, Docker Build, and Security Scan after vulnerable dependency pins were fixed. |
 | Final hardening PR merge commit | `4b5f42d6a3620db189404c5fbda5a8f7fe3f0444` |
 | Final develop-to-main PR | <https://github.com/lorcan973232/mlops-wine-quality-pipeline/pull/4> |
-| Final develop-to-main PR status | Open at the time this evidence was written; this PR completes the `feature/final-artefact-hardening -> develop -> main` promotion path. |
+| Final develop-to-main PR status | Merged into `main` at `2026-05-16T14:33:59Z`; PR checks passed for CI, Data Preprocessing, Train and Evaluate, Docker Build, and Security Scan. |
+| Final develop-to-main merge commit | `67436a01d7892b0239aedbf0200368e3455d3006` |
 | Strategy mapping | The artefact exercises `feature/* -> develop -> main`, matching the README branching strategy. |
 
 ## CI Status Recorded For PR #3
