@@ -18,6 +18,15 @@ DATA_DOI = "10.24432/C56S3T"
 DATA_LICENSE = "Creative Commons Attribution 4.0 International"
 DATA_SHA256 = "4a402cf041b025d4566d954c3b9ba8635a3a8a01e039005d97d6a710278cf05e"
 
+# ==============================================================================
+# Dataset contract
+# ==============================================================================
+#
+# The dataset is small enough for repeatable coursework runs, but the contract is
+# still explicit: source URL, expected hash, schema, target rule, and reasonable
+# feature ranges. These checks stop the pipeline from quietly training on the
+# wrong file if the local cache is changed.
+
 RAW_DATA_PATH = Path("data/raw/winequality-red.csv")
 RAW_CSV_PATH = RAW_DATA_PATH
 INGESTION_REPORT_PATH = Path("reports/metrics/data_ingestion.json")
@@ -62,7 +71,7 @@ FEATURE_RANGES: dict[str, tuple[float, float]] = {
 
 
 class DataQualityError(ValueError):
-    """Raised when dataset ingestion or validation fails."""
+    """Raised when the raw data does not match the expected coursework dataset."""
 
 
 def write_json(path: Path, payload: dict[str, Any]) -> None:
@@ -71,6 +80,7 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 
 
 def file_sha256(path: Path) -> str:
+    """Return the file hash used to prove that the raw dataset is reproducible."""
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
@@ -83,6 +93,7 @@ def download_dataset(
     force: bool = False,
     timeout: int = 30,
 ) -> dict[str, Any]:
+    """Download or reuse the raw UCI file after checking its SHA-256 hash."""
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -118,6 +129,7 @@ def download_dataset(
 
 
 def load_raw_data(path: Path = RAW_DATA_PATH) -> pd.DataFrame:
+    """Load the semicolon-delimited UCI CSV with the feature names used downstream."""
     if not Path(path).exists():
         raise FileNotFoundError(f"Raw dataset not found at {path}. Run `python -m src.data`.")
     frame = pd.read_csv(path, sep=";")
@@ -126,6 +138,7 @@ def load_raw_data(path: Path = RAW_DATA_PATH) -> pd.DataFrame:
 
 
 def validate_raw_data(frame: pd.DataFrame, min_rows: int = 1500) -> dict[str, Any]:
+    """Check schema, missing values, ranges, and target distribution before training."""
     required_columns = [*FEATURE_COLUMNS, SOURCE_TARGET_COLUMN]
     missing_columns = [column for column in required_columns if column not in frame.columns]
     if missing_columns:

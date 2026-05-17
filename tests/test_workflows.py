@@ -150,7 +150,7 @@ def test_deploy_workflow_and_kind_manifests_are_kind_only() -> None:
     assert not any(term in content for term in disallowed_cloud_terms)
 
 
-def test_workflows_reference_existing_commands_and_upload_artifacts() -> None:
+def test_workflows_reference_existing_commands_and_upload_artefacts() -> None:
     workflow_text = "\n".join(
         path.read_text(encoding="utf-8") for path in Path(".github/workflows").glob("*.yml")
     )

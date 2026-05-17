@@ -11,6 +11,14 @@ import pandas as pd
 from app.schemas import FEATURE_COLUMNS, PredictionRequestExample, validate_prediction_payload
 from src.train import MODEL_PATH
 
+# ==============================================================================
+# Local prediction helper
+# ==============================================================================
+#
+# The command-line prediction path uses the same schema validation and saved
+# model bundle as the Flask API. This keeps local smoke tests and the browser
+# demo tied to the real trained artefact instead of a separate example path.
+
 
 def _prediction_result(
     bundle: dict[str, Any],
@@ -37,9 +45,11 @@ def _prediction_result(
 
 
 def predict(payload: dict, model_path: Path = MODEL_PATH) -> list[dict[str, Any]]:
+    """Validate a payload and score it with the saved training artefact."""
+
     if not model_path.exists():
         raise FileNotFoundError(
-            f"Model artifact not found at {model_path}. Run `python -m src.train` first."
+            f"Model artefact not found at {model_path}. Run `python -m src.train` first."
         )
     bundle = joblib.load(model_path)
     if bundle.get("feature_columns") != FEATURE_COLUMNS:

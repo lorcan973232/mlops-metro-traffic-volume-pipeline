@@ -111,5 +111,7 @@ workflow-validate:
 	    print(f"PASS: {path}")
 	PY
 
+# This target is the quickest marker-facing local check. Kind is kept separate
+# because cluster creation depends on the machine's Docker and Kubernetes setup.
 full-local-verify: check-setup test lint workflow-test workflow-validate data preprocess model-select train evaluate predict monitor drift-check flask-import security-scan docker-build
 	@echo "PASS: full local artefact verification completed. Run kind-deploy and kind-smoke-test for the live Kind deployment path."

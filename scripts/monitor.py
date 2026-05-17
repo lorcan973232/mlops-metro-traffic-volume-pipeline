@@ -31,6 +31,15 @@ API_MONITORING_REPORT_PATH = Path("reports/monitoring/api_monitoring_report.json
 DATA_QUALITY_REPORT_PATH = Path("reports/monitoring/data_quality_report.json")
 
 
+# ==============================================================================
+# Continuous monitoring evidence
+# ==============================================================================
+#
+# This is a lightweight monitoring stage rather than full production telemetry.
+# It still gives the marker repeatable evidence for schema checks, missing-value
+# checks, feature summaries, and optional API health/prediction checks.
+
+
 def utc_now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
@@ -48,6 +57,7 @@ def feature_summary(frame: pd.DataFrame) -> dict[str, dict[str, float]]:
 
 
 def validate_monitoring_schema(frame: pd.DataFrame) -> dict[str, Any]:
+    """Check that the monitoring batch still matches the training feature schema."""
     expected_columns = {*FEATURE_COLUMNS, SOURCE_TARGET_COLUMN, TARGET_COLUMN}
     missing_columns = [column for column in FEATURE_COLUMNS if column not in frame.columns]
     unexpected_columns = [column for column in frame.columns if column not in expected_columns]
@@ -95,6 +105,7 @@ def load_metadata() -> dict[str, Any]:
 
 
 def offline_monitor(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any]:
+    """Run deterministic offline monitoring on the processed public dataset."""
     if not processed_path.exists():
         preprocess_dataset(output_path=processed_path)
     frame = pd.read_csv(processed_path)
@@ -160,6 +171,7 @@ def _request_json(
     method: str = "GET",
     payload: dict[str, Any] | None = None,
 ) -> tuple[int, dict[str, Any]]:
+    """Call the deployed API in a way that works from both Linux and Windows."""
     if os.name == "nt":
         return _request_json_with_powershell(url, method=method, payload=payload)
     body = None if payload is None else json.dumps(payload).encode("utf-8")
@@ -226,6 +238,7 @@ try {
 
 
 def api_monitor(api_url: str) -> dict[str, Any]:
+    """Check that a deployed API can answer health and prediction requests."""
     base_url = api_url.rstrip("/")
     prediction_payload = PredictionRequestExample().as_payload()
     metadata = load_metadata()

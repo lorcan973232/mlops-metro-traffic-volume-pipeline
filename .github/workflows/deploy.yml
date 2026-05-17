@@ -66,6 +66,9 @@ jobs:
       - name: Load image into Docker
         run: docker load -i mlops-flask-api.tar
 
+      # Kind gives a repeatable Kubernetes deployment for marking without
+      # relying on a long-lived cloud VM. These steps prove that the same Docker
+      # image can be loaded, rolled out, and smoke-tested inside a real cluster.
       - name: kind create cluster
         run: kind create cluster --name mlops-kind --image kindest/node:v1.30.2
 

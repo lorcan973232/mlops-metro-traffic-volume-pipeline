@@ -66,6 +66,9 @@ jobs:
 
       - name: Enforce CT metrics contract
         run: |
+          # CT should not silently promote a weaker model. This check reads the
+          # saved reports and fails the workflow if the candidate does not meet
+          # the documented thresholds or if required evidence is missing.
           python - <<'PY'
           import json
           from pathlib import Path

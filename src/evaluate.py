@@ -49,7 +49,18 @@ EVALUATION_COMMAND = "python -m src.evaluate"
 CLASS_NAMES = [TARGET_LABELS[0], TARGET_LABELS[1]]
 
 
+# ==============================================================================
+# Evaluation evidence
+# ==============================================================================
+#
+# The test set is held back from model selection, so these reports give the
+# fairest view of the chosen model after training. The quality gate is deliberately
+# more than a smoke test: it checks useful classification metrics and requires the
+# model to beat a simple baseline by a visible margin.
+
+
 def _positive_class_probabilities(model: Any, x_test: Any) -> np.ndarray | None:
+    """Return positive-class probabilities when the classifier supports them."""
     if not hasattr(model, "predict_proba"):
         return None
     probabilities = model.predict_proba(x_test)
@@ -89,6 +100,7 @@ def _classification_metrics(
 
 
 def _evaluate_baseline(x_train: Any, y_train: Any, x_test: Any, y_test: Any) -> dict[str, Any]:
+    """Evaluate a simple majority-class baseline for comparison with the real model."""
     baseline = DummyClassifier(strategy="most_frequent")
     baseline.fit(x_train, y_train)
     predictions = baseline.predict(x_test)
@@ -111,6 +123,7 @@ def _evaluate_baseline(x_train: Any, y_train: Any, x_test: Any, y_test: Any) -> 
 
 
 def _cross_validation_report(estimator: Any, x_train: Any, y_train: Any) -> dict[str, Any]:
+    """Run stratified cross-validation to show that results are not from one lucky split."""
     cv = StratifiedKFold(n_splits=CV_SPLITS, shuffle=True, random_state=RANDOM_STATE)
     scoring = {
         "accuracy": "accuracy",
@@ -160,6 +173,7 @@ def _quality_gate(
     baseline: dict[str, Any],
     cv_report: dict[str, Any],
 ) -> dict[str, Any]:
+    """Decide whether the trained model is good enough for CT promotion."""
     baseline_summary = baseline["metric_summary"]
     checks = {
         "accuracy_above_minimum": metrics["accuracy"] >= MIN_ACCURACY,
@@ -199,6 +213,7 @@ def evaluate_model(
     model_path: Path = MODEL_PATH,
     processed_path: Path = PROCESSED_DATA_PATH,
 ) -> dict[str, Any]:
+    """Create the metric, baseline, cross-validation, and quality-gate reports."""
     if not model_path.exists():
         train_model(processed_path=processed_path, model_path=model_path)
 
@@ -213,6 +228,8 @@ def evaluate_model(
         shuffle=True,
         stratify=y,
     )
+    # Use the same fixed split as training so evaluation can reload the saved
+    # model and still compare it against the correct held-out records.
     bundle = joblib.load(model_path)
     model = bundle["model"]
     feature_importance: dict[str, float] | None = None
@@ -252,6 +269,9 @@ def evaluate_model(
         zero_division=0,
     )
 
+    # This is a class-balance check, not a demographic fairness claim. The fuller
+    # proxy-group audit lives in scripts/fairness_audit.py because the dataset has
+    # no protected attributes.
     fairness_report: dict[str, Any] = {
         "status": "fairness_analyzed",
         "model_version": bundle.get("model_version", "unknown"),

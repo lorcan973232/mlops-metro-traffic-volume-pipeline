@@ -33,6 +33,16 @@ IGNORED_FILES = {
 }
 
 
+# ==============================================================================
+# Safe local security evidence
+# ==============================================================================
+#
+# This script gives a marker-readable security summary without committing raw
+# scanner output that might contain sensitive values. GitHub Actions runs the
+# heavier dependency and image checks; the local path still catches obvious
+# secrets, private environment files, and unprofessional internal notes.
+
+
 def _timestamp() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
@@ -108,6 +118,7 @@ def _secret_patterns() -> list[re.Pattern[str]]:
 
 
 def _run_secret_scan() -> list[str]:
+    """Search committed text files for common credential patterns."""
     findings: list[str] = []
     patterns = _secret_patterns()
     for path in _iter_text_files():
@@ -303,6 +314,7 @@ def _write_security_summary(
     audit_status: int,
     pip_audit_requested: bool,
 ) -> None:
+    """Write a safe summary that can be committed as coursework evidence."""
     checks = {
         "credential_pattern_scan": {
             "status": "PASS" if not secret_findings else "FAIL",

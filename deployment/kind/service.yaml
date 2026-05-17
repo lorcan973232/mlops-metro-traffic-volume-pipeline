@@ -6,6 +6,8 @@ metadata:
     app: mlops-flask-api
     component: prediction-api
 spec:
+  # ClusterIP is enough for Kind because the demo and workflow use port-forward
+  # to reach the service. A cloud load balancer would add unnecessary setup.
   type: ClusterIP
   selector:
     app: mlops-flask-api

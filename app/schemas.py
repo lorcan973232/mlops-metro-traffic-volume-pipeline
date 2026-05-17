@@ -38,6 +38,8 @@ FEATURE_RANGES: dict[str, tuple[float, float]] = {
     "alcohol": (8.0, 16.0),
 }
 
+# These groups are only for the browser form. They make the live demo easier to
+# explain without changing the feature order used by the trained model.
 FEATURE_GROUPS = {
     "Acidity Profile": [
         "fixed_acidity",
@@ -135,6 +137,7 @@ def ui_feature_groups() -> list[dict[str, Any]]:
 
 
 def validate_prediction_payload(payload: object) -> list[dict[str, float]]:
+    """Validate user input before it reaches the model prediction pipeline."""
     if isinstance(payload, dict) and "features" in payload:
         payload = payload["features"]
 
@@ -160,6 +163,8 @@ def validate_prediction_payload(payload: object) -> list[dict[str, float]]:
 
         clean_record: dict[str, float] = {}
         for column in FEATURE_COLUMNS:
+            # Range checks catch obvious input mistakes during the API smoke tests
+            # and live demo, while still using broad bounds from the source data.
             try:
                 value = float(record[column])
             except (TypeError, ValueError) as exc:

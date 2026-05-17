@@ -29,6 +29,16 @@ GROUP_METRICS_PATH = FAIRNESS_DIR / "group_metrics.json"
 FAIRNESS_SUMMARY_PATH = FAIRNESS_DIR / "fairness_summary.txt"
 
 
+# ==============================================================================
+# Proxy subgroup audit
+# ==============================================================================
+#
+# The wine dataset has no demographic protected attributes. This audit therefore
+# uses operational proxy groups, such as alcohol and sulphates tertiles, to show
+# how subgroup checks would be wired into the pipeline without making legal or
+# demographic fairness claims.
+
+
 def utc_now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
@@ -70,6 +80,7 @@ def _binary_rates(y_true: pd.Series, y_pred: pd.Series) -> dict[str, float]:
 
 
 def _group_metric_rows(frame: pd.DataFrame, y_true: pd.Series, y_pred: pd.Series) -> dict[str, Any]:
+    """Calculate model performance separately for the proxy feature groups."""
     grouped_reports: dict[str, Any] = {}
     grouping_columns = {
         "alcohol_tertile_proxy": _bin_feature(frame["alcohol"], ["low", "medium", "high"]),
@@ -120,6 +131,7 @@ def _disparities(group_metrics: dict[str, Any]) -> dict[str, Any]:
 
 
 def run_fairness_audit() -> dict[str, Any]:
+    """Write the proxy subgroup audit reports used in the marker evidence pack."""
     bundle = _load_bundle()
     x_test, y_test = _test_frame()
     model = bundle["model"]

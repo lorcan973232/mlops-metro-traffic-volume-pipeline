@@ -84,8 +84,17 @@ MODEL_HYPERPARAMETERS: dict[str, Any] = {
 }
 
 
+# ==============================================================================
+# Model construction
+# ==============================================================================
+#
+# Training uses a scikit-learn Pipeline so the imputer, scaler, and classifier are
+# saved together. This is important for the Flask API and Docker image because
+# prediction must use the same preprocessing steps as training.
+
+
 def selected_training_configuration() -> dict[str, Any]:
-    """Return the selected model configuration, using model-selection evidence when present."""
+    """Use saved model-selection evidence when it exists, otherwise use the default."""
     default_config = {
         "model_name": "extra_trees_default",
         "algorithm": MODEL_HYPERPARAMETERS["algorithm"],
@@ -160,6 +169,7 @@ def _selected_classifier(config: dict[str, Any]) -> Any:
 
 
 def build_pipeline() -> Pipeline:
+    """Build the preprocessing and classifier pipeline saved as the model artefact."""
     config = selected_training_configuration()
     preprocessor = ColumnTransformer(
         transformers=[
@@ -182,6 +192,7 @@ def build_pipeline() -> Pipeline:
 
 
 def load_processed_data(path: Path = PROCESSED_DATA_PATH) -> pd.DataFrame:
+    """Load processed data, creating it first so a fresh checkout can train."""
     if not path.exists():
         preprocess_dataset(output_path=path)
     return pd.read_csv(path)
@@ -191,6 +202,7 @@ def train_model(
     processed_path: Path = PROCESSED_DATA_PATH,
     model_path: Path = MODEL_PATH,
 ) -> tuple[dict[str, Any], pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+    """Train the classifier and save the model bundle used by the API and workflows."""
     data = load_processed_data(processed_path)
     x = data[FEATURE_COLUMNS]
     y = data[TARGET_COLUMN]
@@ -202,6 +214,8 @@ def train_model(
         shuffle=True,
         stratify=y,
     )
+    # The split is fixed and stratified so local runs, Docker builds, and GitHub
+    # Actions produce comparable evidence rather than a different result each time.
     pipeline = build_pipeline()
     pipeline.fit(x_train, y_train)
     selected_config = selected_training_configuration()

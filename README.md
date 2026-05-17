@@ -649,7 +649,7 @@ The current explainability evidence identifies `alcohol`, `sulphates`, `volatile
 
 The UCI wine dataset has physicochemical measurements and a quality score only; it has no demographic protected attributes. The fairness audit therefore uses clearly labelled non-sensitive proxy groups: alcohol tertiles and sulphates tertiles. These are operational subgroup checks, not protected-characteristic claims.
 
-The audit reports group counts, accuracy, precision, recall, F1, true positive rate, false positive rate, false negative rate, disparity gaps, and an equalized-odds-style gap. Current evidence shows some proxy subgroup gaps, so the responsible interpretation is that subgroup behavior should be reviewed before any real operational use.
+The audit reports group counts, accuracy, precision, recall, F1, true positive rate, false positive rate, false negative rate, disparity gaps, and an equalized-odds-style gap. Current evidence shows some proxy subgroup gaps, so the responsible interpretation is that subgroup behaviour should be reviewed before any real operational use.
 
 ### Hyperparameter Optimisation and Ensemble Modelling
 

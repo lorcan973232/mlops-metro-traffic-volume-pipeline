@@ -46,8 +46,8 @@ def test_full_pipeline_data_to_prediction_produces_identical_results() -> None:
     )
 
 
-def test_integration_pipeline_generates_all_required_artifacts() -> None:
-    """Verify the pipeline generates all required artifact JSON files."""
+def test_integration_pipeline_generates_all_required_artefact_files() -> None:
+    """Verify the pipeline creates the marker evidence files used by the README."""
     required_files = [
         "reports/metrics/latest_metrics.json",
         "reports/metrics/model_metadata.json",
@@ -57,7 +57,7 @@ def test_integration_pipeline_generates_all_required_artifacts() -> None:
     ]
 
     missing_files = [f for f in required_files if not Path(f).is_file()]
-    assert missing_files == [], f"Missing artifact files: {missing_files}"
+    assert missing_files == [], f"Missing artefact files: {missing_files}"
 
     latest = json.loads(Path("reports/metrics/latest_metrics.json").read_text(encoding="utf-8"))
     metadata = json.loads(Path("reports/metrics/model_metadata.json").read_text(encoding="utf-8"))

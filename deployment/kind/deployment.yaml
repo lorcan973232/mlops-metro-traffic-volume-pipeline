@@ -6,6 +6,8 @@ metadata:
     app: mlops-flask-api
     component: prediction-api
 spec:
+  # Three replicas make the deployment visibly resilient in the demo while still
+  # keeping the Kind cluster light enough for a coursework machine.
   replicas: 3
   strategy:
     type: RollingUpdate
@@ -31,6 +33,8 @@ spec:
           ports:
             - containerPort: 5000
               name: http
+          # The health probes use the same endpoint as the smoke tests. This
+          # catches startup and model-loading failures before traffic is sent.
           readinessProbe:
             httpGet:
               path: /health

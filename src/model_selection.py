@@ -48,7 +48,17 @@ SCORING = {
 PRIMARY_SCORING = "f1_macro"
 
 
+# ==============================================================================
+# Model selection
+# ==============================================================================
+#
+# This stage compares a baseline, tuned ExtraTrees model, and a small ensemble.
+# The final choice is saved as evidence so training does not depend on an
+# undocumented manual decision. FAST_MODE is used only to keep CI checks quick.
+
+
 def _json_ready(value: Any) -> Any:
+    """Convert NumPy and estimator values into JSON-safe report content."""
     if isinstance(value, dict):
         return {str(key): _json_ready(item) for key, item in value.items()}
     if isinstance(value, list | tuple):
@@ -94,6 +104,7 @@ def _base_extra_trees() -> Pipeline:
 
 
 def _param_grid() -> dict[str, list[Any]]:
+    """Return a small, repeatable grid that still proves hyperparameter tuning ran."""
     if FAST_MODE:
         return {
             "classifier__n_estimators": [160],
@@ -173,6 +184,7 @@ def evaluate_estimator(
     y_test: Any,
     cv: StratifiedKFold,
 ) -> dict[str, Any]:
+    """Evaluate one candidate model with CV and the fixed held-out test split."""
     cv_results = cross_validate(
         estimator,
         x_train,
@@ -207,6 +219,7 @@ def _run_grid_search(
     y_train: Any,
     cv: StratifiedKFold,
 ) -> tuple[Pipeline, dict[str, Any]]:
+    """Tune ExtraTrees with GridSearchCV and keep the full ranking as evidence."""
     search = GridSearchCV(
         estimator=_base_extra_trees(),
         param_grid=_param_grid(),
@@ -274,6 +287,7 @@ def _ensemble_from_tuned(tuned_estimator: Pipeline) -> Pipeline:
 
 
 def _select_final_model(tuned: dict[str, Any], ensemble: dict[str, Any]) -> tuple[str, str]:
+    """Prefer the simpler tuned model unless the ensemble earns its extra complexity."""
     tuned_f1 = tuned["held_out_test"]["f1_macro"]
     ensemble_f1 = ensemble["held_out_test"]["f1_macro"]
     tuned_cv_std = tuned["cross_validation"]["f1_macro"]["std"]
@@ -294,6 +308,7 @@ def _select_final_model(tuned: dict[str, Any], ensemble: dict[str, Any]) -> tupl
 
 
 def run_model_selection() -> dict[str, Any]:
+    """Run model comparison and write the evidence consumed by training."""
     data = load_processed_data()
     x = data[FEATURE_COLUMNS]
     y = data[TARGET_COLUMN]

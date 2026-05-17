@@ -20,6 +20,15 @@ DATA_QUALITY_REPORT_PATH = Path("reports/monitoring/data_quality_report.json")
 DRIFT_THRESHOLD = 0.2
 
 
+# ==============================================================================
+# Drift demonstration
+# ==============================================================================
+#
+# The current batch is the processed dataset, so it should not drift from itself.
+# A deterministic perturbed batch is also created to prove that the PSI logic can
+# raise a retraining signal when feature distributions move.
+
+
 def utc_now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
@@ -88,6 +97,7 @@ def population_stability_index(
     bins: int = 10,
     epsilon: float = 1e-6,
 ) -> float:
+    """Calculate PSI for one feature using reference quantile bins."""
     reference_values = reference.dropna().to_numpy()
     current_values = current.dropna().to_numpy()
     breakpoints = np.unique(np.quantile(reference_values, np.linspace(0, 1, bins + 1)))
@@ -105,6 +115,7 @@ def population_stability_index(
 
 
 def simulate_drift(frame: pd.DataFrame) -> pd.DataFrame:
+    """Create a repeatable shifted batch so drift detection can be demonstrated."""
     drifted = frame.copy()
     drifted["volatile_acidity"] = (drifted["volatile_acidity"] * 1.55).clip(upper=1.6)
     drifted["chlorides"] = (drifted["chlorides"] * 1.7).clip(upper=0.7)
@@ -134,6 +145,7 @@ def load_metadata() -> dict[str, Any]:
 
 
 def drift_report(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any]:
+    """Write the data-quality and drift reports used by CM and CT discussion."""
     if not processed_path.exists():
         preprocess_dataset(output_path=processed_path)
     metadata = load_metadata()

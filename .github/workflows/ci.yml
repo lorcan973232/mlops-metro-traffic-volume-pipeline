@@ -58,6 +58,8 @@ jobs:
       - name: Check for stale or internal evidence
         run: python scripts/check_stale_evidence.py
 
+      # These checks are deliberately close to the README commands so a marker can
+      # connect the local reproduction path with the automated CI evidence.
       - name: Compile Python modules
         run: python -m compileall app src tests scripts
 

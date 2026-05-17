@@ -26,15 +26,26 @@ logging.basicConfig(format="%(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+# ==============================================================================
+# Flask application
+# ==============================================================================
+#
+# The UI and API share the same `/predict` route. This matters for the live demo:
+# a prediction made through the browser is exercising the same validation and
+# model bundle as the smoke tests and Docker/Kind deployments.
+
+
 def _target_labels(bundle: dict[str, Any]) -> dict[int, str]:
     return {int(key): value for key, value in bundle.get("target_labels", TARGET_LABELS).items()}
 
 
 def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
+    """Create the Flask app, with optional model injection for tests."""
     app = Flask(__name__)
     app.config["MODEL_BUNDLE"] = model_bundle
 
     def get_model_bundle() -> dict[str, Any]:
+        """Load the model once per app instance so requests reuse the same artefact."""
         if app.config["MODEL_BUNDLE"] is None:
             app.config["MODEL_BUNDLE"] = load_model()
         return app.config["MODEL_BUNDLE"]
@@ -110,6 +121,9 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
         )
         try:
             records = validate_prediction_payload(request.get_json(force=True))
+            # Build the DataFrame with the training feature order. The schema
+            # validator has already checked names and values, but the model still
+            # expects a consistent column order.
             frame = pd.DataFrame(records, columns=FEATURE_COLUMNS)
             bundle = get_model_bundle()
             model = bundle["model"]

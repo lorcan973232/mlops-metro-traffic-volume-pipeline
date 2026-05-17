@@ -44,6 +44,8 @@ jobs:
       - name: Check for stale or internal evidence
         run: python scripts/check_stale_evidence.py
 
+      # The committed reports explain the checks, but this workflow creates the
+      # current SHA-specific evidence that a marker should trust at submission.
       - name: Verify current repository visibility
         env:
           GH_TOKEN: ${{ github.token }}

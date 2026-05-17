@@ -29,6 +29,8 @@ jobs:
           pip install -r requirements.txt
           pip install pip-audit
 
+      # The local scanner writes a safe summary for the repository. Heavier
+      # dependency and image scans are uploaded as workflow evidence afterwards.
       - name: Generate repository security evidence
         run: python scripts/security_scan.py
 

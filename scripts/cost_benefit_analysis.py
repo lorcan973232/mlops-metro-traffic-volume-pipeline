@@ -21,6 +21,15 @@ COST_BENEFIT_REPORT_PATH = BUSINESS_DIR / "cost_benefit_report.json"
 COST_BENEFIT_SUMMARY_PATH = BUSINESS_DIR / "cost_benefit_summary.txt"
 
 
+# ==============================================================================
+# Simulated decision-value check
+# ==============================================================================
+#
+# These values are not real business costs. They are included to show how model
+# errors from the confusion matrix could be translated into a decision-making
+# discussion during the live demo.
+
+
 def utc_now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
@@ -45,6 +54,7 @@ def _evaluation_data() -> tuple[Any, Any]:
 
 
 def run_cost_benefit_analysis() -> dict[str, Any]:
+    """Create a small cost-benefit report from held-out confusion-matrix counts."""
     bundle = _load_bundle()
     model = bundle["model"]
     x_test, y_test = _evaluation_data()
