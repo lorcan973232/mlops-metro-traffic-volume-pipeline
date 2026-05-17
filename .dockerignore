@@ -1,3 +1,7 @@
+# Docker builds need the application, source code, raw dataset, model, and
+# committed reports, but not local caches or generated readiness output. Keeping
+# this file explicit helps the marker see that the image is built from repository
+# artefacts rather than from hidden files on the student's machine.
 __pycache__/
 .pytest_cache/
 .ruff_cache/

@@ -1,3 +1,8 @@
+/* Optional dashboard styling for saved pipeline evidence.
+   The main assessed UI is app/templates/index.html; this stylesheet supports the
+   dashboard blueprint if it is opened to inspect metrics, latency, drift, and
+   version records from reports/ rather than from live production telemetry. */
+
 * {
     margin: 0;
     padding: 0;

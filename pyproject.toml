@@ -1,4 +1,6 @@
 [build-system]
+# The project is not packaged for release, but this minimal build metadata keeps
+# Python tooling predictable when tests or linters inspect the repository.
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
@@ -6,16 +8,22 @@ build-backend = "setuptools.build_meta"
 name = "mlops-wine-quality-pipeline"
 version = "0.1.0"
 description = "MLOps artefact for UCI red wine quality classification."
+# Python is capped below 3.13 because the committed scikit-learn model artefact
+# and pinned dependencies are validated on the supported coursework environment.
 requires-python = ">=3.11,<3.13"
 
 [tool.setuptools]
 packages = []
 
 [tool.pytest.ini_options]
+# Tests import `app` and `src` directly from the repository root, matching the
+# way GitHub Actions and local verification commands run the artefact.
 testpaths = ["tests"]
 pythonpath = ["."]
 
 [tool.ruff]
+# Ruff is used as a lightweight CI quality check, not as a formatter. The line
+# length matches the existing code style and keeps workflow failures predictable.
 line-length = 100
 target-version = "py311"
 

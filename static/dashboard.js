@@ -1,5 +1,11 @@
+// Optional dashboard client for repository evidence.
+// It fetches `/dashboard/api/metrics`, which reads saved JSON reports produced by
+// the pipeline. The charts are therefore a visual inspection aid for the marker,
+// not a claim of live production monitoring.
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Tab switching
+    // Keep all evidence views on one page so the marker can move between model
+    // metrics, SLA, drift, and version comparisons without changing routes.
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
@@ -18,12 +24,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Initialize charts
+    // Initialise the first chart set immediately; other chart sets are built
+    // lazily when their tab opens to avoid drawing into hidden canvases.
     initPerformanceCharts();
     updateTimestamp();
 });
 
 function initPerformanceCharts() {
+    // These values come from version metadata saved by the pipeline. Missing
+    // data leaves the dashboard blank rather than inventing a trend.
     fetch('/dashboard/api/metrics')
         .then(r => r.json())
         .then(data => {
@@ -45,6 +54,8 @@ function initPerformanceCharts() {
 }
 
 function initSlaChart() {
+    // SLA charts are based on `scripts/benchmark_api.py` output. They are useful
+    // after a Docker or Kind smoke test has produced a benchmark report.
     fetch('/dashboard/api/metrics')
         .then(r => r.json())
         .then(data => {
@@ -54,7 +65,8 @@ function initSlaChart() {
             const ctx = document.getElementById('latencyChart');
             if (!ctx) return;
 
-            // Destroy existing chart if any
+            // Reopening the tab should replace the old chart instead of stacking
+            // Chart.js instances on the same canvas.
             if (window.latencyChartInstance) {
                 window.latencyChartInstance.destroy();
             }
@@ -95,10 +107,12 @@ function initSlaChart() {
 }
 
 function createChart(canvasId, label, labels, data, color) {
+    // All metric charts use the same scale because these are classification
+    // scores between 0 and 1. That makes versions easier to compare visually.
     const ctx = document.getElementById(canvasId);
     if (!ctx) return;
 
-    // Destroy existing chart if any
+    // Rebuild charts safely if the user returns to a tab during the demo.
     if (window[canvasId + '_instance']) {
         window[canvasId + '_instance'].destroy();
     }
@@ -145,6 +159,8 @@ function createChart(canvasId, label, labels, data, color) {
 }
 
 function updateTimestamp() {
+    // This is the browser render time, not the model training time. Training and
+    // report timestamps remain in the JSON evidence files.
     const now = new Date().toLocaleString();
     const elem = document.getElementById('update-time');
     if (elem) {

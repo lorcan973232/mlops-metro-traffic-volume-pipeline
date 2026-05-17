@@ -9,15 +9,18 @@
 </head>
 <body>
     <div class="container">
+        <!-- This optional dashboard reads saved report files through
+             /dashboard/api/metrics. It helps the student discuss evidence during
+             a demo, but the reports remain the source of truth. -->
         <header>
             <h1>MLOps Model Performance Dashboard</h1>
-            <p class="subtitle">Real-time model metrics, SLA compliance, and drift monitoring</p>
+            <p class="subtitle">Saved model metrics, SLA checks, and drift-monitoring evidence</p>
         </header>
 
         <nav class="tabs">
             <button class="tab-btn active" data-tab="performance">Performance Trends</button>
             <button class="tab-btn" data-tab="sla">API SLA &amp; Latency</button>
-            <button class="tab-btn" data-tab="fairness">Fairness &amp; Bias</button>
+            <button class="tab-btn" data-tab="fairness">Class Balance</button>
             <button class="tab-btn" data-tab="drift">Data Drift</button>
             <button class="tab-btn" data-tab="comparison">Version Comparison</button>
         </nav>
@@ -71,6 +74,9 @@
                         <span class="value">{{ "%.2f" | format(sla_metrics.mean_ms) }} ms</span>
                     </div>
                     {% else %}
+                    <!-- Missing SLA data means the benchmark script has not run
+                         for this checkout; the dashboard should not imply a
+                         result that has not been generated. -->
                     <p>No SLA data available</p>
                     {% endif %}
                 </div>
@@ -80,7 +86,7 @@
         <div id="fairness" class="tab-content">
             <div class="chart-grid">
                 <div class="metrics-box">
-                    <h3>Fairness Metrics</h3>
+                    <h3>Class-Balance Metrics</h3>
                     {% if fairness_metrics %}
                     <div class="metric-row">
                         <span>F1 Disparity:</span>
@@ -103,6 +109,8 @@
                         <span class="value">{{ "%.4f" | format(fairness_metrics.per_class_metrics.class_1.f1) }}</span>
                     </div>
                     {% else %}
+                    <!-- The wine dataset has no protected attributes, so this
+                         view is limited to saved class-balance evidence. -->
                     <p>No fairness data available</p>
                     {% endif %}
                 </div>
@@ -135,6 +143,9 @@
                         {% endfor %}
                     </p>
                     {% else %}
+                    <!-- Monitoring is offline/simulated unless an API URL is
+                         checked by scripts/monitor.py. No data here means that
+                         report has not been generated for the current checkout. -->
                     <p>No drift data available</p>
                     {% endif %}
                 </div>

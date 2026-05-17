@@ -1,5 +1,9 @@
 # Live Demo Checklist
 
+This checklist is a guide for the recorded demonstration. It points to commands
+and reports that can be rerun; it does not claim the video has already been
+recorded or that future workflow runs will pass.
+
 1. Show the public GitHub repository and latest commit SHA.
 2. Show the latest successful Actions runs for CI, data, train/evaluate, Docker, Deploy Kind, CT, Monitoring, Tier 3 analysis, Security, Repository Visibility, and Bash Script Verification.
 3. Open `reports/submission/public_repository_evidence.json` and state that the repository must remain public until 21 June 2026.
