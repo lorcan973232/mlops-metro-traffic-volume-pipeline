@@ -8,8 +8,18 @@ from flask import Blueprint, jsonify, render_template
 dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 
 
+# ==============================================================================
+# Optional dashboard helpers
+# ==============================================================================
+#
+# These helpers read existing reports rather than recalculating metrics. They are
+# useful if the dashboard blueprint is registered later, because a marker can then
+# inspect model versions, drift, SLA, and fairness evidence from the same files
+# created by the pipeline and workflows.
+
+
 def get_version_metrics() -> list[dict]:
-    """Gather metrics from all versions for time-series visualization."""
+    """Read versioned model metrics for a dashboard time-series view."""
     from src.versioning import VERSION_MANIFEST_PATH
 
     if not VERSION_MANIFEST_PATH.exists():
@@ -34,7 +44,7 @@ def get_version_metrics() -> list[dict]:
 
 
 def get_latest_metrics() -> dict:
-    """Get latest evaluation metrics."""
+    """Read the latest evaluation report written by `python -m src.evaluate`."""
     metrics_path = Path("reports/metrics/latest_metrics.json")
     if not metrics_path.exists():
         return {}
@@ -43,7 +53,7 @@ def get_latest_metrics() -> dict:
 
 
 def get_sla_metrics() -> dict:
-    """Get latest SLA/benchmark metrics."""
+    """Read the API latency benchmark report when the benchmark script has run."""
     sla_path = Path("reports/benchmarks/api_sla_report.json")
     if not sla_path.exists():
         return {}
@@ -52,7 +62,7 @@ def get_sla_metrics() -> dict:
 
 
 def get_drift_metrics() -> dict:
-    """Get latest drift detection results."""
+    """Read the drift report produced by the monitoring stage."""
     drift_path = Path("reports/monitoring/drift_report.json")
     if not drift_path.exists():
         return {}
@@ -61,7 +71,7 @@ def get_drift_metrics() -> dict:
 
 
 def get_fairness_metrics() -> dict:
-    """Get fairness analysis results."""
+    """Read the proxy subgroup report if fairness evidence has been generated."""
     fairness_path = Path("reports/metrics/fairness_analysis.json")
     if not fairness_path.exists():
         return {}
@@ -71,7 +81,7 @@ def get_fairness_metrics() -> dict:
 
 @dashboard_bp.route("/")
 def index() -> str:
-    """Render main dashboard page."""
+    """Render the dashboard using already-generated pipeline evidence."""
     versions = get_version_metrics()
     latest_metrics = get_latest_metrics()
     sla_metrics = get_sla_metrics()
@@ -90,7 +100,7 @@ def index() -> str:
 
 @dashboard_bp.route("/api/metrics")
 def api_metrics() -> dict:
-    """Return JSON metrics for charts."""
+    """Return dashboard metrics as JSON for chart components."""
     versions = get_version_metrics()
     return jsonify(
         {
@@ -105,7 +115,7 @@ def api_metrics() -> dict:
 
 @dashboard_bp.route("/api/version/<version>")
 def api_version_detail(version: str) -> dict:
-    """Return detailed metrics for a specific version."""
+    """Return one version record from the lightweight model metadata store."""
     from src.versioning import get_version_record
 
     record = get_version_record(version)
@@ -116,5 +126,5 @@ def api_version_detail(version: str) -> dict:
 
 
 def init_app(app) -> None:
-    """Register dashboard blueprint with Flask app."""
+    """Attach the optional dashboard blueprint to a Flask app instance."""
     app.register_blueprint(dashboard_bp)

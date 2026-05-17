@@ -7,6 +7,7 @@ from src.preprocess import preprocess_frame
 
 
 def valid_raw_frame() -> pd.DataFrame:
+    """Build a repeated raw-data sample that satisfies the ingestion contract."""
     return pd.DataFrame(
         [
             {
@@ -43,6 +44,8 @@ def valid_raw_frame() -> pd.DataFrame:
 
 
 def test_raw_schema_validation_accepts_expected_wine_columns() -> None:
+    # Ingestion should fail if the public dataset shape changes. This test checks
+    # the accepted path so the expected schema is explicit and reproducible.
     report = validate_raw_data(valid_raw_frame())
     assert report["status"] == "valid"
     assert report["feature_columns"] == FEATURE_COLUMNS
@@ -52,6 +55,8 @@ def test_raw_schema_validation_accepts_expected_wine_columns() -> None:
 
 
 def test_preprocessing_derives_binary_quality_label() -> None:
+    # The assignment needs training and testing of a real model, so preprocessing
+    # must produce the exact binary target used by the classifier.
     processed = preprocess_frame(valid_raw_frame())
     assert [*FEATURE_COLUMNS, SOURCE_TARGET_COLUMN, TARGET_COLUMN] == list(processed.columns)
     assert set(processed[TARGET_COLUMN].unique()) == {0, 1}

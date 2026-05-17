@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# This script is the local Linux/Git Bash version of the Kind deployment path. It
+# builds the Docker image, loads it into Kind, applies the manifests, and then
+# tells the user exactly how to port-forward and smoke-test the API.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=env_paths.sh
 source "${SCRIPT_DIR}/env_paths.sh"
@@ -17,6 +20,8 @@ fi
 echo "Building Docker image: ${IMAGE_NAME}"
 docker build -t "${IMAGE_NAME}" .
 
+# Kind does not pull this image from a registry. Loading the local image keeps the
+# coursework deployment reproducible without needing cloud credentials.
 echo "Creating or reusing Kind cluster: ${CLUSTER_NAME}"
 KIND_CLUSTER_NAME="${CLUSTER_NAME}" bash scripts/create_kind_cluster.sh
 

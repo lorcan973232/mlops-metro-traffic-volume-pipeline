@@ -2,6 +2,10 @@ param(
     [string]$PythonBin = "python"
 )
 
+# This is the recommended Windows setup route for the marker and student. It
+# creates `.venv`, installs the pinned requirements, and checks imports so later
+# README commands do not rely on whatever packages happen to be installed on the
+# system Python.
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 

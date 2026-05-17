@@ -1,4 +1,7 @@
 (function () {
+  // The browser page is a live-demo client for the real Flask API. It uses the
+  // feature list injected by Flask so the UI cannot silently drift away from the
+  // trained model schema used by `/predict`.
   const config = window.MODEL_UI_CONFIG || {};
   const form = document.querySelector("#prediction-form");
   const useExampleButton = document.querySelector("#use-example");
@@ -20,11 +23,16 @@
   }
 
   function endpointUrl(configKey, fallbackPath) {
+    // Flask supplies route URLs for local, Docker, and Kind runs. The fallback is
+    // kept so the page remains understandable if a template value is missing.
     const configured = config[configKey] || fallbackPath;
     return new URL(configured, window.location.origin).toString();
   }
 
   async function requestJson(url, options) {
+    // The live demo should fail with a useful message if the Flask server or
+    // Kubernetes port-forward is not running, instead of leaving a silent browser
+    // error that is hard for a marker to interpret.
     let response;
     try {
       response = await fetch(url, options);
@@ -48,6 +56,9 @@
   }
 
   function collectPayload() {
+    // Collect the exact 11 numeric features expected by the model. Client-side
+    // checks help the demo user, while the Flask API still performs the final
+    // validation before prediction.
     const payload = {};
     const inputs = [...document.querySelectorAll("[data-feature-input]")];
     for (const input of inputs) {
@@ -71,6 +82,8 @@
   }
 
   function renderPrediction(data) {
+    // Show the model's returned label, confidence, and version so the demo proves
+    // the browser is calling the trained artefact rather than a static mock.
     const label = data.prediction_label || String(data.prediction);
     predictionValue.textContent = label;
     if (typeof data.confidence === "number") {
@@ -103,6 +116,8 @@
     }
 
     try {
+      // Check health first because it proves the deployed service has loaded the
+      // model before the UI sends a prediction request.
       const health = await requestJson(endpointUrl("healthUrl", "/health"), {method: "GET"});
       if (health.status !== "healthy" || health.model_loaded !== true) {
         throw new Error("Prediction API is not healthy. Check that the model is loaded.");

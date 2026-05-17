@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Bash setup mirrors the PowerShell route for Git Bash, Linux, and GitHub Actions.
+# It creates `.venv`, installs requirements, and verifies imports so later
+# commands run from a known coursework environment rather than an unknown system
+# Python.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=env_paths.sh
 source "${SCRIPT_DIR}/env_paths.sh"

@@ -13,7 +13,18 @@ REPORT_PATH = Path("reports/submission/public_repository_evidence.json")
 PUBLIC_UNTIL = "2026-06-21"
 
 
+# ==============================================================================
+# Public repository evidence
+# ==============================================================================
+#
+# The assignment requires a public personal GitHub repository until 21 June 2026.
+# This script can only prove current visibility, so it records a timestamped
+# snapshot and an explicit future-responsibility note instead of making a false
+# permanent claim.
+
+
 def run_command(args: list[str]) -> tuple[int, str, str]:
+    """Run GitHub or git commands and return a structured failure if blocked."""
     try:
         completed = subprocess.run(
             args,
@@ -29,11 +40,13 @@ def run_command(args: list[str]) -> tuple[int, str, str]:
 
 
 def current_sha() -> str:
+    """Return the commit SHA that the visibility evidence belongs to."""
     code, stdout, _ = run_command(["git", "rev-parse", "HEAD"])
     return stdout if code == 0 and stdout else "unknown"
 
 
 def detect_repository() -> tuple[str, str]:
+    """Detect the GitHub repository from Actions context or the local remote."""
     repository = os.environ.get("GITHUB_REPOSITORY", "").strip()
     if repository:
         return repository, f"https://github.com/{repository}"
@@ -55,6 +68,7 @@ def detect_repository() -> tuple[str, str]:
 
 
 def gh_visibility(repository: str) -> tuple[dict[str, Any] | None, str]:
+    """Prefer GitHub CLI visibility because it matches the student's account view."""
     fields = "nameWithOwner,url,visibility,isPrivate,defaultBranchRef"
     code, stdout, stderr = run_command(["gh", "repo", "view", repository, "--json", fields])
     if code != 0 or not stdout:
@@ -70,6 +84,7 @@ def gh_visibility(repository: str) -> tuple[dict[str, Any] | None, str]:
 
 
 def api_visibility(repository: str, repository_url: str) -> tuple[dict[str, Any] | None, str]:
+    """Fallback to the GitHub REST API for workflow or unauthenticated checks."""
     token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
     headers = {
         "Accept": "application/vnd.github+json",
@@ -95,6 +110,7 @@ def api_visibility(repository: str, repository_url: str) -> tuple[dict[str, Any]
 
 
 def build_evidence() -> dict[str, Any]:
+    """Build the public-visibility evidence JSON consumed by README and workflows."""
     repository, repository_url = detect_repository()
     payload, method = gh_visibility(repository)
     fallback_note = None
@@ -134,6 +150,7 @@ def build_evidence() -> dict[str, Any]:
 
 
 def main() -> None:
+    """Write visibility evidence and fail if the repository is not public now."""
     evidence = build_evidence()
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     REPORT_PATH.write_text(json.dumps(evidence, indent=2) + "\n", encoding="utf-8")

@@ -26,17 +26,30 @@ LOCAL_EXPLANATION_PATH = EXPLAINABILITY_DIR / "local_explanation_example.json"
 FAST_MODE = os.getenv("FAST_MODE", "0") == "1"
 
 
+# ==============================================================================
+# Explainability evidence
+# ==============================================================================
+#
+# This script is run locally or in the model-analysis workflow after a model has
+# been trained. It explains which wine features influence good-quality
+# predictions and writes JSON reports under `reports/explainability/`. SHAP is
+# used when available; permutation importance is the honest fallback so the stage
+# still produces real evidence on lighter environments.
+
+
 def utc_now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
 def _load_bundle() -> dict[str, Any]:
+    """Load the trained model bundle, training it first for a fresh checkout."""
     if not MODEL_PATH.exists():
         train_model()
     return joblib.load(MODEL_PATH)
 
 
 def _test_split() -> tuple[pd.DataFrame, pd.Series]:
+    """Recreate the held-out split so explanations use evaluation-style data."""
     data = load_processed_data(PROCESSED_DATA_PATH)
     _, x_test, _, y_test = train_test_split(
         data[FEATURE_COLUMNS],
@@ -50,6 +63,7 @@ def _test_split() -> tuple[pd.DataFrame, pd.Series]:
 
 
 def _prediction_context(model: Any, row: pd.DataFrame) -> dict[str, Any]:
+    """Attach prediction and probability context to the local explanation row."""
     prediction = int(model.predict(row)[0])
     probabilities: dict[str, float] = {}
     if hasattr(model, "predict_proba"):
@@ -68,6 +82,7 @@ def _prediction_context(model: Any, row: pd.DataFrame) -> dict[str, Any]:
 
 
 def _positive_class_shap_values(raw_values: Any, positive_class_index: int) -> np.ndarray:
+    """Normalise SHAP output shapes so the positive wine-quality class is explained."""
     if isinstance(raw_values, list):
         return np.asarray(raw_values[positive_class_index])
     values = np.asarray(raw_values)
@@ -77,6 +92,7 @@ def _positive_class_shap_values(raw_values: Any, positive_class_index: int) -> n
 
 
 def _expected_value(raw_value: Any, positive_class_index: int) -> float | list[float]:
+    """Extract the positive-class SHAP expected value when SHAP exposes one."""
     if isinstance(raw_value, list):
         return float(raw_value[positive_class_index])
     value = np.asarray(raw_value)
@@ -88,6 +104,7 @@ def _expected_value(raw_value: Any, positive_class_index: int) -> float | list[f
 
 
 def _shap_explanation(bundle: dict[str, Any], x_test: pd.DataFrame) -> dict[str, Any]:
+    """Create global and local SHAP explanations from the trained tree model."""
     import shap
 
     model = bundle["model"]
@@ -138,6 +155,7 @@ def _fallback_explanation(
     y_test: pd.Series,
     reason: str,
 ) -> dict[str, Any]:
+    """Use permutation importance when SHAP is unavailable or incompatible."""
     model = bundle["model"]
     repeats = 2 if FAST_MODE else 5
     result = permutation_importance(
@@ -182,6 +200,7 @@ def _fallback_explanation(
 
 
 def generate_explainability_reports() -> dict[str, Any]:
+    """Write explainability reports that can be opened during the live demo."""
     bundle = _load_bundle()
     x_test, y_test = _test_split()
     try:
@@ -241,6 +260,7 @@ def generate_explainability_reports() -> dict[str, Any]:
 
 
 def main() -> None:
+    """CLI entry point used by local verification and the analysis workflow."""
     print(json.dumps(generate_explainability_reports(), indent=2, sort_keys=True))
 
 

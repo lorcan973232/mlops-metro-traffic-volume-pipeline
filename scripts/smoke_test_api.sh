@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# The smoke test is the quickest proof that the deployed service is the real wine
+# classifier. It checks `/health` first, then sends a valid prediction payload to
+# the same `/predict` route used by the browser UI.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=env_paths.sh
 source "${SCRIPT_DIR}/env_paths.sh"
@@ -40,6 +43,8 @@ if payload.get("feature_count") != 11:
 print(json.dumps(payload, indent=2, sort_keys=True))
 PY
 
+# The payload uses all 11 trained features. If any name or response field drifts,
+# this script fails before the Docker or Kind evidence is accepted.
 curl -fsS "${API_URL}/predict" \
   -H "Content-Type: application/json" \
   -d '{"features":{"fixed_acidity":7.4,"volatile_acidity":0.7,"citric_acid":0.0,"residual_sugar":1.9,"chlorides":0.076,"free_sulfur_dioxide":11.0,"total_sulfur_dioxide":34.0,"density":0.9978,"ph":3.51,"sulphates":0.56,"alcohol":9.4}}' \

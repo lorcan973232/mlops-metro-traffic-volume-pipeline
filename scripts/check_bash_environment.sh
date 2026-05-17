@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Windows machines can resolve `bash` to a broken WSL install. This script records
+# which Bash is actually running and whether the shell path is suitable for the
+# repository's `.sh` scripts or should be replaced by PowerShell/Git Bash.
 echo "PASS: bash executable path: ${BASH:-unknown}"
 echo "PASS: bash version: ${BASH_VERSION:-unknown}"
 echo "PASS: uname: $(uname -a 2>/dev/null || true)"

@@ -42,6 +42,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # These reports help the student explain the model honestly in the demo:
+      # feature influence, proxy subgroup checks, and simulated cost assumptions.
       - name: Run safe model selection and evaluation path
         run: |
           python -m src.data

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Create or reuse the local Kind cluster used by the deployment workflow and live
+# demo. Keeping this separate from deploy_kind.sh lets setup checks prove the
+# cluster step independently when Docker and Kind are available.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=env_paths.sh
 source "${SCRIPT_DIR}/env_paths.sh"

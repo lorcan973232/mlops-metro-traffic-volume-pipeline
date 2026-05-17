@@ -14,6 +14,17 @@ MODEL_METADATA_PATH = Path("reports/metrics/model_metadata.json")
 MODEL_REGISTRY_HISTORY_PATH = Path("reports/model_registry/version_history.json")
 
 
+# ==============================================================================
+# Lightweight model management
+# ==============================================================================
+#
+# This is repository-based model management rather than an external registry.
+# After evaluation, the student and GitHub Actions use this file to connect the
+# accepted model, metrics, quality gate, dataset source, and feature schema. The
+# outputs are saved under `reports/` so they can be inspected in the README,
+# workflow artefacts, and live demo.
+
+
 def register_model(
     model_path: Path = MODEL_PATH,
     metrics_path: Path = METRICS_PATH,
@@ -21,6 +32,7 @@ def register_model(
     metadata_path: Path = MODEL_METADATA_PATH,
     history_path: Path = MODEL_REGISTRY_HISTORY_PATH,
 ) -> dict[str, Any]:
+    """Register the evaluated model only after metrics and gate evidence exist."""
     if not model_path.exists():
         raise FileNotFoundError(f"Model not found: {model_path}")
     if not metrics_path.exists():
@@ -36,7 +48,9 @@ def register_model(
     is_accepted = quality_gate_report["passed"]
     model_version = metrics.get("model_version", get_current_version())
 
-    # Calculate data hash for reproducibility
+    # The processed-data hash ties the model record back to the exact dataset used
+    # for training. Without this, a later run could look similar but be based on a
+    # different local CSV.
     data_hash = file_sha256(PROCESSED_DATA_PATH) if PROCESSED_DATA_PATH.exists() else "unknown"
 
     record = {
@@ -118,7 +132,8 @@ def register_model(
         "quality_gate": quality_gate_report,
     }
 
-    # Register version in semantic versioning system
+    # Only accepted models become active rollback candidates. Rejected candidates
+    # still have metrics, but they are not promoted by Continuous Training.
     if is_accepted:
         register_version(
             version=model_version,
@@ -137,6 +152,7 @@ def register_model(
 
 
 def load_model_metadata(metadata_path: Path = MODEL_METADATA_PATH) -> dict[str, Any]:
+    """Load metadata used by monitoring, readiness checks, and the demo."""
     if not metadata_path.exists():
         raise FileNotFoundError(
             f"Model metadata not found: {metadata_path}. Run `python -m src.model_registry`."
@@ -148,6 +164,7 @@ def model_registry_summary(
     registry_path: Path = MODEL_REGISTRY_PATH,
     metadata_path: Path = MODEL_METADATA_PATH,
 ) -> dict[str, Any]:
+    """Build a compact registry view for CLI output and marker inspection."""
     if not registry_path.exists():
         raise FileNotFoundError(
             f"Model registry not found: {registry_path}. Run `python -m src.model_registry`."
@@ -177,6 +194,7 @@ def model_registry_summary(
 
 
 def main() -> None:
+    """CLI entry point used locally and by GitHub Actions after evaluation."""
     register_model()
     print(json.dumps(model_registry_summary(), indent=2, sort_keys=True))
 

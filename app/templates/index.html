@@ -8,6 +8,9 @@
   </head>
   <body>
     <main class="page-shell">
+      <!-- This page is intentionally small: the marker can enter real wine
+           measurements, submit them to /predict, and see the same model response
+           that the API smoke tests validate. -->
       <section class="predictor-card" aria-labelledby="page-title">
         <header class="hero">
           <div class="icon-badge" aria-hidden="true">
@@ -32,6 +35,9 @@
         </header>
 
         <form id="prediction-form" class="prediction-form" novalidate>
+          <!-- The form fields are generated from the server-side feature groups.
+               Their names match the training schema, so the live demo sends a real
+               model payload rather than a separate browser-only example. -->
           {% for group in feature_groups %}
             <fieldset class="feature-group">
               <legend>{{ group.name }}</legend>
@@ -83,6 +89,9 @@
     </main>
 
     <script>
+      // Flask injects the model schema, example payload, model version, and route
+      // URLs here. The JavaScript then uses those values for local, Docker, and
+      // Kind demos without hard-coding a separate client contract.
       window.MODEL_UI_CONFIG = {
         expectedFeatures: {{ feature_columns | tojson }},
         examplePayload: {{ example_payload | tojson }},

@@ -7,8 +7,17 @@ from typing import Any
 VERSION_MANIFEST_PATH = Path("reports/model_registry/version_manifest.json")
 
 
+# ==============================================================================
+# Model version manifest
+# ==============================================================================
+#
+# The project does not claim to use an external model registry. This small
+# manifest records which evaluated model version is active, which versions passed
+# the quality gate, and which versions could be used as rollback candidates.
+
+
 def initialize_version_manifest() -> dict[str, Any]:
-    """Initialize version manifest if it doesn't exist."""
+    """Create or load the repository-local model version manifest."""
     if VERSION_MANIFEST_PATH.exists():
         return json.loads(VERSION_MANIFEST_PATH.read_text(encoding="utf-8"))
 
@@ -23,7 +32,7 @@ def initialize_version_manifest() -> dict[str, Any]:
 
 
 def parse_version(version_str: str) -> tuple[int, int, int]:
-    """Parse semantic version string into (major, minor, patch) tuple."""
+    """Parse `major.minor.patch` so version increments are explicit."""
     parts = version_str.split(".")
     if len(parts) != 3:
         raise ValueError(f"Invalid semantic version: {version_str}")
@@ -34,19 +43,19 @@ def parse_version(version_str: str) -> tuple[int, int, int]:
 
 
 def increment_patch_version(current_version: str) -> str:
-    """Increment patch version (e.g., 1.0.0 -> 1.0.1)."""
+    """Bump the patch number for a retrained model with the same design."""
     major, minor, patch = parse_version(current_version)
     return f"{major}.{minor}.{patch + 1}"
 
 
 def increment_minor_version(current_version: str) -> str:
-    """Increment minor version (e.g., 1.0.0 -> 1.1.0)."""
+    """Bump the minor number when model design changes are intentionally larger."""
     major, minor, patch = parse_version(current_version)
     return f"{major}.{minor + 1}.0"
 
 
 def increment_major_version(current_version: str) -> str:
-    """Increment major version (e.g., 1.0.0 -> 2.0.0)."""
+    """Bump the major number for a breaking model-management change."""
     major, minor, patch = parse_version(current_version)
     return f"{major + 1}.0.0"
 
@@ -54,7 +63,7 @@ def increment_major_version(current_version: str) -> str:
 def get_next_version(
     current_version: str, increment_type: str = "patch"
 ) -> str:
-    """Get next version based on increment type (patch/minor/major)."""
+    """Return the next semantic version requested by the retraining stage."""
     if increment_type == "patch":
         return increment_patch_version(current_version)
     elif increment_type == "minor":
@@ -66,7 +75,7 @@ def get_next_version(
 
 
 def get_current_version() -> str:
-    """Get current active version from manifest."""
+    """Read the active model version used when new metadata is registered."""
     manifest = initialize_version_manifest()
     return manifest.get("current_version", "1.0.0")
 
@@ -80,7 +89,7 @@ def register_version(
     training_timestamp: str,
     quality_gate_passed: bool,
 ) -> None:
-    """Register a new model version in the manifest."""
+    """Add a model version and promote it only if the quality gate passed."""
     manifest = initialize_version_manifest()
 
     version_record = {
@@ -118,7 +127,7 @@ def register_version(
 
 
 def get_version_record(version: str) -> dict[str, Any] | None:
-    """Get record for a specific version."""
+    """Return one version record for dashboard or rollback inspection."""
     manifest = initialize_version_manifest()
     for v in manifest.get("versions", []):
         if v["version"] == version:
@@ -127,7 +136,7 @@ def get_version_record(version: str) -> dict[str, Any] | None:
 
 
 def get_rollback_candidates() -> list[str]:
-    """Get list of versions that can be rolled back to."""
+    """List previously accepted versions that are safe rollback candidates."""
     manifest = initialize_version_manifest()
     return manifest.get("rollback_candidates", [])
 

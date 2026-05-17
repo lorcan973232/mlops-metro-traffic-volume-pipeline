@@ -40,6 +40,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # This stage proves the public data can be acquired and validated before any
+      # model is trained. The report is uploaded separately so ingestion evidence
+      # is not hidden inside the training workflow.
       - name: Generate and validate UCI Wine Quality data
         run: python -m src.data
 
@@ -67,6 +70,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # Preprocessing is run after ingestion so the marker can trace raw data into
+      # the deterministic CSV used by training, testing, Docker, and CT.
       - name: Run ingestion and preprocessing
         run: |
           python -m src.data

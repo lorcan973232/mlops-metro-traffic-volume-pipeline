@@ -32,7 +32,18 @@ EXPECTED_WORKFLOWS = {
 }
 
 
+# ==============================================================================
+# Final readiness evidence
+# ==============================================================================
+#
+# The committed README explains the artefact, but this script creates current
+# evidence for the exact checkout being assessed. It records the SHA, repository
+# visibility, expected workflow runs, and evidence-file presence under
+# `reports/final_readiness/generated/` so the marker is not relying on stale text.
+
+
 def run_command(args: list[str], timeout: int = 60) -> tuple[int, str, str]:
+    """Run a local command without crashing the readiness report on blockers."""
     try:
         completed = subprocess.run(
             args,
@@ -48,6 +59,7 @@ def run_command(args: list[str], timeout: int = 60) -> tuple[int, str, str]:
 
 
 def read_json(path: str | Path) -> dict[str, Any]:
+    """Read a JSON evidence file and report missing or invalid files clearly."""
     file_path = Path(path)
     if not file_path.is_file():
         return {"status": "missing", "path": str(file_path)}
@@ -58,16 +70,19 @@ def read_json(path: str | Path) -> dict[str, Any]:
 
 
 def latest_sha() -> str:
+    """Return the current commit SHA used to tie evidence to this checkout."""
     code, stdout, _ = run_command(["git", "rev-parse", "HEAD"])
     return stdout if code == 0 and stdout else "unknown"
 
 
 def repository_slug() -> str:
+    """Reuse the visibility evidence builder to identify the GitHub repository."""
     visibility = build_evidence()
     return visibility.get("full_name", "")
 
 
 def github_runs(repo: str) -> list[dict[str, Any]]:
+    """Fetch recent GitHub Actions runs when GitHub CLI authentication is available."""
     if not repo:
         return []
     code, stdout, _ = run_command(
@@ -92,6 +107,7 @@ def github_runs(repo: str) -> list[dict[str, Any]]:
 
 
 def workflow_summary(runs: list[dict[str, Any]], sha: str) -> dict[str, Any]:
+    """Summarise whether each expected workflow has a run for the current SHA."""
     by_workflow: dict[str, dict[str, Any]] = {}
     for run in runs:
         if run.get("headSha") != sha:
@@ -117,6 +133,7 @@ def workflow_summary(runs: list[dict[str, Any]], sha: str) -> dict[str, Any]:
 
 
 def bash_status() -> dict[str, Any]:
+    """Record whether Windows Bash is usable or correctly marked as blocked."""
     code, stdout, stderr = run_command(
         ["powershell", "-ExecutionPolicy", "Bypass", "-File", "scripts/check_bash_environment.ps1"],
         timeout=60,
@@ -133,6 +150,7 @@ def bash_status() -> dict[str, Any]:
 
 
 def command_results() -> dict[str, Any]:
+    """Summarise local evidence checks without rerunning every heavy command."""
     return {
         "generated_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
         "note": (
@@ -163,6 +181,7 @@ def command_results() -> dict[str, Any]:
 
 
 def build_report() -> dict[str, Any]:
+    """Build the SHA-specific readiness report used before submission and demo."""
     visibility = build_evidence()
     sha = latest_sha()
     repo = visibility.get("full_name", repository_slug())
@@ -232,6 +251,7 @@ def build_report() -> dict[str, Any]:
 
 
 def write_summary(report: dict[str, Any]) -> None:
+    """Write a stable human summary that points to generated current evidence."""
     lines = [
         "# Final Artefact Readiness Summary",
         "",
@@ -273,6 +293,7 @@ def write_summary(report: dict[str, Any]) -> None:
 
 
 def write_demo_checklist() -> None:
+    """Write a concise live-demo checklist without pretending the video is done."""
     DEMO_PATH.write_text(
         "\n".join(
             [
@@ -317,6 +338,7 @@ def write_demo_checklist() -> None:
 
 
 def main() -> None:
+    """Generate all final-readiness evidence files for this checkout."""
     GENERATED_DIR.mkdir(parents=True, exist_ok=True)
     report = build_report()
     runs = github_runs(report["repository"].get("full_name", ""))

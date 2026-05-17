@@ -10,9 +10,19 @@ ALERT_HISTORY_PATH = ALERTS_PATH / "alert_history.json"
 INCIDENTS_PATH = ALERTS_PATH / "incidents.json"
 
 
+# ==============================================================================
+# Lightweight alert records
+# ==============================================================================
+#
+# These rules turn monitoring, drift, fairness, and metric checks into simple
+# incident evidence. They are not connected to a real pager; they show how a
+# Continuous Monitoring stage could flag conditions that would matter before a
+# model is promoted or demonstrated.
+
+
 @dataclass
 class AlertRule:
-    """Define an alert rule that checks a metric against a threshold."""
+    """Define one threshold check that can create a marker-readable alert."""
 
     name: str
     metric_name: str
@@ -22,7 +32,8 @@ class AlertRule:
     description: str
 
 
-# Define standard alert rules
+# The thresholds are intentionally explicit so the marker can see which model or
+# service condition would trigger an incident record.
 ALERT_RULES: dict[str, AlertRule] = {
     "sla_breach": AlertRule(
         name="sla_breach",
@@ -68,7 +79,7 @@ ALERT_RULES: dict[str, AlertRule] = {
 
 
 def _evaluate_condition(value: float, threshold: float, operator: str) -> bool:
-    """Evaluate if value meets the alert condition."""
+    """Evaluate a metric against the rule operator without hidden logic."""
     if operator == "greater_than":
         return value > threshold
     elif operator == "less_than":
@@ -80,7 +91,7 @@ def _evaluate_condition(value: float, threshold: float, operator: str) -> bool:
 
 
 def check_alert_triggered(metrics: dict[str, Any], rule: AlertRule) -> bool:
-    """Check if an alert rule is triggered by the given metrics."""
+    """Check whether a report metric is present and crosses a rule threshold."""
     if rule.metric_name not in metrics:
         return False
 
@@ -91,7 +102,7 @@ def check_alert_triggered(metrics: dict[str, Any], rule: AlertRule) -> bool:
 def generate_alert(
     rule: AlertRule, metric_value: float, model_version: str, training_timestamp: str
 ) -> dict[str, Any]:
-    """Generate an alert record."""
+    """Create the JSON alert record saved by the monitoring evidence path."""
     import uuid
 
     return {
@@ -111,7 +122,7 @@ def generate_alert(
 
 
 def _get_recommended_action(rule: AlertRule) -> str:
-    """Get recommended action for an alert."""
+    """Explain what the student should inspect if the alert triggers."""
     actions = {
         "sla_breach": "Investigate API performance; profile prediction latency",
         "drift_detected": "Trigger immediate model retraining with latest data",
@@ -123,7 +134,7 @@ def _get_recommended_action(rule: AlertRule) -> str:
 
 
 def append_alert_history(alert: dict[str, Any]) -> None:
-    """Append alert to history log."""
+    """Append an alert to the repository-local history file under reports."""
     ALERTS_PATH.mkdir(parents=True, exist_ok=True)
 
     history = []
@@ -135,7 +146,7 @@ def append_alert_history(alert: dict[str, Any]) -> None:
 
 
 def get_open_incidents() -> list[dict[str, Any]]:
-    """Get list of open incidents."""
+    """Return unresolved incidents for dashboard or demo inspection."""
     if not INCIDENTS_PATH.exists():
         return []
 
@@ -144,7 +155,7 @@ def get_open_incidents() -> list[dict[str, Any]]:
 
 
 def create_incident(alert: dict[str, Any]) -> None:
-    """Create a new incident from an alert."""
+    """Convert an alert into an incident record for model-management evidence."""
     import uuid
 
     ALERTS_PATH.mkdir(parents=True, exist_ok=True)
@@ -174,6 +185,7 @@ def create_incident(alert: dict[str, Any]) -> None:
 
 
 def main() -> None:
+    """Print the alert rules so the monitoring design can be inspected quickly."""
     print("Available alert rules:")
     for rule_name, rule in ALERT_RULES.items():
         print(f"  - {rule_name}: {rule.description}")

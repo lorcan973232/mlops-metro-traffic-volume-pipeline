@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# This check is used locally and in Ubuntu GitHub Actions. It separates real
+# project failures from missing setup tools such as Docker, Kind, kubectl, or an
+# uncreated virtual environment.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=env_paths.sh
 source "${SCRIPT_DIR}/env_paths.sh"

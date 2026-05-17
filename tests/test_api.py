@@ -8,6 +8,8 @@ from app.schemas import FEATURE_COLUMNS, PredictionRequestExample
 
 
 class DummyClassifier:
+    """Small predictable model so API tests focus on schema and response contract."""
+
     classes_ = np.array([0, 1])
 
     def predict(self, frame: pd.DataFrame) -> np.ndarray:
@@ -18,6 +20,9 @@ class DummyClassifier:
 
 
 def test_api_health_and_prediction_use_wine_schema() -> None:
+    # This protects the live demo path: `/health` must prove the model is loaded,
+    # and `/predict` must return the same label/confidence fields used by the UI
+    # and deployment smoke tests.
     app = create_app(
         model_bundle={
             "model": DummyClassifier(),
@@ -49,6 +54,8 @@ def test_api_health_and_prediction_use_wine_schema() -> None:
 
 
 def test_api_rejects_missing_feature() -> None:
+    # Missing features should fail before prediction. Otherwise the model could
+    # receive shifted or incomplete input and still return a misleading answer.
     app = create_app(
         model_bundle={
             "model": DummyClassifier(),

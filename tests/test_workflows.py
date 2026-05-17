@@ -151,6 +151,9 @@ def test_deploy_workflow_and_kind_manifests_are_kind_only() -> None:
 
 
 def test_workflows_reference_existing_commands_and_upload_artefacts() -> None:
+    # Workflow files should be runnable evidence, not decorative YAML. This test
+    # checks that Actions reference real repository commands and upload marker
+    # evidence with current upload/download action versions.
     workflow_text = "\n".join(
         path.read_text(encoding="utf-8") for path in Path(".github/workflows").glob("*.yml")
     )

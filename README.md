@@ -17,6 +17,8 @@ Public GitHub repository: <https://github.com/lorcan973232/mlops-wine-quality-pi
 
 This repository is the artefact component only. It implements a reproducible MLOps pipeline around a Flask prediction service, Docker image, Kind Kubernetes deployment, GitHub Actions CI/CD/CT/CM workflows, tests, monitoring, security evidence, and traceability evidence. The repository is currently public and must remain public until 21 June 2026.
 
+It is written for two audiences: the student who needs to rerun and demonstrate the work, and the marker who needs to see real evidence rather than unsupported claims. Commands, reports, workflows, and smoke tests are kept in the repository so each pipeline stage can be inspected and repeated.
+
 | Public repository evidence | Value |
 |---|---|
 | Final GitHub URL | <https://github.com/lorcan973232/mlops-wine-quality-pipeline> |

@@ -5,9 +5,17 @@ from typing import Any
 
 from src.versioning import VERSION_MANIFEST_PATH
 
+# ==============================================================================
+# Regression checks across accepted versions
+# ==============================================================================
+#
+# Continuous Training should not only check the current model in isolation. These
+# helpers compare a candidate against recent accepted versions so a retraining run
+# can be rejected if it noticeably weakens the model evidence.
+
 
 def get_recent_versions(count: int = 5) -> list[dict[str, Any]]:
-    """Get list of last N promoted versions for comparison."""
+    """Read the most recent accepted model versions from the manifest."""
     if not VERSION_MANIFEST_PATH.exists():
         return []
 
@@ -19,10 +27,11 @@ def get_recent_versions(count: int = 5) -> list[dict[str, Any]]:
 def detect_regressions(
     current_metrics: dict[str, Any], current_version: str
 ) -> dict[str, Any]:
-    """Detect performance regressions comparing to recent versions."""
+    """Compare current metrics with recent versions and flag harmful drops."""
     recent_versions = get_recent_versions(5)
 
-    # Filter out current version from comparison
+    # The current version may already be in the manifest after registration, so
+    # exclude it before checking whether the new run is worse than prior evidence.
     comparison_versions = [v for v in recent_versions if v["version"] != current_version]
 
     if not comparison_versions:
@@ -39,7 +48,8 @@ def detect_regressions(
     for prior_version_record in comparison_versions:
         prior_metrics = prior_version_record.get("metrics", {})
 
-        # Check accuracy (can tolerate max 0.5% drop)
+        # Accuracy can move slightly between retraining runs, but a visible drop
+        # should be treated as a critical regression for this artefact.
         accuracy_delta = current_metrics.get("accuracy", 0) - prior_metrics.get(
             "accuracy", 0
         )
@@ -56,7 +66,8 @@ def detect_regressions(
                 }
             )
 
-        # Check F1 (cannot drop at all)
+        # Weighted F1 is stricter because it reflects both class labels and is the
+        # kind of metric a marker can easily compare between model versions.
         f1_delta = current_metrics.get("f1_weighted", 0) - prior_metrics.get(
             "f1_weighted", 0
         )
@@ -73,7 +84,8 @@ def detect_regressions(
                 }
             )
 
-        # Check balanced accuracy (cannot drop more than 2%)
+        # Balanced accuracy protects the minority/majority class balance better
+        # than plain accuracy, so it is allowed only a small drop.
         bal_acc_delta = current_metrics.get("balanced_accuracy", 0) - prior_metrics.get(
             "balanced_accuracy", 0
         )
@@ -90,7 +102,8 @@ def detect_regressions(
                 }
             )
 
-    # Determine overall status
+    # Only critical regressions automatically recommend rejection. Other findings
+    # are still recorded so the student can discuss them in CT evidence.
     critical_regressions = [r for r in regressions if r["severity"] == "critical"]
     overall_status = (
         "critical_regressions" if critical_regressions else "acceptable"

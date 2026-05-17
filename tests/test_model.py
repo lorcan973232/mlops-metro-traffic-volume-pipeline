@@ -8,6 +8,7 @@ from src.train import MODEL_HYPERPARAMETERS, RANDOM_STATE, TEST_SIZE, build_pipe
 
 
 def sample_training_frame() -> tuple[pd.DataFrame, np.ndarray]:
+    """Create a tiny wine-like frame so model tests run without downloading data."""
     frame = pd.DataFrame(
         [
             {
@@ -69,6 +70,8 @@ def sample_training_frame() -> tuple[pd.DataFrame, np.ndarray]:
 
 
 def test_model_pipeline_fits_and_predicts_with_selected_schema() -> None:
+    # The pipeline must accept the same feature order as training and prediction.
+    # This protects the saved model, Flask API, and Docker image from schema drift.
     frame, target = sample_training_frame()
     pipeline = build_pipeline()
     pipeline.fit(frame, target)
@@ -80,6 +83,9 @@ def test_model_pipeline_fits_and_predicts_with_selected_schema() -> None:
 
 
 def test_model_hyperparameters_are_explicit_and_reproducible() -> None:
+    # The marker should be able to see the model design without guessing from a
+    # fitted object. These checks make the key hyperparameters part of the test
+    # contract.
     classifier = MODEL_HYPERPARAMETERS["classifier"]
     split = MODEL_HYPERPARAMETERS["train_test_split"]
     preprocessing = MODEL_HYPERPARAMETERS["preprocessing"]
