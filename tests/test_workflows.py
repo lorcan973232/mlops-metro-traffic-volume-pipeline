@@ -1,3 +1,10 @@
+"""Tests that GitHub Actions files describe a runnable MLOps lifecycle.
+
+These checks do not prove the latest remote run succeeded. They protect the
+repository contract by ensuring workflows exist, parse as YAML, reference real
+commands, upload evidence, and avoid hard-coded secrets.
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -47,10 +54,12 @@ WINDOWS_SCRIPT_PATHS = [
 
 
 def load_workflow(name: str) -> dict:
+    """Load one workflow so tests inspect the same YAML committed for marking."""
     return yaml.safe_load((Path(".github/workflows") / name).read_text(encoding="utf-8"))
 
 
 def test_required_github_actions_workflows_are_present_and_valid_yaml() -> None:
+    """Check every required lifecycle workflow exists and has read-only contents permission."""
     workflow_dir = Path(".github/workflows")
     actual = {path.name for path in workflow_dir.glob("*.yml")}
     assert EXPECTED_WORKFLOWS.issubset(actual)
@@ -62,6 +71,7 @@ def test_required_github_actions_workflows_are_present_and_valid_yaml() -> None:
 
 
 def test_workflow_triggers_and_dependencies_show_lifecycle() -> None:
+    """Check workflow dependencies show CI, data, training, CT, CM, and readiness flow."""
     ci = load_workflow("ci.yml")
     assert ci["on"]["push"]["branches"] == ["main", "develop"]
     assert ci["on"]["pull_request"]["branches"] == ["main", "develop"]
@@ -135,6 +145,7 @@ def test_workflow_triggers_and_dependencies_show_lifecycle() -> None:
 
 
 def test_deploy_workflow_and_kind_manifests_are_kind_only() -> None:
+    """Check deployment evidence stays on the declared Kind Kubernetes route."""
     relevant_paths = [
         Path(".github/workflows/deploy.yml"),
         Path("deployment/kind/deployment.yaml"),
@@ -195,6 +206,7 @@ def test_workflows_reference_existing_commands_and_upload_artefacts() -> None:
 
 
 def test_workflows_do_not_hardcode_credentials() -> None:
+    """Check workflow YAML does not contain obvious credential fragments."""
     workflow_text = "\n".join(
         path.read_text(encoding="utf-8") for path in Path(".github/workflows").glob("*.yml")
     ).lower()
@@ -211,6 +223,7 @@ def test_workflows_do_not_hardcode_credentials() -> None:
 
 
 def test_docker_workflow_has_verified_dataset_build_context() -> None:
+    """Check Docker build context includes the dataset and non-root runtime user."""
     raw_dataset = Path("data/raw/winequality-red.csv")
     dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
     dockerignore = Path(".dockerignore").read_text(encoding="utf-8")
@@ -225,6 +238,7 @@ def test_docker_workflow_has_verified_dataset_build_context() -> None:
 
 
 def test_smoke_test_uses_valid_prediction_feature_names() -> None:
+    """Check API smoke tests send the real prediction schema."""
     smoke_script = Path("scripts/smoke_test_api.sh").read_text(encoding="utf-8")
     for feature_name in [
         "fixed_acidity",
@@ -243,6 +257,7 @@ def test_smoke_test_uses_valid_prediction_feature_names() -> None:
 
 
 def test_monitoring_workflow_and_scripts_emit_required_model_management_fields() -> None:
+    """Check CM workflow and scripts expose model version, drift, and retraining fields."""
     workflow = Path(".github/workflows/monitoring.yml").read_text(encoding="utf-8")
     monitor_script = Path("scripts/monitor.py").read_text(encoding="utf-8")
     drift_script = Path("scripts/check_drift.py").read_text(encoding="utf-8")
@@ -263,6 +278,7 @@ def test_monitoring_workflow_and_scripts_emit_required_model_management_fields()
 
 
 def test_quality_gate_includes_balanced_accuracy_contract() -> None:
+    """Check the CT quality gate includes balanced accuracy, not just accuracy."""
     evaluate = Path("src/evaluate.py").read_text(encoding="utf-8")
     assert "MIN_BALANCED_ACCURACY" in evaluate
     assert "balanced_accuracy_above_minimum" in evaluate

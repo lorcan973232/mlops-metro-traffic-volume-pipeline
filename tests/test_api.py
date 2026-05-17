@@ -1,3 +1,5 @@
+"""Tests for Flask health, prediction, and schema-validation behaviour."""
+
 from __future__ import annotations
 
 import numpy as np

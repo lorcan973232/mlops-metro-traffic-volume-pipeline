@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# This is the Bash one-command verification path for a local machine or Git Bash.
+# It runs the same ordered stages a marker would expect to see: compile, data,
+# preprocessing, model selection, training, evaluation, registry metadata,
+# prediction, Tier 3 evidence, monitoring, tests, lint, and Flask import. Docker
+# and Kind are separate because they depend on local container tooling.
 python -m compileall app src tests scripts
 python -m src.data
 python -m src.preprocess

@@ -1,5 +1,9 @@
 name: Final Readiness
 
+# Final Readiness is the pre-submission evidence pack. It reruns compile, tests,
+# lint, workflow validation, safe security checks, stale-evidence checks, public
+# visibility evidence, and a generated readiness report tied to the current SHA.
+
 permissions:
   contents: read
 

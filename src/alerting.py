@@ -1,3 +1,11 @@
+"""Turn saved metric and monitoring checks into simple incident records.
+
+The alerting layer is deliberately lightweight. It is not a real pager or
+production incident system; it gives the artefact a marker-readable example of
+how SLA, drift, fairness-proxy, and quality-gate failures could trigger follow-up
+records under `reports/alerts/`.
+"""
+
 from __future__ import annotations
 
 import json

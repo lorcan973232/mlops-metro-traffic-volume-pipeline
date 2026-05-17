@@ -1,5 +1,12 @@
 #!/usr/bin/env python
-"""Rollback model to a prior version."""
+"""Point lightweight registry metadata back to a prior accepted model version.
+
+This is a model-management support script for the repository-local registry. It
+does not change the trained model itself; it updates metadata so the current
+version points at an earlier quality-gate-approved record. A real deployment
+would need additional operational controls, which this coursework artefact does
+not claim to provide.
+"""
 from __future__ import annotations
 
 import json
@@ -10,11 +17,11 @@ from src.versioning import VERSION_MANIFEST_PATH, get_rollback_candidates, get_v
 
 
 def rollback_model(target_version: str) -> None:
-    """Rollback to a prior model version."""
+    """Update registry files to refer to a prior accepted rollback candidate."""
     candidates = get_rollback_candidates()
 
     if target_version not in candidates:
-        print(f"❌ Version {target_version} is not available for rollback.")
+        print(f"FAIL: Version {target_version} is not available for rollback.")
         print(f"Available versions: {', '.join(candidates)}")
         raise ValueError(f"Cannot rollback to version {target_version}")
 
@@ -22,7 +29,9 @@ def rollback_model(target_version: str) -> None:
     if not version_record:
         raise ValueError(f"Version record not found for {target_version}")
 
-    # Update model registry to point to prior version
+    # The registry record is the evidence pointer used by this artefact. Updating
+    # it is enough for this lightweight model-management scope; no external
+    # registry or cloud service is being claimed.
     registry = {
         "model_version": target_version,
         "model_path": version_record["model_path"],
@@ -41,17 +50,19 @@ def rollback_model(target_version: str) -> None:
 
     MODEL_REGISTRY_PATH.write_text(json.dumps(registry, indent=2), encoding="utf-8")
 
-    # Update version manifest to reflect rollback
+    # The manifest records the version shown as current by dashboard and metadata
+    # helpers, so it must move with the registry record.
     manifest = json.loads(VERSION_MANIFEST_PATH.read_text(encoding="utf-8"))
     manifest["current_version"] = target_version
     VERSION_MANIFEST_PATH.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
-    print(f"✓ Successfully rolled back to version {target_version}")
+    print(f"PASS: Successfully rolled back to version {target_version}")
     print(f"  Model path: {version_record['model_path']}")
     print(f"  Accuracy: {version_record['metrics']['accuracy']:.4f}")
 
 
 def main() -> None:
+    """Parse the requested target version and run the rollback update."""
     if len(sys.argv) < 2:
         candidates = get_rollback_candidates()
         print("Usage: python -m scripts.rollback_model <version>")

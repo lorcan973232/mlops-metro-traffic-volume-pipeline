@@ -1,3 +1,11 @@
+"""Compare candidate models before training records the final choice.
+
+This script runs during model-analysis, train/evaluate, CI, and Continuous
+Training. It creates evidence for the baseline, tuned ExtraTrees model, and
+soft-voting ensemble. The purpose is to show why the selected model is used,
+not to hide the choice inside a notebook or a manual decision.
+"""
+
 from __future__ import annotations
 
 import json
@@ -73,6 +81,7 @@ def _json_ready(value: Any) -> Any:
 
 
 def _preprocessor() -> ColumnTransformer:
+    """Create the same numeric preprocessing contract used by final training."""
     return ColumnTransformer(
         transformers=[
             (
@@ -92,14 +101,17 @@ def _preprocessor() -> ColumnTransformer:
 
 
 def _pipeline(model: Any) -> Pipeline:
+    """Wrap a candidate classifier in the project preprocessing pipeline."""
     return Pipeline(steps=[("preprocessor", _preprocessor()), ("classifier", model)])
 
 
 def _extra_trees_params() -> dict[str, Any]:
+    """Copy the documented ExtraTrees defaults before tuning changes them."""
     return dict(MODEL_HYPERPARAMETERS["classifier"])
 
 
 def _base_extra_trees() -> Pipeline:
+    """Build the default ExtraTrees candidate used as a non-tuned comparison."""
     return _pipeline(ExtraTreesClassifier(**_extra_trees_params()))
 
 
@@ -121,6 +133,7 @@ def _param_grid() -> dict[str, list[Any]]:
 
 
 def _summary(values: np.ndarray) -> dict[str, Any]:
+    """Summarise fold scores so stability is visible, not just the mean."""
     return {
         "per_fold": [float(value) for value in values],
         "mean": float(np.mean(values)),
@@ -129,6 +142,7 @@ def _summary(values: np.ndarray) -> dict[str, Any]:
 
 
 def _classification_metrics(y_true: Any, predictions: Any) -> dict[str, float]:
+    """Calculate held-out metrics used to compare candidates fairly."""
     precision_macro, recall_macro, f1_macro, _ = precision_recall_fscore_support(
         y_true, predictions, average="macro", zero_division=0
     )
@@ -148,6 +162,7 @@ def _classification_metrics(y_true: Any, predictions: Any) -> dict[str, float]:
 
 
 def _classifier_params(estimator: Pipeline) -> dict[str, Any]:
+    """Extract only useful classifier parameters for marker-readable JSON."""
     classifier = estimator.named_steps["classifier"]
     if isinstance(classifier, VotingClassifier):
         return {
@@ -259,6 +274,7 @@ def _run_grid_search(
 
 
 def _ensemble_from_tuned(tuned_estimator: Pipeline) -> Pipeline:
+    """Build the soft-voting ensemble from the tuned tree configuration."""
     extra_trees_params = _classifier_params(tuned_estimator)
     random_forest_params = {
         "n_estimators": 220 if not FAST_MODE else 120,
@@ -454,6 +470,7 @@ def run_model_selection() -> dict[str, Any]:
 
 
 def main() -> None:
+    """Run model selection and print the reports written under `reports/metrics/`."""
     report = run_model_selection()
     print(json.dumps(report, indent=2, sort_keys=True))
 

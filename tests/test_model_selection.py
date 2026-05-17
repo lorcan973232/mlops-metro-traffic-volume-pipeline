@@ -1,3 +1,5 @@
+"""Tests for model-selection, tuning, and ensemble evidence."""
+
 from __future__ import annotations
 
 import json
@@ -8,6 +10,7 @@ from pathlib import Path
 
 
 def test_model_selection_fast_mode_outputs_search_and_ensemble_evidence() -> None:
+    """Check FAST_MODE still writes the same model-selection evidence package."""
     env = {**os.environ, "FAST_MODE": "1"}
     search_path = Path("reports/metrics/hyperparameter_search_results.json")
     comparison_path = Path("reports/metrics/model_comparison.json")

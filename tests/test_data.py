@@ -1,3 +1,5 @@
+"""Tests for raw data validation and deterministic target creation."""
+
 from __future__ import annotations
 
 import pandas as pd

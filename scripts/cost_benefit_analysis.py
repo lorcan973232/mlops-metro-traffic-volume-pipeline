@@ -1,3 +1,10 @@
+"""Create a labelled simulated decision-value report from model errors.
+
+The values in this script are not real winery costs. They are included to show
+how a held-out confusion matrix could be discussed in practical terms during a
+demo, while keeping the assumptions plainly marked as simulated.
+"""
+
 from __future__ import annotations
 
 import json
@@ -31,16 +38,19 @@ COST_BENEFIT_SUMMARY_PATH = BUSINESS_DIR / "cost_benefit_summary.txt"
 
 
 def utc_now() -> str:
+    """Return a UTC timestamp for the business evidence report."""
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
 def _load_bundle() -> dict[str, Any]:
+    """Load the trained model bundle, training first if the artefact is missing."""
     if not MODEL_PATH.exists():
         train_model()
     return joblib.load(MODEL_PATH)
 
 
 def _evaluation_data() -> tuple[Any, Any]:
+    """Recreate the held-out data used to count model decisions."""
     data = load_processed_data(PROCESSED_DATA_PATH)
     _, x_test, _, y_test = train_test_split(
         data[FEATURE_COLUMNS],
@@ -160,6 +170,7 @@ def run_cost_benefit_analysis() -> dict[str, Any]:
 
 
 def main() -> None:
+    """Run the simulated cost-benefit analysis as a CLI evidence stage."""
     print(json.dumps(run_cost_benefit_analysis(), indent=2, sort_keys=True))
 
 

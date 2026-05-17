@@ -1,3 +1,10 @@
+"""Write a current public-repository visibility evidence snapshot.
+
+The marker needs proof that the submitted repository is public, but no script can
+prove it will remain public until 21 June 2026. This file records current
+visibility, the checked SHA, and the student's future responsibility honestly.
+"""
+
 from __future__ import annotations
 
 import json

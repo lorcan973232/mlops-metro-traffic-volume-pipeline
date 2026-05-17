@@ -4,6 +4,11 @@ This artefact uses Kind Kubernetes only for deployment evidence. It deploys the 
 prediction image `mlops-flask-api:latest`, which serves the UCI red wine quality
 classifier at `models/wine_quality_classifier.joblib`.
 
+Kind is used because the marker can reproduce it on a local Docker machine or
+inspect the GitHub Actions run without needing a persistent cloud account. The
+deployment is deliberately ephemeral: the image is built from this repository,
+loaded into the local Kind cluster, rolled out, port-forwarded, and smoke-tested.
+
 Run from the repository root:
 
 ```bash

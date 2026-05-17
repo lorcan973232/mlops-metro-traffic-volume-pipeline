@@ -1,3 +1,5 @@
+"""Tests for explainability evidence generated from the trained model."""
+
 from __future__ import annotations
 
 import json
@@ -8,6 +10,7 @@ from pathlib import Path
 
 
 def test_explainability_script_generates_model_derived_reports() -> None:
+    """Check SHAP/permutation reports are real model evidence, not static text."""
     env = {**os.environ, "FAST_MODE": "1"}
     required = [
         Path("reports/explainability/shap_summary.json"),

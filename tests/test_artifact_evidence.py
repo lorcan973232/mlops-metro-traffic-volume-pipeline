@@ -1,3 +1,5 @@
+"""Tests that committed evidence files match the README and workflow contract."""
+
 from __future__ import annotations
 
 import json
@@ -34,6 +36,7 @@ REQUIRED_WORKFLOW_FILES = [
 
 
 def test_full_metrics_and_model_management_package_is_present() -> None:
+    """Check the metric and metadata files a marker opens during review exist."""
     metrics_dir = Path("reports/metrics")
     missing_files = [name for name in REQUIRED_METRIC_FILES if not (metrics_dir / name).is_file()]
     assert missing_files == []
@@ -63,6 +66,7 @@ def test_full_metrics_and_model_management_package_is_present() -> None:
 
 
 def test_feature_importance_and_fairness_analysis_are_present() -> None:
+    """Check feature-importance and class-balance reports have useful structure."""
     metrics_dir = Path("reports/metrics")
     feature_importance_path = metrics_dir / "feature_importance.json"
     fairness_analysis_path = metrics_dir / "fairness_analysis.json"
@@ -73,7 +77,7 @@ def test_feature_importance_and_fairness_analysis_are_present() -> None:
     feature_imp = json.loads(feature_importance_path.read_text(encoding="utf-8"))
     fairness = json.loads(fairness_analysis_path.read_text(encoding="utf-8"))
 
-    # Validate feature importance structure
+    # Feature importance must be model-derived evidence, not an unsupported claim.
     assert feature_imp["status"] == "computed"
     assert feature_imp["algorithm"] == "ExtraTreesClassifier.feature_importances_"
     assert "features" in feature_imp
@@ -81,7 +85,7 @@ def test_feature_importance_and_fairness_analysis_are_present() -> None:
     assert len(feature_imp["top_3_features"]) == 3
     assert all(isinstance(f[1], float) for f in feature_imp["top_3_features"])
 
-    # Validate fairness analysis structure
+    # This legacy class-balance file should still expose both prediction classes.
     assert fairness["status"] == "fairness_analyzed"
     assert "per_class_metrics" in fairness
     assert "disparities" in fairness
@@ -98,6 +102,7 @@ def test_feature_importance_and_fairness_analysis_are_present() -> None:
 
 
 def test_readme_exposes_marker_facing_artefact_evidence() -> None:
+    """Check the README points markers to lifecycle evidence and live-demo paths."""
     readme = Path("README.md").read_text(encoding="utf-8")
 
     required_sections = [
@@ -127,6 +132,7 @@ def test_readme_exposes_marker_facing_artefact_evidence() -> None:
 
 
 def test_live_demo_scripts_cover_python_windows_docker_and_kind_paths() -> None:
+    """Check demo scripts cover local Python, Windows, Docker, and Kind routes."""
     required_scripts = [
         "scripts/run_pipeline.sh",
         "scripts/run_pipeline.ps1",
@@ -165,6 +171,7 @@ def test_live_demo_scripts_cover_python_windows_docker_and_kind_paths() -> None:
 
 
 def test_required_workflows_exist_and_upload_marker_evidence() -> None:
+    """Check expected workflow artefact names remain present in committed YAML."""
     workflow_dir = Path(".github/workflows")
     missing_workflows = [
         name for name in REQUIRED_WORKFLOW_FILES if not (workflow_dir / name).is_file()
@@ -194,6 +201,7 @@ def test_required_workflows_exist_and_upload_marker_evidence() -> None:
 
 
 def test_public_repository_submission_evidence_is_present() -> None:
+    """Check public repository evidence is present and states the required date."""
     evidence_path = Path("reports/submission/public_repository_evidence.json")
     branching_path = Path("reports/submission/branching_evidence.md")
     assert evidence_path.is_file()

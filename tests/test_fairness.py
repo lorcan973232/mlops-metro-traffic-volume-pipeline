@@ -1,3 +1,5 @@
+"""Tests for the proxy subgroup audit and its stated limitations."""
+
 from __future__ import annotations
 
 import json
@@ -7,6 +9,7 @@ from pathlib import Path
 
 
 def test_fairness_audit_generates_proxy_group_metrics() -> None:
+    """Check fairness evidence is computed and avoids protected-attribute claims."""
     subprocess.run([sys.executable, "scripts/fairness_audit.py"], check=True)
 
     report_path = Path("reports/fairness/fairness_report.json")

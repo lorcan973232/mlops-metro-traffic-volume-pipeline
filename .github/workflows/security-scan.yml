@@ -1,5 +1,10 @@
 name: Security Scan
 
+# Security Scan creates evidence for common submission risks: committed secrets,
+# dependency vulnerabilities, Docker non-root runtime, image scan output, and an
+# SBOM. The reports are current evidence for the run; they are not a permanent
+# promise that future dependencies or base images will stay CVE-free.
+
 permissions:
   contents: read
 

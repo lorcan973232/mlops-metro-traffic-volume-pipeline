@@ -5,6 +5,10 @@ param(
     [switch]$StartPortForward
 )
 
+# This is the Windows Kind deployment route. It builds the local Docker image,
+# creates or reuses the Kind cluster, loads that exact image into the cluster,
+# applies the manifests, and prints the port-forward/smoke-test commands needed
+# for the live demo.
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
@@ -34,6 +38,8 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host "Loading Docker image into Kind: $ImageName"
+# Kind uses a local image load rather than a registry pull, which keeps the demo
+# reproducible without cloud credentials or image-publishing steps.
 & kind load docker-image $ImageName --name $ClusterName
 if ($LASTEXITCODE -ne 0) {
     throw "kind load docker-image failed."

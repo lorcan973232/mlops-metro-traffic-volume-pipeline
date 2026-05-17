@@ -1,5 +1,10 @@
 name: Docker Build
 
+# Docker Build proves the Flask API and trained model can run from a packaged
+# image. It builds the image, starts the container, checks `/health`, calls
+# `/predict`, benchmarks latency, and uploads logs so Docker evidence is not a
+# manual screenshot or local-only claim.
+
 permissions:
   contents: read
 

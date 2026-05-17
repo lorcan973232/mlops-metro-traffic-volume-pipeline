@@ -1,3 +1,11 @@
+"""Record accepted model metadata for the repository-local registry.
+
+The project does not use an external registry. This module writes the model,
+metrics, quality gate, dataset, and feature-schema evidence under `reports/` so
+Continuous Training, monitoring, README tables, and the live demo all point to
+the same accepted model record.
+"""
+
 from __future__ import annotations
 
 import json

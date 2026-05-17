@@ -8,43 +8,58 @@ IMAGE_NAME ?= mlops-flask-api:latest
 KIND_CLUSTER_NAME ?= mlops-kind
 API_URL ?= http://127.0.0.1:8080
 
+# The Makefile is a convenience layer over the same scripts and Python modules
+# documented in the README. It does not add a separate workflow path; it gives
+# the student and marker short commands for setup, tests, model evidence, Docker,
+# Kind, monitoring, and security checks.
+
 .PHONY: setup setup-ps check-setup check-setup-ps test lint workflow-test data preprocess model-select train evaluate predict run-api flask-import api-smoke api-smoke-ps docker-build docker-run kind-create kind-create-ps kind-load kind-deploy kind-deploy-ps kind-smoke-test kind-smoke-test-ps monitor monitor-api drift-check security-scan workflow-validate full-local-verify
 
 setup:
+	# Bash setup is for Linux, Git Bash, and GitHub Actions routes.
 	$(BASH) scripts/setup_local.sh
 
 setup-ps:
+	# PowerShell setup is the recommended Windows route.
 	powershell -ExecutionPolicy Bypass -File scripts/setup_local.ps1
 
 check-setup:
+	# Local checks separate missing tools from project failures.
 	$(BASH) scripts/check_setup.sh
 
 check-setup-ps:
 	powershell -ExecutionPolicy Bypass -File scripts/check_setup.ps1
 
 test:
+	# Compile and pytest protect the Python, API, and evidence contracts.
 	$(PYTHON) -m compileall app src tests
 	$(PYTHON) -m pytest -q
 
 lint:
+	# Ruff catches simple Python quality issues before CI does.
 	$(PYTHON) -m ruff check src tests
 
 workflow-test:
 	$(PYTHON) -m pytest tests/test_workflows.py -q
 
 data:
+	# Ingest and validate the fixed UCI source file.
 	$(PYTHON) -m src.data
 
 preprocess:
+	# Write the deterministic processed CSV used by training and monitoring.
 	$(PYTHON) -m src.preprocess
 
 model-select:
+	# Compare baseline, tuned, and ensemble candidates before training.
 	$(PYTHON) -m src.model_selection
 
 train:
+	# Save the model bundle consumed by Flask, Docker, and Kind.
 	$(PYTHON) -m src.train
 
 evaluate:
+	# Write metrics and enforce the quality gate before registration.
 	$(PYTHON) -m src.evaluate
 	$(PYTHON) -m src.model_registry
 

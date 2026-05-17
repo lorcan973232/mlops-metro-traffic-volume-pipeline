@@ -1,3 +1,5 @@
+"""Tests for the simulated cost-benefit evidence report."""
+
 from __future__ import annotations
 
 import json
@@ -7,6 +9,7 @@ from pathlib import Path
 
 
 def test_cost_benefit_analysis_uses_labelled_simulated_assumptions() -> None:
+    """Check practical-value evidence is computed and clearly labelled simulated."""
     subprocess.run([sys.executable, "scripts/cost_benefit_analysis.py"], check=True)
 
     report_path = Path("reports/business/cost_benefit_report.json")

@@ -1,3 +1,11 @@
+"""Load the saved model bundle for Flask, tests, Docker, and Kind.
+
+This is a small file, but it protects an important contract: the serving layer
+must only use a model whose feature schema and task type match the API request
+schema. If that check were missing, a model trained on different columns could be
+served without an obvious startup failure.
+"""
+
 from __future__ import annotations
 
 import os
@@ -12,7 +20,11 @@ DEFAULT_MODEL_PATH = Path("models/wine_quality_classifier.joblib")
 
 
 def load_model(model_path: str | Path | None = None) -> dict[str, Any]:
-    """Load the saved model bundle and check it matches the API schema."""
+    """Load the saved model bundle and check it matches the API schema.
+
+    `MODEL_PATH` lets Docker or a local demo point at a different saved bundle,
+    but the schema check still has to pass before predictions are served.
+    """
     resolved_path = Path(model_path or os.getenv("MODEL_PATH", DEFAULT_MODEL_PATH))
     if not resolved_path.exists():
         raise FileNotFoundError(

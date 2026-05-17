@@ -3,6 +3,9 @@ param(
     [string]$NodeImage = $(if ($env:KIND_NODE_IMAGE) { $env:KIND_NODE_IMAGE } else { "kindest/node:v1.30.2" })
 )
 
+# Create or reuse the local Kind cluster used by deployment evidence. The checks
+# distinguish missing Docker/Kind setup from a project failure, which is helpful
+# during a live demo on a Windows machine.
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 

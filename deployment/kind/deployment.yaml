@@ -25,10 +25,17 @@ spec:
     spec:
       containers:
         - name: api
+          # The deployment script loads this local image into Kind before
+          # `kubectl apply`. `imagePullPolicy: Never` is deliberate: the cluster
+          # should use the Docker image built from this repository, not try to
+          # pull an unrelated registry image during the live demo or workflow.
           image: mlops-flask-api:latest
           imagePullPolicy: Never
           env:
             - name: MODEL_PATH
+              # Flask reads this path inside the container. It matches the model
+              # copied by the Dockerfile, so Kubernetes serving uses the same
+              # trained artefact as local and Docker smoke tests.
               value: models/wine_quality_classifier.joblib
           ports:
             - containerPort: 5000
@@ -52,6 +59,8 @@ spec:
             timeoutSeconds: 10
             failureThreshold: 6
           resources:
+            # Requests and limits keep the Kind demo predictable on a laptop or
+            # GitHub runner. They are not a claim about real production sizing.
             requests:
               cpu: 100m
               memory: 256Mi

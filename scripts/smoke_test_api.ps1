@@ -2,6 +2,10 @@ param(
     [string]$ApiUrl = "http://127.0.0.1:8080"
 )
 
+# This PowerShell smoke test is the Windows equivalent of `smoke_test_api.sh`.
+# It proves the deployed service has loaded the model through `/health`, then
+# sends a real 11-feature wine payload to `/predict` and checks the response
+# fields used by the browser UI and workflow logs.
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 

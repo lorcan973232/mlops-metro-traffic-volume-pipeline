@@ -1,3 +1,5 @@
+"""Integration tests for the end-to-end data, model, API, and evidence path."""
+
 from __future__ import annotations
 
 import json
@@ -16,7 +18,7 @@ from src.train import (
 
 
 def test_full_pipeline_data_to_prediction_produces_identical_results() -> None:
-    """Verify the full pipeline (data → preprocess → train → predict) is deterministic."""
+    """Verify the full pipeline from data through prediction is deterministic."""
     from sklearn.model_selection import train_test_split
 
     data_1 = load_processed_data()
@@ -69,7 +71,7 @@ def test_integration_pipeline_generates_all_required_artefact_files() -> None:
 
 
 def test_api_can_load_model_and_handle_predictions() -> None:
-    """Verify Flask app can load the trained model and handle predictions."""
+    """Verify Flask loads the trained artefact and handles real predictions."""
     from app.model_loader import load_model
 
     bundle = load_model()
@@ -100,7 +102,7 @@ def test_api_can_load_model_and_handle_predictions() -> None:
 
 
 def test_api_rejects_invalid_prediction_requests() -> None:
-    """Verify API validation catches invalid inputs."""
+    """Verify API validation catches invalid inputs before scoring."""
     app = create_app()
     client = app.test_client()
 

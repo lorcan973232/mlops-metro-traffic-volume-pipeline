@@ -1,5 +1,11 @@
 #!/usr/bin/env python
-"""Generate alerts based on evaluation metrics and monitoring reports."""
+"""Generate simple alert and incident records from saved reports.
+
+This script is a lightweight Continuous Monitoring support tool. It reads metric
+and drift reports already produced by the pipeline, applies the explicit rules
+from `src.alerting`, and writes repository-local alert history. It is not wired
+to a pager; it exists to show how model evidence could trigger follow-up action.
+"""
 from __future__ import annotations
 
 import json
@@ -17,7 +23,7 @@ from src.alerting import (
 def generate_alerts_from_metrics(
     metrics_path: Path = Path("reports/metrics/latest_metrics.json"),
 ) -> list[dict]:
-    """Check metrics against alert rules and generate alerts."""
+    """Check latest metrics against alert rules and create incident evidence."""
     if not metrics_path.exists():
         print(f"Metrics file not found: {metrics_path}")
         return []
@@ -52,7 +58,7 @@ def generate_alerts_from_metrics(
 def generate_alerts_from_drift(
     drift_path: Path = Path("reports/monitoring/drift_report.json"),
 ) -> list[dict]:
-    """Check drift report and generate drift alerts."""
+    """Check the drift report and create drift-related incident evidence."""
     if not drift_path.exists():
         return []
 
@@ -84,6 +90,7 @@ def generate_alerts_from_drift(
 
 
 def main() -> None:
+    """Run metric and drift alert generation from the command line."""
     print("Generating alerts from metrics...")
     alerts_from_metrics = generate_alerts_from_metrics()
 

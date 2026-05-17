@@ -1,3 +1,5 @@
+"""Tests for the training pipeline contract and reproducible hyperparameters."""
+
 from __future__ import annotations
 
 import numpy as np

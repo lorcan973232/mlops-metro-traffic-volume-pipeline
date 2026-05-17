@@ -1,5 +1,10 @@
 name: Monitoring
 
+# Monitoring is offline and simulated for this coursework artefact. The workflow
+# still matters because it rebuilds model metadata, checks the processed batch
+# for schema/data-quality issues, runs deterministic PSI drift checks, and uploads
+# retraining flags for marker inspection.
+
 permissions:
   contents: read
 

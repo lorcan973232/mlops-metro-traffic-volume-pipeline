@@ -1,3 +1,12 @@
+"""Train and save the scikit-learn model bundle used by every serving path.
+
+This module is responsible for turning the processed CSV into a saved model
+artefact. It is run locally, in GitHub Actions, during Docker image creation,
+and before Kind deployment. The saved joblib bundle contains the fitted pipeline,
+feature schema, target labels, selected hyperparameters, and metadata because the
+Flask API must not depend on unwritten training assumptions.
+"""
+
 from __future__ import annotations
 
 import json
@@ -94,7 +103,12 @@ MODEL_HYPERPARAMETERS: dict[str, Any] = {
 
 
 def selected_training_configuration() -> dict[str, Any]:
-    """Use saved model-selection evidence when it exists, otherwise use the default."""
+    """Use saved model-selection evidence when it exists, otherwise use the default.
+
+    This is the link between `src.model_selection` and training. If the search
+    report has been generated, training follows the recorded choice; otherwise a
+    documented ExtraTrees default is used so a fresh checkout still works.
+    """
     default_config = {
         "model_name": "extra_trees_default",
         "algorithm": MODEL_HYPERPARAMETERS["algorithm"],
@@ -131,6 +145,7 @@ def selected_training_configuration() -> dict[str, Any]:
 
 
 def _selected_classifier(config: dict[str, Any]) -> Any:
+    """Build the selected estimator without changing the recorded hyperparameters."""
     if config["algorithm"] == "VotingClassifier":
         voting = config["classifier"].get("voting", "soft")
         extra_trees_params = config["classifier"].get(
@@ -169,7 +184,12 @@ def _selected_classifier(config: dict[str, Any]) -> Any:
 
 
 def build_pipeline() -> Pipeline:
-    """Build the preprocessing and classifier pipeline saved as the model artefact."""
+    """Build the preprocessing and classifier pipeline saved as the model artefact.
+
+    The imputer, scaler, and classifier are saved together. That design prevents
+    the API, Docker container, or Kind deployment from applying different
+    preprocessing to the same input features.
+    """
     config = selected_training_configuration()
     preprocessor = ColumnTransformer(
         transformers=[
@@ -192,7 +212,12 @@ def build_pipeline() -> Pipeline:
 
 
 def load_processed_data(path: Path = PROCESSED_DATA_PATH) -> pd.DataFrame:
-    """Load processed data, creating it first so a fresh checkout can train."""
+    """Load processed data, creating it first so a fresh checkout can train.
+
+    This avoids a hidden setup step: if `data/processed/` is missing, the
+    reproducible preprocessing stage is run rather than expecting the marker to
+    create the CSV by hand.
+    """
     if not path.exists():
         preprocess_dataset(output_path=path)
     return pd.read_csv(path)
@@ -202,7 +227,12 @@ def train_model(
     processed_path: Path = PROCESSED_DATA_PATH,
     model_path: Path = MODEL_PATH,
 ) -> tuple[dict[str, Any], pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-    """Train the classifier and save the model bundle used by the API and workflows."""
+    """Train the classifier and save the model bundle used by the API and workflows.
+
+    The same fixed, stratified split is used wherever training runs. The function
+    writes `models/wine_quality_classifier.joblib`, then returns the split data
+    so evaluation can use the same boundary without recomputing model behaviour.
+    """
     data = load_processed_data(processed_path)
     x = data[FEATURE_COLUMNS]
     y = data[TARGET_COLUMN]
@@ -276,6 +306,7 @@ def train_model(
 
 
 def main() -> None:
+    """CLI entry point that trains the model and writes training metadata."""
     bundle, _, _, _, _ = train_model()
     report = {
         "status": "trained",

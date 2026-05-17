@@ -134,8 +134,8 @@ Metric evidence files:
 | `reports/metrics/classification_report.json` | Per-class, macro, and weighted classification report |
 | `reports/metrics/confusion_matrix.json` | Held-out confusion matrix |
 | `reports/metrics/cross_validation_results.json` | 5-fold StratifiedKFold results |
-| `reports/metrics/feature_importance.json` | **NEW**: Feature importance ranking (top-3 most predictive features) |
-| `reports/metrics/fairness_analysis.json` | **NEW**: Per-class metrics and fairness disparities (precision, recall, F1) |
+| `reports/metrics/feature_importance.json` | Feature importance ranking for the trained model |
+| `reports/metrics/fairness_analysis.json` | Per-class metric comparison for the two prediction labels |
 
 ## Model Explainability & Feature Importance
 
@@ -154,7 +154,10 @@ Example output:
 ]
 ```
 
-This helps understand which physicochemical properties drive wine quality predictions.
+This is useful in a live demo because the student can point to model-derived
+feature evidence instead of simply naming the algorithm. It should still be
+interpreted as model behaviour on this dataset, not as a scientific claim about
+all wines.
 
 ## Model Class-Balance Check
 
@@ -190,7 +193,10 @@ Example log output:
 {"event": "response_sent", "request_id": "abc12345", "status_code": 200, "latency_ms": 48.5}
 ```
 
-This enables monitoring, debugging, and request tracing.
+These logs are included because they let the student and marker connect one API
+request to validation, prediction, and response timing. They are not a full
+observability stack, but they make Docker and Kind smoke-test failures easier to
+diagnose.
 
 ## API Performance & SLA
 

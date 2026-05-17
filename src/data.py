@@ -1,3 +1,12 @@
+"""Download and validate the fixed UCI red wine dataset used by the pipeline.
+
+This module is the first stage in the artefact. It is used by the student
+locally, by GitHub Actions, by Docker build, and by later training scripts. The
+important point is not just that the CSV exists; the hash, schema, target source,
+and feature ranges are checked so every later report can be traced back to the
+same public dataset.
+"""
+
 from __future__ import annotations
 
 import hashlib
@@ -75,6 +84,7 @@ class DataQualityError(ValueError):
 
 
 def write_json(path: Path, payload: dict[str, Any]) -> None:
+    """Write evidence JSON under `reports/` so workflow outputs are inspectable."""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
@@ -93,7 +103,12 @@ def download_dataset(
     force: bool = False,
     timeout: int = 30,
 ) -> dict[str, Any]:
-    """Download or reuse the raw UCI file after checking its SHA-256 hash."""
+    """Download or reuse the raw UCI file after checking its SHA-256 hash.
+
+    The GitHub runner, Docker build, and local student machine all call this
+    path. Reusing the cached file is allowed only when the hash matches the known
+    UCI file, which avoids a hidden manual data swap changing the model.
+    """
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -129,7 +144,11 @@ def download_dataset(
 
 
 def load_raw_data(path: Path = RAW_DATA_PATH) -> pd.DataFrame:
-    """Load the semicolon-delimited UCI CSV with the feature names used downstream."""
+    """Load the semicolon-delimited UCI CSV with the feature names used downstream.
+
+    UCI publishes this file with semicolon separators. Naming the columns here
+    gives preprocessing, tests, and API schema checks one shared vocabulary.
+    """
     if not Path(path).exists():
         raise FileNotFoundError(f"Raw dataset not found at {path}. Run `python -m src.data`.")
     frame = pd.read_csv(path, sep=";")
@@ -138,7 +157,12 @@ def load_raw_data(path: Path = RAW_DATA_PATH) -> pd.DataFrame:
 
 
 def validate_raw_data(frame: pd.DataFrame, min_rows: int = 1500) -> dict[str, Any]:
-    """Check schema, missing values, ranges, and target distribution before training."""
+    """Check schema, missing values, ranges, and target distribution before training.
+
+    This validation runs before preprocessing and training. If it fails, the
+    student, marker, and CI runner know the problem is the input dataset rather
+    than a later model issue.
+    """
     required_columns = [*FEATURE_COLUMNS, SOURCE_TARGET_COLUMN]
     missing_columns = [column for column in required_columns if column not in frame.columns]
     if missing_columns:
@@ -207,6 +231,7 @@ def validate_raw_data(frame: pd.DataFrame, min_rows: int = 1500) -> dict[str, An
 
 
 def main() -> None:
+    """Create the ingestion report used by README evidence and data workflows."""
     ingestion = download_dataset()
     frame = load_raw_data()
     validation = validate_raw_data(frame)

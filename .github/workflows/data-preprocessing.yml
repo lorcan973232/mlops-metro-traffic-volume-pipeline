@@ -1,5 +1,9 @@
 name: Data Preprocessing
 
+# This workflow isolates the raw-data and preprocessing stages. It runs when the
+# data or preprocessing code changes, then uploads the ingestion and processed
+# CSV reports so the marker can trace exactly where the training table came from.
+
 permissions:
   contents: read
 

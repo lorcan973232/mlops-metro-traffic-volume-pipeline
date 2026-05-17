@@ -1,3 +1,11 @@
+"""Audit model performance across clearly labelled non-sensitive proxy groups.
+
+The UCI wine dataset has no demographic protected attributes. This script
+therefore checks alcohol and sulphates tertiles as operational subgroups only.
+It is useful for showing how subgroup monitoring could be wired into the MLOps
+pipeline, while avoiding a false legal or demographic fairness claim.
+"""
+
 from __future__ import annotations
 
 import json
@@ -40,16 +48,19 @@ FAIRNESS_SUMMARY_PATH = FAIRNESS_DIR / "fairness_summary.txt"
 
 
 def utc_now() -> str:
+    """Return a UTC timestamp for fairness reports."""
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
 def _load_bundle() -> dict[str, Any]:
+    """Load the trained model bundle, creating it first on a fresh checkout."""
     if not MODEL_PATH.exists():
         train_model()
     return joblib.load(MODEL_PATH)
 
 
 def _test_frame() -> tuple[pd.DataFrame, pd.Series]:
+    """Recreate the held-out split used for subgroup performance checks."""
     data = load_processed_data(PROCESSED_DATA_PATH)
     _, x_test, _, y_test = train_test_split(
         data[FEATURE_COLUMNS],
@@ -63,10 +74,12 @@ def _test_frame() -> tuple[pd.DataFrame, pd.Series]:
 
 
 def _bin_feature(series: pd.Series, labels: list[str]) -> pd.Series:
+    """Convert a numeric wine feature into tertile proxy groups."""
     return pd.qcut(series, q=len(labels), labels=labels, duplicates="drop").astype(str)
 
 
 def _binary_rates(y_true: pd.Series, y_pred: pd.Series) -> dict[str, float]:
+    """Calculate binary error rates used in the equalized-odds-style gap."""
     matrix = confusion_matrix(y_true, y_pred, labels=[0, 1])
     tn, fp, fn, tp = matrix.ravel()
     tpr = tp / (tp + fn) if (tp + fn) else 0.0
@@ -106,6 +119,7 @@ def _group_metric_rows(frame: pd.DataFrame, y_true: pd.Series, y_pred: pd.Series
 
 
 def _disparities(group_metrics: dict[str, Any]) -> dict[str, Any]:
+    """Measure the largest performance gaps between proxy groups."""
     report = {}
     for grouping_name, groups in group_metrics.items():
         metric_gaps = {}
@@ -201,6 +215,7 @@ def run_fairness_audit() -> dict[str, Any]:
 
 
 def main() -> None:
+    """Run the proxy subgroup audit from the command line."""
     print(json.dumps(run_fairness_audit(), indent=2, sort_keys=True))
 
 

@@ -1,3 +1,10 @@
+"""Shared prediction schema for training, tests, API validation, and the UI.
+
+Keeping feature names, broad input ranges, labels, and the example payload in
+one module reduces the risk that the browser form, CLI smoke test, and Flask API
+quietly drift away from the trained model's expected 11-column input.
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -63,6 +70,7 @@ FEATURE_GROUPS = {
 
 @dataclass(frozen=True)
 class PredictionRequestExample:
+    """Known-valid wine sample used by smoke tests and the live-demo button."""
     fixed_acidity: float = 7.4
     volatile_acidity: float = 0.70
     citric_acid: float = 0.00
@@ -76,10 +84,12 @@ class PredictionRequestExample:
     alcohol: float = 9.4
 
     def as_payload(self) -> dict[str, dict[str, float]]:
+        """Return the JSON shape expected by `/predict` and smoke tests."""
         return {"features": self.__dict__.copy()}
 
 
 def feature_label(feature_name: str) -> str:
+    """Return a human label for one schema feature in the browser form."""
     labels = {
         "fixed_acidity": "Fixed Acidity",
         "volatile_acidity": "Volatile Acidity",
@@ -97,6 +107,7 @@ def feature_label(feature_name: str) -> str:
 
 
 def feature_helper(feature_name: str) -> str:
+    """Return short field guidance for the UI without changing model inputs."""
     helpers = {
         "fixed_acidity": "Non-volatile tartaric acid concentration.",
         "volatile_acidity": "Acetic acid level; high values can reduce quality.",
@@ -114,6 +125,7 @@ def feature_helper(feature_name: str) -> str:
 
 
 def ui_feature_groups() -> list[dict[str, Any]]:
+    """Group fields for display while preserving the actual training schema."""
     example = PredictionRequestExample().__dict__
     grouped_features = []
     for group_name, features in FEATURE_GROUPS.items():
@@ -137,7 +149,13 @@ def ui_feature_groups() -> list[dict[str, Any]]:
 
 
 def validate_prediction_payload(payload: object) -> list[dict[str, float]]:
-    """Validate user input before it reaches the model prediction pipeline."""
+    """Validate user input before it reaches the model prediction pipeline.
+
+    The function accepts one record or a list of records, rejects unknown or
+    missing columns, coerces values to floats, and checks broad UCI-style ranges.
+    Flask, CLI prediction, tests, Docker, and Kind smoke tests all rely on this
+    same validation path.
+    """
     if isinstance(payload, dict) and "features" in payload:
         payload = payload["features"]
 

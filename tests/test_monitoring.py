@@ -1,3 +1,5 @@
+"""Tests for offline monitoring and deterministic drift evidence."""
+
 from __future__ import annotations
 
 import json
@@ -7,6 +9,7 @@ from pathlib import Path
 
 
 def test_monitoring_and_drift_scripts_generate_required_reports() -> None:
+    """Check CM reports contain data-quality results and retraining flags."""
     subprocess.run([sys.executable, "scripts/monitor.py"], check=True)
     subprocess.run([sys.executable, "scripts/check_drift.py"], check=True)
 

@@ -1,4 +1,10 @@
-"""API Performance Benchmark - Measure prediction latency and SLA compliance."""
+"""Measure Flask prediction latency and write an SLA evidence report.
+
+The Docker workflow and local demos use this script after the API is already
+running. It sends the same valid example payload repeatedly, records latency
+percentiles, and writes `reports/benchmarks/api_sla_report.json` so performance
+evidence is based on real requests rather than a static claim.
+"""
 from __future__ import annotations
 
 import argparse
@@ -17,7 +23,7 @@ from app.schemas import PredictionRequestExample
 
 
 def benchmark_api(api_url: str, samples: int = 100, warmup_samples: int = 10) -> dict:
-    """Benchmark API latency and compute percentiles."""
+    """Benchmark `/predict` latency and compute marker-readable percentiles."""
     example_payload = json.dumps(PredictionRequestExample().as_payload()).encode("utf-8")
     endpoint = f"{api_url}/predict"
     sla_threshold_ms = 200
@@ -89,6 +95,7 @@ def benchmark_api(api_url: str, samples: int = 100, warmup_samples: int = 10) ->
 
 
 def main() -> None:
+    """Parse CLI options, run the benchmark, and fail if the p99 SLA is missed."""
     parser = argparse.ArgumentParser(description="Benchmark Flask API latency and SLA compliance")
     parser.add_argument("api_url", help="Base URL of the API (e.g., http://127.0.0.1:5000)")
     parser.add_argument(

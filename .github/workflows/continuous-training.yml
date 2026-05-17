@@ -1,5 +1,10 @@
 name: Continuous Training
 
+# Continuous Training reruns the data, model-selection, training, evaluation,
+# explainability, fairness, and simulated business-evidence stages on a schedule
+# or manually. The quality-gate job is the important control: it rejects a
+# candidate when required checks are missing or thresholds are not met.
+
 permissions:
   contents: read
 

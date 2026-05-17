@@ -1,3 +1,12 @@
+"""Evaluate the saved classifier and enforce the coursework quality gate.
+
+This stage is used after training locally, in CI, in Continuous Training, and
+inside Docker builds. It writes the metric reports that the README, tests, model
+registry, and live demo all inspect. The quality gate is intentionally explicit:
+the model must clear several classification metrics and beat a majority-class
+baseline before it is accepted by the pipeline.
+"""
+
 from __future__ import annotations
 
 import json
@@ -60,7 +69,11 @@ CLASS_NAMES = [TARGET_LABELS[0], TARGET_LABELS[1]]
 
 
 def _positive_class_probabilities(model: Any, x_test: Any) -> np.ndarray | None:
-    """Return positive-class probabilities when the classifier supports them."""
+    """Return positive-class probabilities when the classifier supports them.
+
+    ROC AUC needs probabilities for the positive `good quality` class. Returning
+    `None` when unavailable keeps the report honest instead of inventing a score.
+    """
     if not hasattr(model, "predict_proba"):
         return None
     probabilities = model.predict_proba(x_test)
@@ -75,6 +88,7 @@ def _classification_metrics(
     predictions: Any,
     positive_probabilities: np.ndarray | None = None,
 ) -> dict[str, float | None]:
+    """Calculate the metric set used by evaluation, baseline, and CT reporting."""
     precision_macro, recall_macro, f1_macro, _ = precision_recall_fscore_support(
         y_true, predictions, average="macro", zero_division=0
     )
@@ -173,7 +187,11 @@ def _quality_gate(
     baseline: dict[str, Any],
     cv_report: dict[str, Any],
 ) -> dict[str, Any]:
-    """Decide whether the trained model is good enough for CT promotion."""
+    """Decide whether the trained model is good enough for CT promotion.
+
+    Continuous Training reads this decision. Failing fast here prevents a weaker
+    candidate model from being registered just because training completed.
+    """
     baseline_summary = baseline["metric_summary"]
     checks = {
         "accuracy_above_minimum": metrics["accuracy"] >= MIN_ACCURACY,
@@ -213,7 +231,12 @@ def evaluate_model(
     model_path: Path = MODEL_PATH,
     processed_path: Path = PROCESSED_DATA_PATH,
 ) -> dict[str, Any]:
-    """Create the metric, baseline, cross-validation, and quality-gate reports."""
+    """Create the metric, baseline, cross-validation, and quality-gate reports.
+
+    Reports are saved under `reports/metrics/` so a marker can inspect held-out
+    performance, baseline comparison, confusion matrix, feature importance, and
+    the promotion decision without rerunning the whole pipeline.
+    """
     if not model_path.exists():
         train_model(processed_path=processed_path, model_path=model_path)
 
@@ -475,6 +498,7 @@ def evaluate_model(
 
 
 def main() -> None:
+    """Run evaluation from the command line and print the full evidence payload."""
     metrics = evaluate_model()
     print(json.dumps(metrics, indent=2, sort_keys=True))
 

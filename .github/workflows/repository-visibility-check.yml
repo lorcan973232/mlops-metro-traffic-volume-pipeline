@@ -1,5 +1,9 @@
 name: Repository Visibility Check
 
+# The public-until requirement needs repeatable evidence. This workflow checks
+# the current repository visibility on a schedule or manually, then uploads a
+# timestamped snapshot without claiming future public access is already proven.
+
 permissions:
   contents: read
 

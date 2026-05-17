@@ -1,3 +1,10 @@
+"""Compare candidate metrics with recent accepted model versions.
+
+This module supports Continuous Training discussions. It gives the student a
+clear way to spot harmful drops against previous accepted versions before a
+candidate is promoted, while keeping the thresholds visible in code and reports.
+"""
+
 from __future__ import annotations
 
 import json

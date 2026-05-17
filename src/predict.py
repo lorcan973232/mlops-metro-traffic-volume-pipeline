@@ -1,3 +1,11 @@
+"""Command-line prediction helper using the same model contract as Flask.
+
+The CLI is used by smoke tests and README reproduction commands. It validates the
+payload with `app.schemas`, loads the saved joblib bundle, and returns labels,
+probabilities, confidence, target name, and model version so local predictions
+match the API response shape.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -70,6 +78,7 @@ def predict(payload: dict, model_path: Path = MODEL_PATH) -> list[dict[str, Any]
 
 
 def main() -> None:
+    """Run one prediction from supplied JSON or the shared example payload."""
     parser = argparse.ArgumentParser(description="Run one local red wine quality prediction.")
     parser.add_argument("--payload-json", default=None)
     args = parser.parse_args()

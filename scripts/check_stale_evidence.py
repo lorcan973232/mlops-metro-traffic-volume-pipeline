@@ -1,3 +1,11 @@
+"""Check that committed evidence does not contain stale or internal claims.
+
+This script is used by CI, Security Scan, and Final Readiness. It protects the
+student by failing when committed files contain internal planning language,
+hard-coded final-readiness SHAs, or visibility wording that claims future public
+access has already been proven.
+"""
+
 from __future__ import annotations
 
 import json
@@ -38,6 +46,7 @@ EXCLUDED_TEXT_SCAN_FILES = {
 
 
 def run_command(args: list[str]) -> tuple[int, str, str]:
+    """Run a git command and return stdout/stderr for evidence checks."""
     completed = subprocess.run(
         args,
         check=False,
@@ -50,6 +59,7 @@ def run_command(args: list[str]) -> tuple[int, str, str]:
 
 
 def tracked_files() -> list[Path]:
+    """List tracked files so scans focus on submitted repository content."""
     code, stdout, stderr = run_command(["git", "ls-files"])
     if code != 0:
         raise SystemExit(f"git ls-files failed: {stderr}")
@@ -57,6 +67,7 @@ def tracked_files() -> list[Path]:
 
 
 def check_internal_files(files: list[Path]) -> list[str]:
+    """Find internal planning files that should not be part of the artefact."""
     findings: list[str] = []
     for file_name in INTERNAL_FILENAMES:
         if Path(file_name).exists():
@@ -65,6 +76,7 @@ def check_internal_files(files: list[Path]) -> list[str]:
 
 
 def read_text(path: Path) -> str | None:
+    """Read text files safely while ignoring binaries and unreadable files."""
     try:
         return path.read_text(encoding="utf-8")
     except (UnicodeDecodeError, OSError):
@@ -72,6 +84,7 @@ def read_text(path: Path) -> str | None:
 
 
 def check_internal_phrases(files: list[Path]) -> list[str]:
+    """Find wording that would make the submission look like planning notes."""
     findings: list[str] = []
     for path in files:
         posix = path.as_posix()
@@ -87,6 +100,7 @@ def check_internal_phrases(files: list[Path]) -> list[str]:
 
 
 def check_final_readiness_reports() -> list[str]:
+    """Prevent committed readiness summaries from freezing old SHAs or statuses."""
     findings: list[str] = []
     sha_pattern = re.compile(r"\b[0-9a-f]{40}\b")
     report_dir = Path("reports/final_readiness")
@@ -105,6 +119,7 @@ def check_final_readiness_reports() -> list[str]:
 
 
 def check_public_visibility_snapshot() -> list[str]:
+    """Ensure visibility evidence is a current snapshot, not a future guarantee."""
     path = Path("reports/submission/public_repository_evidence.json")
     if not path.is_file():
         return [f"{path.as_posix()}: missing public repository evidence"]
@@ -125,6 +140,7 @@ def check_public_visibility_snapshot() -> list[str]:
 
 
 def main() -> None:
+    """Run all stale-evidence checks and fail with marker-readable findings."""
     files = tracked_files()
     findings = []
     findings.extend(check_internal_files(files))

@@ -1,3 +1,11 @@
+"""Generate safe security evidence for repository and workflow inspection.
+
+This local scanner is intentionally conservative. It records a dependency
+inventory, searches committed text for obvious credential patterns and internal
+notes, checks the Dockerfile ends with a non-root user, and writes a minimal SBOM.
+The GitHub Actions workflow performs the heavier pip-audit and Trivy scans.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -44,10 +52,12 @@ IGNORED_FILES = {
 
 
 def _timestamp() -> str:
+    """Return a UTC timestamp for committed security evidence files."""
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
 def _read_requirements(path: Path = Path("requirements.txt")) -> list[tuple[str, str]]:
+    """Read pinned dependencies so the inventory is tied to `requirements.txt`."""
     packages: list[tuple[str, str]] = []
     for raw_line in path.read_text(encoding="utf-8").splitlines():
         line = raw_line.strip()
@@ -62,6 +72,7 @@ def _read_requirements(path: Path = Path("requirements.txt")) -> list[tuple[str,
 
 
 def _write_dependency_inventory() -> None:
+    """Write dependency evidence without claiming a vulnerability scan was run."""
     packages = _read_requirements()
     lines = [
         "Dependency security evidence",
@@ -90,6 +101,7 @@ def _write_dependency_inventory() -> None:
 
 
 def _iter_text_files() -> list[Path]:
+    """List committed-style text candidates while avoiding caches and binaries."""
     files: list[Path] = []
     for path in Path(".").rglob("*"):
         if not path.is_file():
@@ -104,6 +116,7 @@ def _iter_text_files() -> list[Path]:
 
 
 def _secret_patterns() -> list[re.Pattern[str]]:
+    """Build credential regexes without storing live-looking secrets in source."""
     gh_prefix = "gh" + "p_"
     pat_prefix = "github" + "_pat_"
     token_words = "api[_-]?key|pass" + "word|sec" + "ret|tok" + "en"
@@ -145,6 +158,7 @@ def _run_secret_scan() -> list[str]:
 
 
 def _run_env_file_scan() -> list[str]:
+    """Find private `.env` files that should not be committed."""
     findings: list[str] = []
     for path in Path(".").rglob(".env*"):
         if any(part in IGNORED_DIRS for part in path.parts):
@@ -156,6 +170,7 @@ def _run_env_file_scan() -> list[str]:
 
 
 def _run_internal_file_scan() -> list[str]:
+    """Find internal planning wording that would weaken the submitted artefact."""
     risky_names = {
         "CLA" + "UDE.md",
         "TIER3_" + "ROADMAP.md",
@@ -191,6 +206,7 @@ def _run_internal_file_scan() -> list[str]:
 
 
 def _run_kind_reference_scan() -> list[str]:
+    """Ensure deployment evidence stays focused on Kind rather than cloud VMs."""
     findings: list[str] = []
     patterns = [
         re.compile(r"\bGoogle VM\b", re.IGNORECASE),
@@ -209,6 +225,7 @@ def _run_kind_reference_scan() -> list[str]:
 
 
 def _run_fake_success_scan() -> list[str]:
+    """Find wording that would imply checks passed without evidence."""
     findings: list[str] = []
     suspicious_patterns = [
         re.compile(r"\bfake " + r"success\b", re.IGNORECASE),
@@ -229,6 +246,7 @@ def _run_fake_success_scan() -> list[str]:
 
 
 def _docker_non_root_check() -> bool:
+    """Check the Dockerfile's final runtime user for basic hardening evidence."""
     dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
     user_lines = [
         line.strip()
@@ -239,6 +257,7 @@ def _docker_non_root_check() -> bool:
 
 
 def _write_docker_notes(non_root: bool) -> None:
+    """Write marker-readable Docker security notes under `reports/security/`."""
     status = "PASS" if non_root else "FAIL"
     DOCKER_REPORT.write_text(
         "\n".join(
@@ -264,6 +283,7 @@ def _write_docker_notes(non_root: bool) -> None:
 
 
 def _write_minimal_spdx_sbom() -> None:
+    """Create a minimal dependency SBOM when a heavier scanner is unavailable."""
     packages = _read_requirements()
     document = {
         "spdxVersion": "SPDX-2.3",
@@ -389,6 +409,7 @@ def _write_security_summary(
 
 
 def _run_optional_pip_audit() -> int:
+    """Run pip-audit when explicitly requested by the workflow or student."""
     command = [
         sys.executable,
         "-m",
@@ -405,6 +426,7 @@ def _run_optional_pip_audit() -> int:
 
 
 def main() -> None:
+    """Run the safe local security evidence checks and fail on serious findings."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--run-pip-audit",

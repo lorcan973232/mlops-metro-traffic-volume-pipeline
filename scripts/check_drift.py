@@ -1,3 +1,11 @@
+"""Create offline drift evidence using Population Stability Index.
+
+Continuous Monitoring needs a repeatable drift stage even though this student
+artefact has no live production batch. The script compares the processed dataset
+with itself, then compares it with a deterministic shifted batch. That proves
+the no-drift and drift-trigger paths without pretending to have production data.
+"""
+
 from __future__ import annotations
 
 import json
@@ -30,10 +38,12 @@ DRIFT_THRESHOLD = 0.2
 
 
 def utc_now() -> str:
+    """Return a UTC timestamp for drift and data-quality reports."""
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
 def validate_feature_schema(frame: pd.DataFrame) -> None:
+    """Fail early if a monitoring batch cannot be scored by the model schema."""
     missing_columns = [column for column in FEATURE_COLUMNS if column not in frame.columns]
     if missing_columns:
         raise ValueError(f"Drift batch missing expected feature columns: {missing_columns}")
@@ -48,6 +58,7 @@ def validate_feature_schema(frame: pd.DataFrame) -> None:
 
 
 def data_quality_checks(frame: pd.DataFrame) -> dict[str, Any]:
+    """Record schema, type, and missing-value checks for the current batch."""
     missing_columns = [column for column in FEATURE_COLUMNS if column not in frame.columns]
     non_numeric_columns = [
         column
@@ -80,6 +91,7 @@ def feature_distribution_checks(
     reference: pd.DataFrame,
     current: pd.DataFrame,
 ) -> dict[str, Any]:
+    """Compare reference and current feature summaries for monitoring evidence."""
     checks = {}
     for column in FEATURE_COLUMNS:
         checks[column] = {
@@ -125,6 +137,7 @@ def simulate_drift(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_metadata() -> dict[str, Any]:
+    """Load model metadata so drift evidence can name the model it relates to."""
     if MODEL_METADATA_PATH.exists():
         return load_model_metadata()
     return {
@@ -244,6 +257,7 @@ def drift_report(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any]:
 
 
 def main() -> None:
+    """Run the drift report and fail if the demonstration signal is absent."""
     report = drift_report()
     if not report["simulated_drift_batch"]["drift_detected"]:
         raise RuntimeError("Synthetic drift was not detected; monitoring evidence is incomplete.")

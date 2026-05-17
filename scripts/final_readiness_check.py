@@ -1,3 +1,12 @@
+"""Build the current final-readiness evidence pack for submission review.
+
+This script is run manually or by the Final Readiness workflow near submission.
+It gathers repository visibility, current SHA, recent GitHub Actions runs, core
+report presence, Docker/Kind pointers, API/UI evidence, security evidence, and
+Windows/Bash route status. Generated files are not committed because they become
+stale after the next push.
+"""
+
 from __future__ import annotations
 
 import json

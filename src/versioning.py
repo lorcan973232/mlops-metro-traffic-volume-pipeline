@@ -1,3 +1,11 @@
+"""Maintain the lightweight semantic version manifest for accepted models.
+
+Versioning in this repository is intentionally simple: accepted model versions
+are recorded in JSON under `reports/model_registry/`. The manifest gives CT,
+rollback helpers, and the optional dashboard a shared source of truth without
+claiming an external model registry.
+"""
+
 from __future__ import annotations
 
 import json

@@ -1,5 +1,10 @@
 name: Train and Evaluate
 
+# This workflow rebuilds the candidate model and all metric evidence from a
+# clean runner. It is included so training, evaluation, metadata registration,
+# explainability, fairness proxy checks, and cost-benefit evidence are tested as
+# one reproducible path before Docker or CT relies on the model.
+
 permissions:
   contents: read
 

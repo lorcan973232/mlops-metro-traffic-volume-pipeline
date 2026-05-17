@@ -1,3 +1,12 @@
+"""Generate model explainability reports for the selected classifier.
+
+This script is used by local verification and the Tier 3 model-analysis
+workflow. It explains the saved model using SHAP when available and a clearly
+labelled permutation-importance fallback otherwise. The reports are evidence
+files, not screenshots, so a marker can open the JSON and see which features
+influenced global and local predictions.
+"""
+
 from __future__ import annotations
 
 import json
@@ -38,6 +47,7 @@ FAST_MODE = os.getenv("FAST_MODE", "0") == "1"
 
 
 def utc_now() -> str:
+    """Return a UTC timestamp for generated explainability reports."""
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 

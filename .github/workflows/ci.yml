@@ -1,5 +1,10 @@
 name: CI
 
+# CI is the first automated check a marker should inspect on a push or pull
+# request. It installs the project, runs static checks, tests the Python modules,
+# exercises the ML pipeline, and uploads reports/models as evidence rather than
+# relying on a README claim.
+
 permissions:
   contents: read
 

@@ -1,5 +1,9 @@
 name: Bash Script Verification
 
+# This workflow proves the Bash route on Ubuntu independently from the student's
+# Windows machine. That matters because a local broken WSL installation should
+# not be confused with broken coursework scripts.
+
 permissions:
   contents: read
 

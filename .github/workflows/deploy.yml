@@ -1,5 +1,9 @@
 name: Deploy Kind
 
+# Deploy Kind is the CD evidence for this artefact. It builds the same Docker
+# image, loads it into an ephemeral Kind cluster, applies the Kubernetes
+# manifests, waits for rollout, and smoke-tests the service through port-forward.
+
 permissions:
   contents: read
 

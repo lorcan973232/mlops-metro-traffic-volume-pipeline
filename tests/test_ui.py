@@ -1,3 +1,5 @@
+"""Tests for the browser demo surface and its API contract."""
+
 from __future__ import annotations
 
 from pathlib import Path

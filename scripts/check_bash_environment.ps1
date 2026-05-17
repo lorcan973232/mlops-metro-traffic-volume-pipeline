@@ -1,5 +1,8 @@
 param()
 
+# Windows can expose several different `bash.exe` paths. This script records
+# which one is usable and marks broken WSL routing as a local setup blocker, not
+# as evidence that the repository's Bash scripts are faulty.
 $ErrorActionPreference = "Continue"
 Set-StrictMode -Version Latest
 

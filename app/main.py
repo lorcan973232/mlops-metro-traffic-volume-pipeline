@@ -1,3 +1,12 @@
+"""Flask API and browser UI entry point for the trained wine-quality model.
+
+The app is used locally, inside Docker, and inside the Kind deployment. Tests can
+inject a model bundle, but normal runs load the same saved artefact produced by
+`src.train`. The route design is intentionally small: `/health` proves the model
+is loaded, `/predict` validates and scores real feature payloads, and `/` serves
+the live-demo form that calls the same API.
+"""
+
 from __future__ import annotations
 
 import json
@@ -36,6 +45,7 @@ logger = logging.getLogger(__name__)
 
 
 def _target_labels(bundle: dict[str, Any]) -> dict[int, str]:
+    """Normalise saved target-label keys so JSON and joblib metadata agree."""
     return {int(key): value for key, value in bundle.get("target_labels", TARGET_LABELS).items()}
 
 

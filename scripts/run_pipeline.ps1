@@ -2,6 +2,10 @@ param(
     [string]$PythonBin = ""
 )
 
+# This is the Windows one-command verification path. It uses the selected Python
+# interpreter, runs each coursework stage in order, and stops at the first
+# failure so the student or marker can see exactly which part of the artefact
+# needs attention.
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
@@ -18,6 +22,8 @@ if (-not $PythonBin) {
 }
 
 function Invoke-Stage {
+    # The stage wrapper keeps command output readable during a live demo and
+    # avoids hiding a failed Python command behind later successful stages.
     param(
         [string]$Name,
         [string[]]$Arguments

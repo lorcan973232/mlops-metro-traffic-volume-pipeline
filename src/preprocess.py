@@ -1,3 +1,12 @@
+"""Create the deterministic model-ready dataset from the validated raw CSV.
+
+Preprocessing is deliberately small for this dataset: the raw physicochemical
+features are kept, the source `quality` score is retained for traceability, and
+the binary `quality_label` target is added. This stage matters because training,
+testing, Docker, Kind, Continuous Training, and monitoring must all start from
+the same processed table rather than separate hand-made inputs.
+"""
+
 from __future__ import annotations
 
 import json
@@ -24,7 +33,12 @@ PREPROCESS_REPORT_PATH = Path("reports/metrics/preprocessing.json")
 
 
 def preprocess_frame(raw_frame: pd.DataFrame) -> pd.DataFrame:
-    """Create the deterministic training table used by training, Docker, and CT."""
+    """Create the deterministic training table used by training, Docker, and CT.
+
+    The caller supplies a raw UCI-style frame. The returned frame keeps the
+    training features in schema order and adds the binary target, so the next
+    stage can split and train without guessing how the label was produced.
+    """
     validate_raw_data(raw_frame)
     # Keep the original numeric quality score for traceability, then add the
     # binary label used by the classifier. The threshold is documented so the
@@ -40,7 +54,11 @@ def preprocess_dataset(
     raw_path: Path = RAW_DATA_PATH,
     output_path: Path = PROCESSED_DATA_PATH,
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
-    """Write the processed CSV and a short report so preprocessing is auditable."""
+    """Write the processed CSV and a short report so preprocessing is auditable.
+
+    The processed CSV is saved under `data/processed/` and the explanation of
+    the transformation is returned for `reports/metrics/preprocessing.json`.
+    """
     if not raw_path.exists():
         download_dataset(raw_path)
     processed = preprocess_frame(load_raw_data(raw_path))
@@ -70,6 +88,7 @@ def preprocess_dataset(
 
 
 def main() -> None:
+    """Run preprocessing as a CLI stage for local use and GitHub Actions."""
     _, report = preprocess_dataset()
     write_json(PREPROCESS_REPORT_PATH, report)
     print(json.dumps(report, indent=2, sort_keys=True))

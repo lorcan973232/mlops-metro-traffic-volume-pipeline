@@ -1,3 +1,12 @@
+"""Generate repeatable monitoring evidence for the coursework artefact.
+
+The project has no live production telemetry, so this script is honest about its
+scope. It runs offline data-quality checks on the processed public dataset and,
+when an API URL is provided, checks the deployed Flask service through `/health`
+and `/predict`. Outputs are written under `reports/monitoring/` for GitHub
+Actions, the README, and the live demo.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -41,10 +50,12 @@ DATA_QUALITY_REPORT_PATH = Path("reports/monitoring/data_quality_report.json")
 
 
 def utc_now() -> str:
+    """Return a UTC timestamp so monitoring reports can be compared by run."""
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
 def feature_summary(frame: pd.DataFrame) -> dict[str, dict[str, float]]:
+    """Summarise each model feature for marker-readable data-quality evidence."""
     return {
         column: {
             "min": float(frame[column].min()),
@@ -91,6 +102,7 @@ def validate_monitoring_schema(frame: pd.DataFrame) -> dict[str, Any]:
 
 
 def load_metadata() -> dict[str, Any]:
+    """Load model metadata, or return an explicit unavailable state for fresh runs."""
     if MODEL_METADATA_PATH.exists():
         return load_model_metadata()
     return {
@@ -298,12 +310,14 @@ def api_monitor(api_url: str) -> dict[str, Any]:
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse the optional API URL used for Docker or Kind monitoring checks."""
     parser = argparse.ArgumentParser(description="Run offline and optional API-aware monitoring.")
     parser.add_argument("--api-url", default=None, help="Optional deployed API base URL.")
     return parser.parse_args()
 
 
 def main() -> None:
+    """Run offline monitoring and optional API-aware monitoring from the CLI."""
     args = parse_args()
     report = offline_monitor()
     if args.api_url:
