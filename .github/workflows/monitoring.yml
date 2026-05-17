@@ -18,6 +18,8 @@ jobs:
     name: Prepare model metadata for monitoring context
     runs-on: ubuntu-latest
     steps:
+      # Monitoring needs model metadata before it can write useful reports. This
+      # job rebuilds the normal data, training, and evaluation path first.
       - name: Checkout
         uses: actions/checkout@v6.0.2
 
@@ -50,6 +52,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: prepare-model-metadata
     steps:
+      # This job is the scheduled monitoring evidence. It checks the processed
+      # dataset and drift logic, then uploads reports for review.
       - name: Checkout
         uses: actions/checkout@v6.0.2
 

@@ -10,6 +10,8 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $health = Invoke-RestMethod -Uri "$ApiUrl/health" -Method Get -TimeoutSec 10
+# `/health` must prove that the model is loaded, not just that Flask is running.
+# Without this, Docker or Kind could appear healthy while prediction would fail.
 if ($health.status -ne "healthy" -or $health.model_loaded -ne $true) {
     throw "Invalid health response: $($health | ConvertTo-Json -Depth 10)"
 }
@@ -24,6 +26,8 @@ if ($health.feature_count -ne 11) {
 }
 $health | ConvertTo-Json -Depth 10
 
+# Use the same feature values as the browser example. This links the smoke test,
+# UI demo, and model schema to one shared prediction contract.
 $payload = @{
     features = @{
         fixed_acidity = 7.4
@@ -47,6 +51,9 @@ $prediction = Invoke-RestMethod `
     -Body $payload `
     -TimeoutSec 10
 
+# The response checks guard against partial API success. A 200 response is not
+# enough if it does not include the label, confidence, target, and model version
+# expected by the UI and monitoring scripts.
 if ($prediction.prediction -notin @(0, 1)) {
     throw "Invalid classification prediction response: $($prediction | ConvertTo-Json -Depth 10)"
 }

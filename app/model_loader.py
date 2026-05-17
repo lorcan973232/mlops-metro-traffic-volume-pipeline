@@ -25,16 +25,23 @@ def load_model(model_path: str | Path | None = None) -> dict[str, Any]:
     `MODEL_PATH` lets Docker or a local demo point at a different saved bundle,
     but the schema check still has to pass before predictions are served.
     """
+    # Resolve the path at request/startup time so local runs, Docker, and Kind
+    # can all use the same code while still allowing `MODEL_PATH` to be set by
+    # the container environment.
     resolved_path = Path(model_path or os.getenv("MODEL_PATH", DEFAULT_MODEL_PATH))
     if not resolved_path.exists():
         raise FileNotFoundError(
             f"Model artefact not found at {resolved_path}. Run `python -m src.train` first."
         )
+    # The joblib bundle comes from `src.train`. Loading it here joins the training
+    # side of the pipeline to the serving side used by Flask and smoke tests.
     bundle = joblib.load(resolved_path)
     # The feature order is part of the model contract. If the API accepted a
     # different order, predictions could be wrong without raising an obvious error.
     if bundle.get("feature_columns") != FEATURE_COLUMNS:
         raise ValueError("Model feature schema is incompatible with the API prediction schema.")
+    # The API is written for binary classification. This guard stops a different
+    # task type from being served through the same `/predict` response shape.
     if bundle.get("task_type") != "classification":
         raise ValueError("Model task type is incompatible with the classification API schema.")
     return bundle

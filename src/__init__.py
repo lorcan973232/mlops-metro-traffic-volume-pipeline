@@ -1,4 +1,3 @@
-"""Executable ML pipeline package for the artefact repository."""
 """Source package for the wine-quality MLOps pipeline.
 
 The modules in this package cover data ingestion, preprocessing, model

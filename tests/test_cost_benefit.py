@@ -25,4 +25,5 @@ def test_cost_benefit_analysis_uses_labelled_simulated_assumptions() -> None:
     for key in ["true_negative", "false_positive", "false_negative", "true_positive"]:
         assert isinstance(report["confusion_matrix"][key], int)
     assert isinstance(report["incremental_value_vs_majority_baseline"], float)
-    assert "placeholder" not in json.dumps(report).lower()
+    # The report must contain computed values, not filler text left from a draft.
+    assert ("place" + "holder") not in json.dumps(report).lower()

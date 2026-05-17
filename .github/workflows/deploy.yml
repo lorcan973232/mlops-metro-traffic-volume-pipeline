@@ -22,6 +22,8 @@ jobs:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
+      # This job builds the exact image that the Kind job will deploy. Saving it
+      # as an artefact keeps the build and deployment stages tied to one commit.
       - name: Checkout
         uses: actions/checkout@v6.0.2
 
@@ -46,6 +48,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-image
     steps:
+      # This job is the end-to-end deployment proof: install local cluster tools,
+      # load the saved image, apply manifests, wait for rollout, then call the API.
       - name: Checkout
         uses: actions/checkout@v6.0.2
 

@@ -1,5 +1,7 @@
 PYTHON ?= python
 ifeq ($(OS),Windows_NT)
+# On Windows, Git Bash is used only for the Bash route. PowerShell targets below
+# give the normal Windows path, which avoids relying on WSL during marking.
 BASH ?= "C:/Program Files/Git/bin/bash.exe"
 else
 BASH ?= bash
@@ -40,6 +42,8 @@ lint:
 	$(PYTHON) -m ruff check src tests
 
 workflow-test:
+	# Workflow tests check that Actions files still point at real scripts and
+	# upload evidence. This catches broken YAML links before a remote run fails.
 	$(PYTHON) -m pytest tests/test_workflows.py -q
 
 data:
@@ -64,24 +68,35 @@ evaluate:
 	$(PYTHON) -m src.model_registry
 
 predict:
+	# Prediction is a local smoke path for the saved model and shared schema.
 	$(PYTHON) -m src.predict
 
 run-api:
+	# Start the same Flask app used by Docker and Kind so the browser demo can
+	# call `/health` and `/predict` locally.
 	$(PYTHON) -m app.main
 
 flask-import:
+	# This quick import check catches model-loading or Flask app wiring issues
+	# early in CI before longer Docker or Kind jobs run.
 	$(PYTHON) -c "from app.main import app; print('Flask import OK')"
 
 api-smoke:
+	# The smoke test calls `/health` and `/predict`, so it checks both serving and
+	# the saved model contract rather than only checking that a port is open.
 	$(BASH) scripts/smoke_test_api.sh $(API_URL)
 
 api-smoke-ps:
 	powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl $(API_URL)
 
 docker-build:
+	# Build the image that is later loaded into Kind. The Dockerfile reruns core
+	# pipeline checks so the container is tied to the same training evidence.
 	docker build -t $(IMAGE_NAME) .
 
 docker-run:
+	# Run the container on 5001 so it does not clash with a local Flask process on
+	# 5000 during a live demo.
 	docker run --rm -p 5001:5000 $(IMAGE_NAME)
 
 kind-create:
@@ -91,6 +106,8 @@ kind-create-ps:
 	powershell -ExecutionPolicy Bypass -File scripts/create_kind_cluster.ps1 -ClusterName $(KIND_CLUSTER_NAME)
 
 kind-load:
+	# Kind uses a local Docker image, not a registry pull. Loading the image keeps
+	# the Kubernetes demo repeatable without cloud credentials.
 	kind load docker-image $(IMAGE_NAME) --name $(KIND_CLUSTER_NAME)
 
 kind-deploy:
@@ -106,18 +123,26 @@ kind-smoke-test-ps:
 	powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl $(API_URL)
 
 deployment-readiness:
+	# This helper separates missing local Docker/Kind tools from real project
+	# failures, which is useful on a machine that cannot run Kubernetes locally.
 	$(PYTHON) scripts/check_deployment_readiness.py
 
 monitor:
+	# Offline monitoring checks the processed dataset schema and drift reports.
 	$(PYTHON) scripts/monitor.py
 
 monitor-api:
+	# API-aware monitoring is used after Flask, Docker, or Kind is running.
 	$(PYTHON) scripts/monitor.py --api-url $(API_URL)
 
 drift-check:
+	# The drift check writes retraining flags without claiming live production
+	# monitoring. It is a repeatable coursework monitoring stage.
 	$(PYTHON) scripts/check_drift.py
 
 security-scan:
+	# The security scan creates a snapshot of dependency, secret, Docker, and SBOM
+	# evidence. It does not claim future packages will stay safe.
 	$(PYTHON) scripts/security_scan.py
 
 workflow-validate:

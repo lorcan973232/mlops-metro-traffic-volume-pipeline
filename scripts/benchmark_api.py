@@ -29,6 +29,9 @@ def benchmark_api(api_url: str, samples: int = 100, warmup_samples: int = 10) ->
     sla_threshold_ms = 200
     latencies: list[float] = []
 
+    # Warmup requests are not included in the final report. They reduce the risk
+    # that first-request startup cost makes the demo latency look worse than the
+    # running Flask service.
     print(f"Warming up with {warmup_samples} requests...")
     for i in range(warmup_samples):
         try:
@@ -47,6 +50,8 @@ def benchmark_api(api_url: str, samples: int = 100, warmup_samples: int = 10) ->
             print(f"Error during warmup: {exc}", file=sys.stderr)
             raise
 
+    # The measured loop sends the same valid payload used by the smoke tests and
+    # browser example. This keeps the benchmark tied to the real prediction path.
     print(f"\nBenchmarking {samples} requests...")
     for i in range(samples):
         try:
@@ -66,6 +71,8 @@ def benchmark_api(api_url: str, samples: int = 100, warmup_samples: int = 10) ->
             print(f"Error during benchmark: {exc}", file=sys.stderr)
             raise
 
+    # Percentiles are easier to explain in a demo than a long list of request
+    # times. The JSON report keeps the evidence under `reports/benchmarks/`.
     sorted_latencies = sorted(latencies)
     p50 = sorted_latencies[int(len(sorted_latencies) * 0.50)]
     p95 = sorted_latencies[int(len(sorted_latencies) * 0.95)]
@@ -124,6 +131,8 @@ def main() -> None:
 
     report = benchmark_api(args.api_url, samples=args.samples, warmup_samples=args.warmup)
 
+    # Save the report so the dashboard, README evidence, and workflow artefacts
+    # can point to the same benchmark output instead of a hand-written number.
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(report, indent=2), encoding="utf-8")

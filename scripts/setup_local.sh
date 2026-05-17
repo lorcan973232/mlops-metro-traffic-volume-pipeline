@@ -11,6 +11,9 @@ source "${SCRIPT_DIR}/env_paths.sh"
 
 PYTHON_BIN="${PYTHON_BIN:-python}"
 
+# Check the Python version before creating `.venv`. The saved scikit-learn model
+# and requirements are tested on Python 3.11/3.12, so newer system Python
+# versions can break model loading even if installation succeeds.
 echo "Creating local virtual environment in .venv"
 "${PYTHON_BIN}" - <<'PY'
 import sys
@@ -25,9 +28,13 @@ else
   VENV_PYTHON=".venv/bin/python"
 fi
 
+# Install dependencies inside the project environment so local runs match the
+# workflow and avoid picking up unrelated packages from the user's machine.
 "${VENV_PYTHON}" -m pip install --upgrade pip
 "${VENV_PYTHON}" -m pip install -r requirements.txt
 
+# Import checks catch missing packages early. This is faster and clearer than
+# waiting for training or Flask startup to fail later in the pipeline.
 "${VENV_PYTHON}" - <<'PY'
 required = ["flask", "joblib", "numpy", "openpyxl", "pandas", "pytest", "sklearn", "yaml"]
 missing = []

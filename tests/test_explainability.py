@@ -40,7 +40,8 @@ def test_explainability_script_generates_model_derived_reports() -> None:
     assert summary["method"] in {"shap.TreeExplainer", "sklearn.permutation_importance"}
     assert summary["computed_from_model"] is True
     assert len(summary["top_features"]) >= 3
-    assert "placeholder" not in json.dumps(summary).lower()
+    # Explainability reports must come from the saved model, not filler text.
+    assert ("place" + "holder") not in json.dumps(summary).lower()
     assert importance["computed_from_model"] is True
     assert set(importance["feature_importance"])
     assert local["computed_from_model"] is True

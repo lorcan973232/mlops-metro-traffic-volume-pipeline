@@ -18,6 +18,8 @@ jobs:
     name: Retrain candidate from public dataset
     runs-on: ubuntu-latest
     steps:
+      # This job creates a fresh candidate model and report set from the public
+      # dataset. Nothing is promoted yet; the next job checks the quality gate.
       - name: Checkout
         uses: actions/checkout@v6.0.2
 
@@ -60,6 +62,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: retrain-candidate
     steps:
+      # This job protects the project from accepting a weaker retrained model.
+      # It reads the candidate reports and fails if key checks are missing or bad.
       - name: Checkout
         uses: actions/checkout@v6.0.2
 
@@ -119,6 +123,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: quality-gate
     steps:
+      # This job only runs after the quality gate passes. It records metadata for
+      # the accepted candidate so later monitoring and demos can see the version.
       - name: Checkout
         uses: actions/checkout@v6.0.2
 

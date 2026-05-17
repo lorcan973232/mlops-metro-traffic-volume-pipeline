@@ -12,11 +12,15 @@ CLUSTER_NAME="${KIND_CLUSTER_NAME:-mlops-kind}"
 IMAGE_NAME="${IMAGE_NAME:-mlops-flask-api:latest}"
 API_URL="${API_URL:-http://127.0.0.1:8080}"
 
+# kubectl is needed for every step after image loading. Failing here gives a
+# clear setup message before Docker spends time building an image.
 if ! command -v kubectl >/dev/null 2>&1; then
   echo "BLOCKED_BY_LOCAL_SETUP: kubectl is not installed. Install kubectl: https://kubernetes.io/docs/tasks/tools/"
   exit 1
 fi
 
+# Build from the repository root so the image includes the app, saved model,
+# reports, and data paths that the Dockerfile expects.
 echo "Building Docker image: ${IMAGE_NAME}"
 docker build -t "${IMAGE_NAME}" .
 
@@ -31,6 +35,8 @@ kind load docker-image "${IMAGE_NAME}" --name "${CLUSTER_NAME}"
 echo "Applying Kind manifests from deployment/kind/"
 kubectl apply -f deployment/kind/
 
+# The deployment may already exist from a previous demo run. Restarting it makes
+# Kubernetes pick up the freshly loaded local image before the smoke test.
 echo "Restarting deployment so Kind uses the freshly loaded local image"
 kubectl rollout restart deployment/mlops-flask-api
 
@@ -46,6 +52,8 @@ Run a local service tunnel and smoke test:
   scripts/smoke_test_api.sh http://127.0.0.1:8080
 NEXT
 
+# The optional background port-forward is useful for automation, while the
+# default printed command is safer for a manual live demo.
 if [[ "${START_PORT_FORWARD:-0}" == "1" ]]; then
   echo "Starting background port-forward for ${API_URL}"
   kubectl port-forward service/mlops-flask-api 8080:80 >/tmp/mlops-flask-api-port-forward.log 2>&1 &

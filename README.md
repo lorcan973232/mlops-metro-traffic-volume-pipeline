@@ -32,7 +32,7 @@ http://127.0.0.1:5000/
 
 The repository shows a full student MLOps workflow. It starts with the UCI red wine dataset, trains a model, checks the model, serves it through a Flask API, packages it with Docker, deploys it to Kind, and writes reports that can be checked later.
 
-The model gives useful results for this project, but it is not a perfect wine-quality system. The main point is to show the full MLOps workflow: data, training, testing, API, Docker, Kind, GitHub Actions, monitoring, and saved evidence.
+The model gives useful results for this project, but it is not a complete wine-quality system. The main point is to show the full MLOps workflow: data, training, testing, API, Docker, Kind, GitHub Actions, monitoring, and saved evidence.
 
 ## What the project does
 

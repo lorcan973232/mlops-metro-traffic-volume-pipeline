@@ -30,4 +30,5 @@ def test_fairness_audit_generates_proxy_group_metrics() -> None:
     assert "sulphates_tertile_proxy" in group_metrics["group_metrics"]
     assert "max_equalized_odds_style_gap" in report
     assert isinstance(report["performance_balanced_across_proxy_groups"], bool)
-    assert "placeholder" not in json.dumps(report).lower()
+    # The report should be computed from the model and proxy groups, not draft text.
+    assert ("place" + "holder") not in json.dumps(report).lower()

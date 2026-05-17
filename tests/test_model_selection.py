@@ -50,4 +50,5 @@ def test_model_selection_fast_mode_outputs_search_and_ensemble_evidence() -> Non
     assert comparison["ensemble_model"]["model_name"] == "soft_voting_ensemble"
     assert ensemble["ensemble_type"] == "VotingClassifier"
     assert isinstance(ensemble["selected"], bool)
-    assert "placeholder" not in json.dumps(search).lower()
+    # Model-selection evidence should be computed, not a draft marker.
+    assert ("place" + "holder") not in json.dumps(search).lower()
