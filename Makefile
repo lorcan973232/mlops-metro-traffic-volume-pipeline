@@ -13,7 +13,7 @@ API_URL ?= http://127.0.0.1:8080
 # the student and marker short commands for setup, tests, model evidence, Docker,
 # Kind, monitoring, and security checks.
 
-.PHONY: setup setup-ps check-setup check-setup-ps test lint workflow-test data preprocess model-select train evaluate predict run-api flask-import api-smoke api-smoke-ps docker-build docker-run kind-create kind-create-ps kind-load kind-deploy kind-deploy-ps kind-smoke-test kind-smoke-test-ps monitor monitor-api drift-check security-scan workflow-validate full-local-verify
+.PHONY: setup setup-ps check-setup check-setup-ps test lint workflow-test data preprocess model-select train evaluate predict run-api flask-import api-smoke api-smoke-ps docker-build docker-run kind-create kind-create-ps kind-load kind-deploy kind-deploy-ps kind-smoke-test kind-smoke-test-ps deployment-readiness monitor monitor-api drift-check security-scan workflow-validate full-local-verify
 
 setup:
 	# Bash setup is for Linux, Git Bash, and GitHub Actions routes.
@@ -104,6 +104,9 @@ kind-smoke-test:
 
 kind-smoke-test-ps:
 	powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl $(API_URL)
+
+deployment-readiness:
+	$(PYTHON) scripts/check_deployment_readiness.py
 
 monitor:
 	$(PYTHON) scripts/monitor.py

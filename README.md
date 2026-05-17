@@ -320,6 +320,7 @@ make evaluate
 make run-api
 make docker-build
 make kind-deploy
+make deployment-readiness
 make monitor
 make security-scan
 make full-local-verify
@@ -420,6 +421,14 @@ Smoke test the Kind deployment:
 powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:8080
 python scripts/monitor.py --api-url http://127.0.0.1:8080
 ```
+
+If Docker, Kind, or kubectl are not available on the local machine, run:
+
+```powershell
+python scripts/check_deployment_readiness.py
+```
+
+The script returns `PASS` if the local deployment tools are ready. If local tools are blocked but the current commit has successful GitHub Actions evidence for `Docker Build` and `Deploy Kind`, it returns `PASS` with `verification_source: "github_actions_current_sha"`. This makes the blocker explicit instead of pretending a local deployment was run.
 
 If Kind is slow during a live demo, it is reasonable to show the current `Deploy Kind` workflow run, the manifests, the rollout logs, and the saved smoke-test evidence instead of spending the whole demo waiting for a local cluster.
 
@@ -550,7 +559,7 @@ Generated readiness files can become stale after another commit, so the current 
 | Continuous Monitoring/model management | `monitoring.yml`, `scripts/monitor.py`, `scripts/check_drift.py`, `src/model_registry.py`, `reports/model_registry/` | Run monitoring and model registry commands | Present |
 | At least two tests | `tests/` contains API, data, model, monitoring, workflow, UI, and evidence tests | Run `pytest -q` | Present |
 | Docker containerisation | `Dockerfile`, `.dockerignore`, `docker-build.yml` | Run Docker build/run/smoke-test commands | Present |
-| Kind Kubernetes deployment | `deployment/kind/deployment.yaml`, `deployment/kind/service.yaml`, `deploy.yml` | Run Kind commands or inspect workflow logs | Present |
+| Kind Kubernetes deployment | `deployment/kind/deployment.yaml`, `deployment/kind/service.yaml`, `deploy.yml`, `scripts/check_deployment_readiness.py` | Run Kind commands locally or run `python scripts/check_deployment_readiness.py` to verify local tools or current-SHA Actions evidence | Present |
 | README and reproducibility evidence | `README.md`, `Makefile`, setup scripts, final-readiness reports | Follow README setup and verification commands | Present |
 | Live demo readiness | Flask UI, smoke scripts, final-readiness checklist, reports | Follow the live demo sequence below | Present |
 
@@ -567,11 +576,12 @@ This is the shortest route I would use in a live assessment.
 7. Run the API smoke test against `http://127.0.0.1:5000`.
 8. Show the Docker workflow or run the Docker build and smoke test if Docker is available locally.
 9. Show the Kind workflow or run the Kind deployment if Docker, Kind, and kubectl are already set up.
-10. Show the Continuous Training quality gate and explain what would reject a bad model.
-11. Show `reports/monitoring/drift_report.json` and explain current-batch drift versus simulated drift.
-12. Show `reports/fairness/fairness_report.json` and explain that the groups are proxy groups, not protected attributes.
-13. Show `reports/security/security_scan_summary.md`, `secret_scan.txt`, and `docker_security_notes.md`.
-14. Open the current GitHub Actions runs for CI, Train and Evaluate, Docker Build, Deploy Kind, Continuous Training, Monitoring, Security Scan, and Final Readiness.
+10. If local Docker/Kind tools are missing, run `python scripts/check_deployment_readiness.py` and show the `github_actions_current_sha` evidence source.
+11. Show the Continuous Training quality gate and explain what would reject a bad model.
+12. Show `reports/monitoring/drift_report.json` and explain current-batch drift versus simulated drift.
+13. Show `reports/fairness/fairness_report.json` and explain that the groups are proxy groups, not protected attributes.
+14. Show `reports/security/security_scan_summary.md`, `secret_scan.txt`, and `docker_security_notes.md`.
+15. Open the current GitHub Actions runs for CI, Train and Evaluate, Docker Build, Deploy Kind, Continuous Training, Monitoring, Security Scan, and Final Readiness.
 
 Useful live-demo commands:
 
