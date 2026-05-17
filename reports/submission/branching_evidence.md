@@ -39,6 +39,29 @@ This file records real branch and pull-request evidence for the artefact branchi
 | Final develop-to-main merge commit | `67436a01d7892b0239aedbf0200368e3455d3006` |
 | Strategy mapping | The artefact exercises `feature/* -> develop -> main`, matching the README branching strategy. |
 
+## Verified GitHub PR Check Evidence
+
+The PR evidence below was rechecked with GitHub CLI during final artefact
+hardening. It is not a README-only claim.
+
+| PR | Route | State | Merge evidence | Check evidence |
+|---|---|---|---|---|
+| #3 | `feature/final-artefact-hardening` -> `develop` | Merged | Merged at `2026-05-16T14:30:31Z`; merge commit `4b5f42d6a3620db189404c5fbda5a8f7fe3f0444` | CI setup, CI quality gates, Data Preprocessing, Train and Evaluate, Docker Build, and Security Scan check runs returned `SUCCESS` |
+| #4 | `develop` -> `main` | Merged | Merged at `2026-05-16T14:33:59Z`; merge commit `67436a01d7892b0239aedbf0200368e3455d3006` | CI setup, CI quality gates, Data Preprocessing, Train and Evaluate, Docker Build, and Security Scan check runs returned `SUCCESS` |
+
+Current remote branches observed during final hardening:
+
+- `origin/main`
+- `origin/develop`
+- `origin/feature/final-artefact-hardening`
+- `origin/feature/final-artefact-verification`
+
+The final hardening commit is pushed to `main` after local verification. The
+latest post-push workflow evidence is recorded separately in
+`reports/final_readiness/latest_github_actions_runs.json` and in the GitHub
+Actions UI. This avoids pretending that historic PR checks alone prove future
+workflow health.
+
 ## CI Status Recorded For PR #3
 
 PR #3 passed these GitHub checks after the dependency-vulnerability fix commit:

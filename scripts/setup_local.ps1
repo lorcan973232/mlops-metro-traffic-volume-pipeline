@@ -35,6 +35,23 @@ if ($LASTEXITCODE -ne 0) {
     throw "Failed to install requirements.txt."
 }
 
+$verifyImports = @"
+required = ["flask", "joblib", "numpy", "openpyxl", "pandas", "pytest", "sklearn", "yaml"]
+missing = []
+for package in required:
+    try:
+        __import__(package)
+    except Exception:
+        missing.append(package)
+if missing:
+    raise SystemExit("Missing imports after setup: " + ", ".join(missing))
+print("PASS: dependency imports verified")
+"@
+$verifyImports | & $venvPython -
+if ($LASTEXITCODE -ne 0) {
+    throw "FAIL: dependencies installed but required imports failed."
+}
+
 Write-Host ""
 Write-Host "Optional local tooling for full artefact verification:"
 Write-Host "- Python 3.11 or 3.12: https://www.python.org/downloads/"
@@ -54,3 +71,5 @@ Write-Host "Activate the project environment before running README commands:"
 Write-Host "  .\.venv\Scripts\Activate.ps1"
 Write-Host "Or call Python directly:"
 Write-Host "  .\.venv\Scripts\python.exe -m pytest -q"
+Write-Host ""
+Write-Host "PASS: local PowerShell setup completed."

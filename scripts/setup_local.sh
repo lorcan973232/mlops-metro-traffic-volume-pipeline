@@ -24,6 +24,19 @@ fi
 "${VENV_PYTHON}" -m pip install --upgrade pip
 "${VENV_PYTHON}" -m pip install -r requirements.txt
 
+"${VENV_PYTHON}" - <<'PY'
+required = ["flask", "joblib", "numpy", "openpyxl", "pandas", "pytest", "sklearn", "yaml"]
+missing = []
+for package in required:
+    try:
+        __import__(package)
+    except Exception:
+        missing.append(package)
+if missing:
+    raise SystemExit("Missing imports after setup: " + ", ".join(missing))
+print("PASS: dependency imports verified")
+PY
+
 cat <<'GUIDANCE'
 
 Optional local tooling for full artefact verification:
@@ -43,3 +56,5 @@ Or call Python directly:
   .venv/bin/python -m pytest -q
   .venv/Scripts/python.exe -m pytest -q
 GUIDANCE
+
+echo "PASS: local Bash setup completed."

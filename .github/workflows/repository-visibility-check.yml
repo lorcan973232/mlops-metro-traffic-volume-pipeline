@@ -6,7 +6,7 @@ permissions:
 "on":
   workflow_dispatch:
   schedule:
-    - cron: "0 8 * * 1"
+    - cron: "0 8 * * *"
 
 jobs:
   visibility:
@@ -20,52 +20,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
-        run: |
-          mkdir -p reports/submission
-          python - <<'PY'
-          import json
-          import os
-          from datetime import UTC, datetime
-          from pathlib import Path
-          from urllib.request import Request, urlopen
-
-          repository = os.environ["REPOSITORY"]
-          token = os.environ["GH_TOKEN"]
-          url = f"https://api.github.com/repos/{repository}"
-          request = Request(
-              url,
-              headers={
-                  "Accept": "application/vnd.github+json",
-                  "Authorization": f"Bearer {token}",
-                  "X-GitHub-Api-Version": "2022-11-28",
-                  "User-Agent": "mlops-artefact-visibility-check",
-              },
-          )
-          with urlopen(request, timeout=20) as response:
-              payload = json.loads(response.read().decode("utf-8"))
-
-          evidence = {
-              "repository_url": payload["html_url"],
-              "full_name": payload["full_name"],
-              "visibility": payload.get("visibility"),
-              "private": payload["private"],
-              "default_branch": payload["default_branch"],
-              "checked_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
-              "command_used": "GitHub Actions repository visibility API check",
-              "requirement_note": (
-                  "Current public visibility is verified at checked_at. "
-                  "The repository must remain public until 21 June 2026 for assignment compliance."
-              ),
-              "future_public_until_proven": False,
-          }
-          Path("reports/submission/public_repository_evidence.json").write_text(
-              json.dumps(evidence, indent=2) + "\n",
-              encoding="utf-8",
-          )
-          if payload["private"] or payload.get("visibility") != "public":
-              raise SystemExit(f"Repository is not public: {evidence}")
-          print(json.dumps(evidence, indent=2))
-          PY
+        run: python scripts/check_repo_visibility.py
 
       - name: Upload repository visibility evidence
         uses: actions/upload-artifact@v7.0.1

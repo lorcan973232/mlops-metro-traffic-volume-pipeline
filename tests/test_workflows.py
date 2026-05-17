@@ -15,6 +15,7 @@ EXPECTED_WORKFLOWS = {
     "model-analysis.yml",
     "repository-visibility-check.yml",
     "security-scan.yml",
+    "bash-script-verification.yml",
 }
 
 REQUIRED_COMMAND_PATHS = [
@@ -27,6 +28,9 @@ REQUIRED_COMMAND_PATHS = [
     "scripts/cost_benefit_analysis.py",
     "deployment/kind/",
     "scripts/security_scan.py",
+    "scripts/check_repo_visibility.py",
+    "scripts/final_readiness_check.py",
+    "scripts/check_bash_environment.sh",
 ]
 
 WINDOWS_SCRIPT_PATHS = [
@@ -36,6 +40,7 @@ WINDOWS_SCRIPT_PATHS = [
     "scripts/smoke_test_api.ps1",
     "scripts/create_kind_cluster.ps1",
     "scripts/deploy_kind.ps1",
+    "scripts/check_bash_environment.ps1",
 ]
 
 
@@ -96,8 +101,18 @@ def test_workflow_triggers_and_dependencies_show_lifecycle() -> None:
     visibility_text = Path(".github/workflows/repository-visibility-check.yml").read_text(
         encoding="utf-8"
     )
-    assert "Repository is not public" in visibility_text
+    assert "python scripts/check_repo_visibility.py" in visibility_text
     assert "repository-visibility-evidence" in visibility_text
+
+    bash_verification = load_workflow("bash-script-verification.yml")
+    assert bash_verification["jobs"]["bash-verification"]
+    bash_text = Path(".github/workflows/bash-script-verification.yml").read_text(
+        encoding="utf-8"
+    )
+    assert "bash scripts/check_bash_environment.sh" in bash_text
+    assert "bash scripts/check_setup.sh --python-only" in bash_text
+    assert "bash scripts/smoke_test_api.sh http://127.0.0.1:5000" in bash_text
+    assert "bash-script-verification-logs" in bash_text
 
     security = load_workflow("security-scan.yml")
     security_text = Path(".github/workflows/security-scan.yml").read_text(encoding="utf-8")
@@ -128,9 +143,15 @@ def test_workflows_reference_existing_commands_and_upload_artifacts() -> None:
     workflow_text = "\n".join(
         path.read_text(encoding="utf-8") for path in Path(".github/workflows").glob("*.yml")
     )
-    for required_path in REQUIRED_COMMAND_PATHS:
+    workflow_required_paths = [
+        path
+        for path in REQUIRED_COMMAND_PATHS
+        if path != "scripts/final_readiness_check.py"
+    ]
+    for required_path in workflow_required_paths:
         assert Path(required_path).exists()
         assert required_path in workflow_text
+    assert Path("scripts/final_readiness_check.py").exists()
 
     for windows_script in WINDOWS_SCRIPT_PATHS:
         assert Path(windows_script).exists()

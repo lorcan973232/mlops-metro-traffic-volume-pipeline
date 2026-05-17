@@ -14,7 +14,7 @@
     "total_sulfur_dioxide": 0.01696785734620286,
     "volatile_acidity": -0.04573655922383141
   },
-  "generated_at": "2026-05-16T22:58:35+00:00",
+  "generated_at": "2026-05-17T00:12:32+00:00",
   "input_features": {
     "alcohol": 10.2,
     "chlorides": 0.084,

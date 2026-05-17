@@ -1,0 +1,82 @@
+name: Bash Script Verification
+
+permissions:
+  contents: read
+
+"on":
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  bash-verification:
+    name: Verify Bash setup and API smoke scripts on Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+
+      - name: Set up Python
+        uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.11"
+
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh
+
+      - name: Bash syntax checks
+        run: |
+          set -euo pipefail
+          for script in scripts/*.sh; do
+            bash -n "$script"
+          done
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Verify Bash environment and Python setup
+        run: |
+          bash scripts/check_bash_environment.sh | tee bash-environment.log
+          bash scripts/check_setup.sh --python-only | tee bash-setup.log
+
+      - name: Prepare model artefacts for API
+        run: |
+          python -m src.data
+          python -m src.preprocess
+          python -m src.train
+          python -m src.evaluate
+          python -m src.model_registry
+
+      - name: Start Flask API and run Bash smoke test
+        run: |
+          python -m app.main > flask-api.log 2>&1 &
+          api_pid=$!
+          trap "kill ${api_pid}" EXIT
+          ready=0
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:5000/health; then
+              ready=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "${ready}" -ne 1 ]; then
+            cat flask-api.log
+            exit 1
+          fi
+          bash scripts/smoke_test_api.sh http://127.0.0.1:5000 | tee bash-api-smoke.log
+
+      - name: Upload Bash verification logs
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: bash-script-verification-logs
+          path: |
+            bash-environment.log
+            bash-setup.log
+            flask-api.log
+            bash-api-smoke.log

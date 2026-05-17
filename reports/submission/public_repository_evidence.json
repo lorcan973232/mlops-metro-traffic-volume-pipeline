@@ -4,8 +4,14 @@
   "visibility": "public",
   "private": false,
   "default_branch": "main",
-  "checked_at": "2026-05-16T13:56:18Z",
-  "command_used": "gh repo view --json nameWithOwner,url,visibility,isPrivate,defaultBranchRef",
+  "checked_at": "2026-05-17T00:15:36+00:00",
+  "latest_commit_sha": "5093ec25ce3911d7e47a645b2951acc8a6c5cc2b",
+  "command_or_method_used": "gh repo view --json nameWithOwner,url,visibility,isPrivate,defaultBranchRef",
+  "fallback_note": null,
+  "requirement": "Repository must remain public until 21 June 2026.",
   "requirement_note": "Current public visibility is verified at checked_at. The repository must remain public until 21 June 2026 for assignment compliance.",
-  "future_public_until_proven": false
+  "public_until_required_date": "2026-06-21",
+  "current_public_visibility_verified": true,
+  "future_public_until_proven": false,
+  "future_compliance_note": "Current public visibility is verified. The future public-until date is safeguarded through documentation and a repeatable visibility-check workflow, but the student must keep the repository public until 21 June 2026."
 }

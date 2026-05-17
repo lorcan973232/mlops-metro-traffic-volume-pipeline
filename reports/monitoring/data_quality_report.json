@@ -1,71 +1,72 @@
 {
   "computed_from_data": true,
+  "current_data_source": "data\\processed\\winequality-red-processed.csv",
   "feature_distribution_checks": {
     "alcohol": {
-      "max": 14.9,
-      "mean": 10.422983114446529,
-      "min": 8.4,
-      "std": 1.0656675818473946
+      "current_mean": 10.422983114446529,
+      "current_std": 1.0656675818473946,
+      "reference_mean": 10.422983114446529,
+      "reference_std": 1.0656675818473946
     },
     "chlorides": {
-      "max": 0.611,
-      "mean": 0.08746654158849279,
-      "min": 0.012,
-      "std": 0.0470653020100901
+      "current_mean": 0.08746654158849279,
+      "current_std": 0.0470653020100901,
+      "reference_mean": 0.08746654158849279,
+      "reference_std": 0.0470653020100901
     },
     "citric_acid": {
-      "max": 1.0,
-      "mean": 0.2709756097560976,
-      "min": 0.0,
-      "std": 0.19480113740531857
+      "current_mean": 0.2709756097560976,
+      "current_std": 0.19480113740531857,
+      "reference_mean": 0.2709756097560976,
+      "reference_std": 0.19480113740531857
     },
     "density": {
-      "max": 1.00369,
-      "mean": 0.9967466791744841,
-      "min": 0.99007,
-      "std": 0.0018873339538425554
+      "current_mean": 0.9967466791744841,
+      "current_std": 0.0018873339538425554,
+      "reference_mean": 0.9967466791744841,
+      "reference_std": 0.0018873339538425554
     },
     "fixed_acidity": {
-      "max": 15.9,
-      "mean": 8.31963727329581,
-      "min": 4.6,
-      "std": 1.7410963181276953
+      "current_mean": 8.31963727329581,
+      "current_std": 1.7410963181276953,
+      "reference_mean": 8.31963727329581,
+      "reference_std": 1.7410963181276953
     },
     "free_sulfur_dioxide": {
-      "max": 72.0,
-      "mean": 15.874921826141339,
-      "min": 1.0,
-      "std": 10.460156969809725
+      "current_mean": 15.874921826141339,
+      "current_std": 10.460156969809725,
+      "reference_mean": 15.874921826141339,
+      "reference_std": 10.460156969809725
     },
     "ph": {
-      "max": 4.01,
-      "mean": 3.3111131957473416,
-      "min": 2.74,
-      "std": 0.15438646490354277
+      "current_mean": 3.3111131957473416,
+      "current_std": 0.15438646490354277,
+      "reference_mean": 3.3111131957473416,
+      "reference_std": 0.15438646490354277
     },
     "residual_sugar": {
-      "max": 15.5,
-      "mean": 2.53880550343965,
-      "min": 0.9,
-      "std": 1.4099280595072798
+      "current_mean": 2.53880550343965,
+      "current_std": 1.4099280595072798,
+      "reference_mean": 2.53880550343965,
+      "reference_std": 1.4099280595072798
     },
     "sulphates": {
-      "max": 2.0,
-      "mean": 0.6581488430268917,
-      "min": 0.33,
-      "std": 0.16950697959010996
+      "current_mean": 0.6581488430268917,
+      "current_std": 0.16950697959010996,
+      "reference_mean": 0.6581488430268917,
+      "reference_std": 0.16950697959010996
     },
     "total_sulfur_dioxide": {
-      "max": 289.0,
-      "mean": 46.46779237023139,
-      "min": 6.0,
-      "std": 32.895324478299074
+      "current_mean": 46.46779237023139,
+      "current_std": 32.895324478299074,
+      "reference_mean": 46.46779237023139,
+      "reference_std": 32.895324478299074
     },
     "volatile_acidity": {
-      "max": 1.58,
-      "mean": 0.5278205128205128,
-      "min": 0.12,
-      "std": 0.17905970415353537
+      "current_mean": 0.5278205128205128,
+      "current_std": 0.17905970415353537,
+      "reference_mean": 0.5278205128205128,
+      "reference_std": 0.17905970415353537
     }
   },
   "missing_value_checks": {
@@ -117,9 +118,8 @@
     "missing_values": 0,
     "non_numeric_columns": [],
     "row_count": 1599,
-    "status": "passed",
-    "unexpected_columns": []
+    "status": "passed"
   },
   "status": "passed",
-  "timestamp_utc": "2026-05-16T23:15:05+00:00"
+  "timestamp_utc": "2026-05-17T00:33:35+00:00"
 }
