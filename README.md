@@ -38,7 +38,7 @@ The main audience is the student running the live demo and the assessor checking
 
 ## Repository Access
 
-The repository is public for assessment access. A small visibility-check script is included so the current repository status can be checked again before submission or a live demo.
+The repository is public for assessment access and must remain public until 21 June 2026. A small visibility-check script is included so the current repository status can be checked again before submission or a live demo.
 
 | Evidence item | Path or command |
 |---|---|
@@ -46,12 +46,13 @@ The repository is public for assessment access. A small visibility-check script 
 | Current visibility snapshot | `reports/submission/public_repository_evidence.json` |
 | Local visibility check | `python scripts/check_repo_visibility.py` |
 | Scheduled/manual visibility workflow | `.github/workflows/repository-visibility-check.yml` |
+| Required access period | The repository must remain public until 21 June 2026 |
 
 ## Why The Project Was Built This Way
 
 The coursework is about the MLOps workflow as well as the trained model. For that reason, the repository does more than fit a classifier. It shows how data is ingested, checked, transformed, trained, evaluated, served, containerised, deployed, monitored, and tested.
 
-Docker is included so the same Flask app and model can run in a repeatable container. Kind is included to show a Kubernetes-style deployment locally and in GitHub Actions without needing a Google VM or a long-lived cloud service. GitHub Actions is used because each stage can be rerun from the repository and inspected through logs and uploaded artefacts.
+Docker is included so the same Flask app and model can run in a repeatable container. Kind is included to show a Kubernetes-style deployment locally and in GitHub Actions without needing a long-lived cloud service. GitHub Actions is used because each stage can be rerun from the repository and inspected through logs and uploaded artefacts.
 
 ## Dataset And Prediction Task
 
@@ -426,20 +427,20 @@ If Kind is slow during a live demo, it is reasonable to show the current `Deploy
 
 GitHub Actions is used so the main MLOps stages can run without relying only on local commands. Each workflow should be checked through its current run logs and artefacts for the commit being submitted.
 
-| Workflow | When it runs | What it checks or produces |
-|---|---|---|
-| `ci.yml` | Push, pull request, manual | Compile check, lint, tests, Flask import, and core ML smoke path |
-| `data-preprocessing.yml` | Data/preprocess changes, pull request, manual | Raw data validation and processed dataset generation |
-| `train-and-evaluate.yml` | Model-code changes, pull request, manual | Training, evaluation, reports, and model metadata |
-| `continuous-training.yml` | Weekly schedule and manual | Retraining path, model evaluation, quality gate, and model registry evidence |
-| `docker-build.yml` | Push, pull request, manual | Docker image build and API smoke test |
-| `deploy.yml` | Push to `main` and manual | Kind cluster setup, image loading, Kubernetes rollout, and API smoke test |
-| `monitoring.yml` | Daily schedule and manual | Data-quality checks, PSI drift check, and retraining signal evidence |
-| `model-analysis.yml` | Model/report changes, pull request, manual | SHAP, proxy fairness audit, optimisation, ensemble, cost-benefit, and monitoring evidence |
-| `security-scan.yml` | Push, pull request, manual | No-secrets check, dependency scan, Docker checks, Trivy scan, and SBOM output |
-| `repository-visibility-check.yml` | Daily schedule and manual | Current repository visibility snapshot |
-| `bash-script-verification.yml` | Push, pull request, manual | Bash script path on an Ubuntu runner |
-| `final-readiness.yml` | Push to `main` and manual | Final readiness report for the current SHA |
+| Workflow | GitHub Actions display name | When it runs | What it checks or produces |
+|---|---|---|---|
+| `ci.yml` | CI | Push, pull request, manual | Compile check, lint, tests, Flask import, and core ML smoke path |
+| `data-preprocessing.yml` | Data Preprocessing | Data/preprocess changes, pull request, manual | Raw data validation and processed dataset generation |
+| `train-and-evaluate.yml` | Train and Evaluate | Model-code changes, pull request, manual | Training, evaluation, reports, and model metadata |
+| `continuous-training.yml` | Continuous Training | Weekly schedule and manual | Retraining path, model evaluation, quality gate, and model registry evidence |
+| `docker-build.yml` | Docker Build | Push, pull request, manual | Docker image build and API smoke test |
+| `deploy.yml` | Deploy Kind | Push to `main` and manual | Kind cluster setup, image loading, Kubernetes rollout, and API smoke test |
+| `monitoring.yml` | Monitoring | Daily schedule and manual | Data-quality checks, PSI drift check, and retraining signal evidence |
+| `model-analysis.yml` | Tier 3 Model Analysis | Model/report changes, pull request, manual | SHAP, proxy fairness audit, optimisation, ensemble, cost-benefit, and monitoring evidence |
+| `security-scan.yml` | Security Scan | Push, pull request, manual | No-secrets check, dependency scan, Docker checks, Trivy scan, and SBOM output |
+| `repository-visibility-check.yml` | Repository Visibility Check | Daily schedule and manual | Current repository visibility snapshot |
+| `bash-script-verification.yml` | Bash Script Verification | Push, pull request, manual | Bash script path on an Ubuntu runner |
+| `final-readiness.yml` | Final Readiness | Push to `main` and manual | Final readiness report for the current SHA |
 
 ## Continuous Training
 
@@ -538,6 +539,7 @@ Generated readiness files can become stale after another commit, so the current 
 | Artefact requirement | Evidence in this repository | How to verify it | Status |
 |---|---|---|---|
 | Public GitHub repository | Public URL, `reports/submission/public_repository_evidence.json`, `.github/workflows/repository-visibility-check.yml` | Open the repository URL or run `python scripts/check_repo_visibility.py` | Current visibility evidence present |
+| Repository public until 21 June 2026 | Repository access section, `reports/submission/public_repository_evidence.json`, scheduled visibility workflow | Keep the repository public and rerun `python scripts/check_repo_visibility.py` or the workflow close to submission | Current public status is checked; future status depends on repository visibility being maintained |
 | Training/testing of ML model | `src/train.py`, `src/evaluate.py`, `tests/`, `reports/metrics/latest_metrics.json` | Run `python -m src.train`, `python -m src.evaluate`, `pytest -q` | Supported by code, tests, and reports |
 | Flask/API deployment | `app/main.py`, `app/schemas.py`, `scripts/smoke_test_api.*` | Run `python -m app.main`, open `/health`, run smoke test | Present |
 | Branching strategy | `reports/submission/branching_evidence.md` | Read the evidence file and compare with GitHub PR history | Evidence recorded |
