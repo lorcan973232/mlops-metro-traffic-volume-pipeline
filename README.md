@@ -1,60 +1,56 @@
 # MLOps Red Wine Quality Classifier
 
 ![CI](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/ci.yml/badge.svg)
-![Data](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/data-preprocessing.yml/badge.svg)
 ![Train](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/train-and-evaluate.yml/badge.svg)
-![CT](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/continuous-training.yml/badge.svg)
 ![Docker](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/docker-build.yml/badge.svg)
 ![Deploy](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/deploy.yml/badge.svg)
 ![Monitoring](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/monitoring.yml/badge.svg)
-![Visibility](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/repository-visibility-check.yml/badge.svg)
 ![Security](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/security-scan.yml/badge.svg)
-![Bash](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/bash-script-verification.yml/badge.svg)
-![Readiness](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/final-readiness.yml/badge.svg)
-![Dataset](https://img.shields.io/badge/dataset-UCI%20Wine%20Quality-red)
 
 Public GitHub repository: <https://github.com/lorcan973232/mlops-wine-quality-pipeline>
 
-This repository contains my working MLOps pipeline for a red wine quality classifier. It includes the data ingestion code, preprocessing, model training, evaluation, Flask prediction API, browser UI, Docker image, Kind Kubernetes deployment, GitHub Actions workflows, monitoring scripts, tests, security checks, and saved evidence reports.
+This is my MLOps project for a red wine quality classifier. It predicts whether a wine sample is `standard quality` or `good quality` from 11 chemical measurements.
 
-The project is meant to be easy to rerun during assessment. The model is not treated as a black box: the repository saves metrics, metadata, model-selection outputs, monitoring reports, and deployment evidence so the result can be checked again.
+The project uses Python, scikit-learn, Flask, Docker, Kind Kubernetes, GitHub Actions, pytest, and simple monitoring scripts. The main evidence is saved in `reports/`, the trained model is in `models/`, and the workflows are in `.github/workflows/`.
 
-## What This Repository Contains
+Quick local run:
 
-The pipeline predicts whether a red wine sample is `standard quality` or `good quality` from 11 physicochemical measurements. The target is derived from the original UCI wine `quality` score: wines with `quality >= 6` are labelled as `good quality`, and the rest are labelled as `standard quality`.
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/setup_local.ps1
+powershell -ExecutionPolicy Bypass -File scripts/run_pipeline.ps1
+pytest -q
+python -m app.main
+```
 
-The main audience is the student running the live demo and the assessor checking the artefact. The repository is therefore organised around commands and evidence files rather than hidden manual steps.
+Then open:
 
-| Area | What is included | Main locations |
-|---|---|---|
-| Dataset and preprocessing | UCI red wine CSV, SHA-256 check, processed training dataset | `data/raw/`, `data/processed/`, `src/data.py`, `src/preprocess.py`, `reports/metrics/data_ingestion.json`, `reports/metrics/preprocessing.json` |
-| Model training | ExtraTreesClassifier with StandardScaler preprocessing and saved metadata | `src/model_selection.py`, `src/train.py`, `src/evaluate.py`, `models/wine_quality_classifier.joblib`, `reports/metrics/` |
-| API and UI | Flask app with `/`, `/health`, `/predict`, and optional dashboard routes | `app/main.py`, `app/schemas.py`, `app/templates/index.html`, `static/`, `templates/dashboard.html` |
-| Tests | Unit and integration tests for data, model, API, UI, monitoring, evidence, and workflows | `tests/` |
-| Docker | Container build for the same Flask app and saved model | `Dockerfile`, `.dockerignore`, `deployment/docker-compose.yml` |
-| Kind deployment | Local Kubernetes deployment using Kind and port-forwarding | `deployment/kind/`, `scripts/create_kind_cluster.*`, `scripts/deploy_kind.*` |
-| Automation | CI, training, Docker, deployment, monitoring, security, and final-readiness workflows | `.github/workflows/` |
-| Evidence reports | Metrics, explainability, fairness proxy checks, cost-benefit assumptions, drift checks, security outputs | `reports/` |
+```text
+http://127.0.0.1:5000/
+```
 
-## Repository Access
+## Short project summary
 
-The repository is public for assessment access and must remain public until 21 June 2026. A small visibility-check script is included so the current repository status can be checked again before submission or a live demo.
+The repository shows a full student MLOps workflow. It starts with the UCI red wine dataset, trains a model, checks the model, serves it through a Flask API, packages it with Docker, deploys it to Kind, and writes reports that can be checked later.
 
-| Evidence item | Path or command |
-|---|---|
-| Public repository URL | <https://github.com/lorcan973232/mlops-wine-quality-pipeline> |
-| Current visibility snapshot | `reports/submission/public_repository_evidence.json` |
-| Local visibility check | `python scripts/check_repo_visibility.py` |
-| Scheduled/manual visibility workflow | `.github/workflows/repository-visibility-check.yml` |
-| Required access period | The repository must remain public until 21 June 2026 |
+The model gives useful results for this project, but it is not a perfect wine-quality system. The main point is to show the full MLOps workflow: data, training, testing, API, Docker, Kind, GitHub Actions, monitoring, and saved evidence.
 
-## Why The Project Was Built This Way
+## What the project does
 
-The coursework is about the MLOps workflow as well as the trained model. For that reason, the repository does more than fit a classifier. It shows how data is ingested, checked, transformed, trained, evaluated, served, containerised, deployed, monitored, and tested.
+The project can:
 
-Docker is included so the same Flask app and model can run in a repeatable container. Kind is included to show a Kubernetes-style deployment locally and in GitHub Actions without needing a long-lived cloud service. GitHub Actions is used because each stage can be rerun from the repository and inspected through logs and uploaded artefacts.
+- download and check the red wine dataset;
+- create a processed dataset for binary classification;
+- train an `ExtraTreesClassifier`;
+- compare the model with a baseline;
+- save metrics and model metadata;
+- serve predictions through Flask;
+- show a small browser page for manual predictions;
+- run tests with pytest;
+- build and smoke test a Docker image;
+- deploy the image to local Kind Kubernetes;
+- run GitHub Actions for CI, training, Docker, Kind, monitoring, and security.
 
-## Dataset And Prediction Task
+## Dataset and prediction task
 
 The project uses the UCI Wine Quality red wine dataset.
 
@@ -62,181 +58,123 @@ The project uses the UCI Wine Quality red wine dataset.
 |---|---|
 | Dataset | UCI Wine Quality - Red Wine |
 | Source | <https://archive.ics.uci.edu/dataset/186/wine+quality> |
-| Raw download | `https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv` |
+| Raw CSV | `data/raw/winequality-red.csv` |
 | Raw SHA-256 | `4a402cf041b025d4566d954c3b9ba8635a3a8a01e039005d97d6a710278cf05e` |
 | Source target | `quality` |
 | Model target | `quality_label` |
-| Positive class | `good quality` where `quality >= 6` |
-| Model type | Binary classification |
+| Positive class | `good quality` when `quality >= 6` |
+| Negative class | `standard quality` |
 
-The dataset is small, public, and deterministic, which makes it suitable for demonstrating reproducible MLOps stages. It is not live production data. The 11 input features are chemical measurements from the wine sample:
-
-| Feature | Meaning |
-|---|---|
-| `fixed_acidity` | Non-volatile tartaric acid concentration |
-| `volatile_acidity` | Acetic acid level |
-| `citric_acid` | Citric acid concentration |
-| `residual_sugar` | Sugar left after fermentation |
-| `chlorides` | Salt concentration |
-| `free_sulfur_dioxide` | Free sulfur dioxide concentration |
-| `total_sulfur_dioxide` | Total sulfur dioxide concentration |
-| `density` | Wine density |
-| `ph` | Acidity/alkalinity value |
-| `sulphates` | Sulphate concentration |
-| `alcohol` | Alcohol by volume percentage |
-
-## Repository Structure
+The input columns are:
 
 ```text
-.
-|-- app/                       Flask API, validation, model loading, UI routes
-|-- data/
-|   |-- raw/                   Downloaded UCI CSV
-|   `-- processed/             Processed classification dataset
-|-- deployment/
-|   |-- docker-compose.yml
-|   `-- kind/                  Kubernetes manifests for Kind
-|-- models/                    Saved model bundle used by API and Docker
-|-- reports/                   Metrics, monitoring, security, and submission evidence
-|-- scripts/                   Setup, smoke tests, deployment, monitoring, security checks
-|-- src/                       Data, preprocessing, training, evaluation, registry code
-|-- tests/                     Pytest suite
-|-- Dockerfile
-|-- Makefile
-|-- requirements.txt
-`-- .github/workflows/         GitHub Actions workflows
+fixed_acidity, volatile_acidity, citric_acid, residual_sugar, chlorides,
+free_sulfur_dioxide, total_sulfur_dioxide, density, ph, sulphates, alcohol
 ```
 
-## How The Pipeline Works
+This dataset is useful for coursework because it is public, small, and easy to rerun. It is not live winery data.
+
+## Main files and folders
+
+| Path | What it is for |
+|---|---|
+| `app/` | Flask API, model loading, request checks, and web page |
+| `data/raw/` | Original UCI CSV |
+| `data/processed/` | Processed dataset used by training and monitoring |
+| `deployment/kind/` | Kubernetes manifests for Kind |
+| `models/wine_quality_classifier.joblib` | Saved model used by Flask, Docker, and Kind |
+| `reports/metrics/` | Model metrics, quality gate, and metadata |
+| `reports/monitoring/` | Data checks and drift reports |
+| `reports/explainability/` | SHAP and feature explanation reports |
+| `reports/fairness/` | Proxy group fairness check |
+| `reports/business/` | Cost-benefit example |
+| `reports/security/` | Security scan outputs |
+| `reports/submission/public_repository_evidence.json` | Current repository visibility snapshot |
+| `scripts/` | Setup, pipeline, deployment, monitoring, and smoke-test scripts |
+| `src/` | Data, preprocessing, training, evaluation, and registry code |
+| `tests/` | pytest tests |
+| `.github/workflows/` | GitHub Actions workflows |
+| `Dockerfile` | Docker image build |
+| `Makefile` | Short commands for common tasks |
+
+## How the pipeline runs
 
 ```mermaid
 flowchart LR
-  A["UCI red wine CSV"] --> B["Data ingestion: src.data"]
-  B --> C["Preprocessing: src.preprocess"]
-  C --> D["Model selection: src.model_selection"]
-  D --> E["Training: src.train"]
-  E --> F["Evaluation and quality gate: src.evaluate"]
-  F --> G["Model metadata: src.model_registry"]
-  G --> H["Flask API and browser UI"]
+  A["UCI red wine CSV"] --> B["Data check"]
+  B --> C["Preprocess data"]
+  C --> D["Model selection"]
+  D --> E["Train model"]
+  E --> F["Evaluate and quality gate"]
+  F --> G["Save model metadata"]
+  G --> H["Flask API and web page"]
   H --> I["Docker image"]
-  I --> J["Kind Kubernetes deployment"]
-  F --> K["Continuous Training workflow"]
-  H --> L["Monitoring and drift checks"]
+  I --> J["Kind deployment"]
+  F --> K["Continuous Training"]
+  H --> L["Monitoring"]
 ```
 
-The local pipeline runs in this order:
+The local pipeline runs these steps:
 
-1. `src.data` downloads or validates the raw UCI CSV and records dataset evidence.
-2. `src.preprocess` creates the processed classification dataset and records the schema.
-3. `src.model_selection` compares candidate approaches and writes model-selection reports.
-4. `src.train` trains the selected model and saves the model bundle.
-5. `src.evaluate` writes metrics, confusion matrices, classification reports, and the quality-gate decision.
-6. `src.model_registry` records lightweight model metadata and version evidence.
-7. `app.main` loads the saved model and serves the prediction API and UI.
-8. Docker and Kind run the same app through repeatable deployment commands.
-9. Monitoring scripts check schema, missing values, PSI drift, and optional API availability.
+1. `python -m src.data`
+2. `python -m src.preprocess`
+3. `python -m src.model_selection`
+4. `python -m src.train`
+5. `python -m src.evaluate`
+6. `python -m src.model_registry`
+7. `python -m src.predict`
 
-## Model Training And Evaluation
+The same steps can be run with:
 
-The selected model is an `ExtraTreesClassifier`. The preprocessing pipeline uses median imputation and `StandardScaler` for the numeric feature columns. Model selection is recorded by `src/model_selection.py`, which compares the baseline, tuned ExtraTrees model, and ensemble option. The final saved model is stored at `models/wine_quality_classifier.joblib`.
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/run_pipeline.ps1
+```
 
-The main metrics are accuracy, balanced accuracy, macro F1, weighted F1, precision, recall, ROC AUC, and cross-validation accuracy. Balanced accuracy and macro F1 are useful here because the two derived classes are not guaranteed to behave identically.
+or:
 
-Current saved metric evidence is in `reports/metrics/latest_metrics.json`.
+```bash
+bash scripts/run_pipeline.sh
+```
 
-| Metric | Current saved value |
+## Model results
+
+The selected model is an `ExtraTreesClassifier`. It uses median imputation and `StandardScaler` in the preprocessing pipeline. The saved model is `models/wine_quality_classifier.joblib`.
+
+Main saved results:
+
+| Metric | Saved value |
 |---|---:|
-| Accuracy | `0.825` |
-| Balanced accuracy | `0.8237371953373366` |
-| Precision macro | `0.8243482364043884` |
-| Recall macro | `0.8237371953373366` |
-| F1 macro | `0.8240100565681961` |
-| Precision weighted | `0.8248997286775982` |
-| Recall weighted | `0.825` |
-| F1 weighted | `0.8249175047140165` |
-| ROC AUC | `0.9192668472075041` |
-| 5-fold CV accuracy mean/std | `0.8100122549019607 / 0.019345789260910167` |
-| Baseline accuracy | `0.534375` |
-| Baseline weighted F1 | `0.37221232179226066` |
+| Accuracy | 0.825 |
+| Balanced accuracy | 0.824 |
+| Macro F1 | 0.824 |
+| Weighted F1 | 0.825 |
+| ROC AUC | 0.919 |
+| Baseline accuracy | 0.534 |
+| 5-fold CV accuracy mean | 0.810 |
+| Quality gate | Passed |
 
-The quality gate is recorded in `reports/metrics/quality_gate_report.json`.
+The quality gate checks accuracy, balanced accuracy, macro F1, weighted F1, cross-validation accuracy, and improvement over the baseline. The current saved model passes all of these checks.
 
-| Gate | Threshold | Current saved status |
-|---|---:|---|
-| Accuracy | `>= 0.80` | Passed |
-| Balanced accuracy | `>= 0.80` | Passed |
-| Weighted F1 | `>= 0.80` | Passed |
-| Macro F1 | `>= 0.80` | Passed |
-| CV accuracy mean | `>= 0.77` | Passed |
-| Accuracy improvement over baseline | `>= 0.20` | Passed |
+Full values are saved in:
 
-These values are good enough for the coursework pipeline, but they should not be read as a perfect wine-quality model. The model performance should be read alongside the full MLOps pipeline, because the project is assessing the workflow as well as the trained model.
+- `reports/metrics/latest_metrics.json`
+- `reports/metrics/quality_gate_report.json`
+- `reports/metrics/model_metadata.json`
+- `reports/metrics/model_comparison.json`
+- `reports/metrics/classification_report.json`
+- `reports/metrics/confusion_matrix.json`
+- `reports/metrics/cross_validation_results.json`
 
-## Model Metrics And Hyperparameters
+## Flask API and web page
 
-The current model metadata is saved under `reports/metrics/model_metadata.json` and `reports/metrics/latest_metrics.json`.
+The Flask app is in `app/main.py`.
 
-```json
-{
-  "algorithm": "ExtraTreesClassifier",
-  "classifier": {
-    "n_estimators": 300,
-    "max_depth": null,
-    "min_samples_leaf": 1,
-    "min_samples_split": 2,
-    "class_weight": "balanced",
-    "random_state": 42,
-    "n_jobs": 1
-  },
-  "preprocessing": {
-    "numeric_imputer_strategy": "median",
-    "numeric_scaler": "StandardScaler"
-  },
-  "train_test_split": {
-    "test_size": 0.2,
-    "random_state": 42,
-    "shuffle": true,
-    "stratify": "quality_label"
-  }
-}
-```
-
-Useful metric files:
-
-| File | What it records |
+| Route | What it does |
 |---|---|
-| `reports/metrics/latest_metrics.json` | Current model metrics and quality-gate summary |
-| `reports/metrics/baseline_metrics.json` | Dummy most-frequent baseline |
-| `reports/metrics/quality_gate_report.json` | Accept/reject decision for the candidate model |
-| `reports/metrics/model_metadata.json` | Dataset, schema, hyperparameters, metrics, and model version |
-| `reports/metrics/model_comparison.json` | Candidate model and baseline comparison |
-| `reports/metrics/classification_report.json` | Per-class, macro, and weighted metrics |
-| `reports/metrics/confusion_matrix.json` | Held-out confusion matrix |
-| `reports/metrics/cross_validation_results.json` | Stratified 5-fold cross-validation results |
-| `reports/metrics/feature_importance.json` | Feature importance ranking |
-
-## Advanced Tier 3 Evidence
-
-Feature importance is saved in `reports/metrics/feature_importance.json`. The top features in the current saved report are alcohol, sulphates, and volatile acidity. This is useful in a live demo because it gives model-derived evidence rather than just naming the algorithm.
-
-SHAP evidence is generated by `scripts/explain_model.py` and saved under `reports/explainability/`. The reports include global feature evidence and one local example explanation. If SHAP has to fall back for an environment reason, the output is labelled rather than presented as something it is not.
-
-The fairness audit is in `reports/fairness/`. The UCI wine dataset does not contain protected attributes, so the audit uses non-sensitive proxy groups based on alcohol and sulphates tertiles. Those proxy groups are useful for checking subgroup behaviour, but they are not a protected-characteristic fairness claim. The current summary reports a maximum equalized-odds-style gap of `0.5919`, so subgroup behaviour should be reviewed before any real operational use.
-
-The cost-benefit analysis is in `reports/business/`. The values are labelled as simulated assumptions and should not be treated as real business values.
-
-## Flask API And Live-Demo Web UI
-
-The Flask app is in `app/main.py`. It exposes:
-
-| Route | Purpose |
-|---|---|
-| `/` | Browser UI for entering wine features and making a prediction |
-| `/health` | Checks that the API can load the saved model bundle |
-| `/predict` | Validates the request body and returns prediction, label, confidence, probabilities, target name, and model version |
-| `/dashboard/` | Optional dashboard view built from saved reports |
-
-The browser UI calls the real `/predict` endpoint. That matters for the live demo because clicking `Use Example` and `Predict Quality` exercises the same validation and model path used by the API smoke tests, Docker container, and Kind deployment.
+| `/` | Browser page for entering wine values |
+| `/health` | Checks that the app can load the model |
+| `/predict` | Returns the predicted class, confidence, probabilities, and model version |
+| `/dashboard/` | Optional dashboard built from saved reports |
 
 Example request body:
 
@@ -258,11 +196,11 @@ Example request body:
 }
 ```
 
-## Running Locally
+The web page uses the real `/predict` route. This means the browser demo uses the same model path as the API tests, Docker container, and Kind deployment.
 
-Use the setup scripts before running the pipeline on a fresh machine. Windows users should normally use the PowerShell scripts. The Bash scripts are kept for Linux, macOS, Git Bash, and GitHub Actions.
+## Run the project locally
 
-PowerShell:
+On Windows, use PowerShell:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/setup_local.ps1
@@ -270,7 +208,7 @@ powershell -ExecutionPolicy Bypass -File scripts/check_setup.ps1
 .\.venv\Scripts\Activate.ps1
 ```
 
-Bash or Git Bash:
+On Linux, macOS, or Git Bash:
 
 ```bash
 bash scripts/setup_local.sh
@@ -278,14 +216,7 @@ bash scripts/check_setup.sh
 source .venv/bin/activate 2>/dev/null || source .venv/Scripts/activate
 ```
 
-Explicit Git Bash on Windows:
-
-```powershell
-& "C:\Program Files\Git\bin\bash.exe" scripts/setup_local.sh
-& "C:\Program Files\Git\bin\bash.exe" scripts/check_setup.sh
-```
-
-Run the full local pipeline:
+Run the full pipeline:
 
 ```powershell
 python -m src.data
@@ -297,95 +228,87 @@ python -m src.model_registry
 python -m src.predict
 ```
 
-One-command local pipeline wrappers:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/run_pipeline.ps1
-```
-
-```bash
-bash scripts/run_pipeline.sh
-```
-
-Makefile shortcuts mirror the same scripts and modules:
-
-```bash
-make setup
-make check-setup
-make test
-make data
-make preprocess
-make train
-make evaluate
-make run-api
-make docker-build
-make kind-deploy
-make deployment-readiness
-make monitor
-make security-scan
-make full-local-verify
-```
-
-## Running Tests
-
-Run these checks after activating the virtual environment:
-
-```powershell
-python -m compileall app src tests scripts
-pytest -q
-ruff check src tests scripts
-python -c "from app.main import app; print('Flask import OK')"
-```
-
-The test suite covers the data path, API validation, model evidence, monitoring scripts, workflow YAML, UI route, explainability outputs, fairness audit, and cost-benefit report.
-
-## Starting Flask Locally
-
-Start the API:
+Start Flask:
 
 ```powershell
 python -m app.main
 ```
 
-Open the UI:
+Open the browser page:
 
 ```text
 http://127.0.0.1:5000/
 ```
 
-Useful checks while Flask is running:
+Smoke test the local API:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:5000
-python scripts/benchmark_api.py http://127.0.0.1:5000 --samples 100
 ```
 
-The current saved benchmark report is `reports/benchmarks/api_sla_report.json`. It is a local API latency check, not a guarantee about every future machine.
+Makefile shortcuts are also available:
 
-## Docker Container
+```bash
+make setup
+make test
+make train
+make evaluate
+make run-api
+make docker-build
+make kind-deploy
+make monitor
+make security-scan
+```
 
-Docker packages the Flask app, saved model, data path, reports, and Python dependencies into one image. The Dockerfile also re-runs the core pipeline during the image build and runs the app as a non-root user called `appuser`.
+## Run the tests
 
-Build and smoke test the container:
+Run the main checks with:
+
+```powershell
+python -m compileall app src tests scripts
+pytest -q
+```
+
+The tests cover data handling, model reports, API behaviour, UI routes, monitoring, workflows, explainability, fairness, cost-benefit output, and deployment readiness.
+
+## Run with Docker
+
+Docker runs the same Flask app and saved model in a container.
+
+Build and start the container:
 
 ```powershell
 docker build -t mlops-flask-api:latest .
 docker run --rm -d --name mlops-flask-demo -p 5001:5000 mlops-flask-api:latest
-powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:5001
-docker stop mlops-flask-demo
 ```
 
-Open the Docker-served UI:
+Open the Docker web page:
 
 ```text
 http://127.0.0.1:5001/
 ```
 
-## Kind Kubernetes Deployment
+Smoke test it:
 
-Kind is used to show the container running through Kubernetes manifests without depending on a cloud VM. The deployment is local or GitHub-runner based and is expected to be temporary. It is not a persistent public service.
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:5001
+docker stop mlops-flask-demo
+```
 
-The manifests are in `deployment/kind/`. The deployment uses three replicas, readiness and liveness probes on `/health`, a `ClusterIP` service, and port-forwarding for local access.
+The Docker workflow is `.github/workflows/docker-build.yml`.
+
+## Deploy with Kind Kubernetes
+
+Kind is used for a local Kubernetes demo. It is not a public cloud service.
+
+The Kind files are:
+
+- `deployment/kind/deployment.yaml`
+- `deployment/kind/service.yaml`
+- `scripts/create_kind_cluster.ps1`
+- `scripts/deploy_kind.ps1`
+- `scripts/create_kind_cluster.sh`
+- `scripts/deploy_kind.sh`
 
 PowerShell:
 
@@ -409,181 +332,181 @@ kubectl rollout status deployment/mlops-flask-api
 kubectl port-forward service/mlops-flask-api 8080:80
 ```
 
-Open the Kind-served UI:
+Open the Kind web page:
 
 ```text
 http://127.0.0.1:8080/
 ```
 
-Smoke test the Kind deployment:
+Smoke test it:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:8080
-python scripts/monitor.py --api-url http://127.0.0.1:8080
 ```
 
-If Docker, Kind, or kubectl are not available on the local machine, run:
+Check local deployment tools with:
 
 ```powershell
 python scripts/check_deployment_readiness.py
 ```
 
-The script returns `PASS` if the local deployment tools are ready. If local tools are blocked but the current commit has successful GitHub Actions evidence for `Docker Build` and `Deploy Kind`, it returns `PASS` with `verification_source: "github_actions_current_sha"`. This makes the blocker explicit instead of pretending a local deployment was run.
+If local Docker, Kind, or kubectl are missing, this script can point to `github_actions_current_sha` when the matching GitHub Actions evidence exists for the current commit.
 
-If Kind is slow during a live demo, it is reasonable to show the current `Deploy Kind` workflow run, the manifests, the rollout logs, and the saved smoke-test evidence instead of spending the whole demo waiting for a local cluster.
+The Kind workflow is `.github/workflows/deploy.yml`.
 
-## MLOps Workflow Detail: CI/CD/CT/CM
+## GitHub Actions workflows
 
-GitHub Actions is used so the main MLOps stages can run without relying only on local commands. Each workflow should be checked through its current run logs and artefacts for the commit being submitted.
+The workflows are in `.github/workflows/`.
 
-| Workflow | GitHub Actions display name | When it runs | What it checks or produces |
+| Workflow file | Display name | When it runs | Main job |
 |---|---|---|---|
-| `ci.yml` | CI | Push, pull request, manual | Compile check, lint, tests, Flask import, and core ML smoke path |
-| `data-preprocessing.yml` | Data Preprocessing | Data/preprocess changes, pull request, manual | Raw data validation and processed dataset generation |
-| `train-and-evaluate.yml` | Train and Evaluate | Model-code changes, pull request, manual | Training, evaluation, reports, and model metadata |
-| `continuous-training.yml` | Continuous Training | Weekly schedule and manual | Retraining path, model evaluation, quality gate, and model registry evidence |
-| `docker-build.yml` | Docker Build | Push, pull request, manual | Docker image build and API smoke test |
-| `deploy.yml` | Deploy Kind | Push to `main` and manual | Kind cluster setup, image loading, Kubernetes rollout, and API smoke test |
-| `monitoring.yml` | Monitoring | Daily schedule and manual | Data-quality checks, PSI drift check, and retraining signal evidence |
-| `model-analysis.yml` | Tier 3 Model Analysis | Model/report changes, pull request, manual | SHAP, proxy fairness audit, optimisation, ensemble, cost-benefit, and monitoring evidence |
-| `security-scan.yml` | Security Scan | Push, pull request, manual | No-secrets check, dependency scan, Docker checks, Trivy scan, and SBOM output |
-| `repository-visibility-check.yml` | Repository Visibility Check | Daily schedule and manual | Current repository visibility snapshot |
-| `bash-script-verification.yml` | Bash Script Verification | Push, pull request, manual | Bash script path on an Ubuntu runner |
-| `final-readiness.yml` | Final Readiness | Push to `main` and manual | Final readiness report for the current SHA |
+| `.github/workflows/ci.yml` | CI | Push, pull request, manual | Compile, lint, tests, Flask import, ML smoke path |
+| `.github/workflows/data-preprocessing.yml` | Data Preprocessing | Data/preprocess changes, pull request, manual | Data check and processed dataset |
+| `.github/workflows/train-and-evaluate.yml` | Train and Evaluate | Model changes, pull request, manual | Training, metrics, model metadata |
+| `.github/workflows/continuous-training.yml` | Continuous Training | Weekly and manual | Retraining and quality gate |
+| `.github/workflows/docker-build.yml` | Docker Build | Push, pull request, manual | Docker build and API smoke test |
+| `.github/workflows/deploy.yml` | Deploy Kind | Push to `main` and manual | Kind rollout and API smoke test |
+| `.github/workflows/monitoring.yml` | Monitoring | Daily and manual | Data checks, drift checks, retraining signal |
+| `.github/workflows/model-analysis.yml` | Tier 3 Model Analysis | Model/report changes, pull request, manual | SHAP, proxy fairness, cost-benefit, model analysis |
+| `.github/workflows/security-scan.yml` | Security Scan | Push, pull request, manual | Secrets, dependencies, Docker checks, SBOM |
+| `.github/workflows/final-readiness.yml` | Final Readiness | Push to `main` and manual | Current readiness report |
+| `.github/workflows/bash-script-verification.yml` | Bash Script Verification | Push, pull request, manual | Bash scripts on Ubuntu |
+| `.github/workflows/repository-visibility-check.yml` | Repository Visibility Check | Daily and manual | Current repository visibility snapshot |
+
+Do not assume a workflow passed just because the file exists. Check the Actions tab for the commit being shown.
 
 ## Continuous Training
 
-Continuous Training is handled by `.github/workflows/continuous-training.yml`. It runs weekly and can also be started manually. The workflow reruns the data, preprocessing, model selection, training, evaluation, and model-registry steps.
+Continuous Training is in `.github/workflows/continuous-training.yml`. It runs weekly and can also be started by hand.
 
-The important part is the quality gate in `src/evaluate.py`. A candidate model is accepted only if it passes the saved thresholds for accuracy, balanced accuracy, macro F1, weighted F1, cross-validation accuracy, and improvement over the baseline. A weaker candidate would fail the workflow instead of being treated as an accepted model.
+It reruns data loading, preprocessing, model selection, training, evaluation, and model registry steps. A new model is accepted only if it passes the quality gate in `src/evaluate.py`.
 
-Evidence files:
+Useful files:
 
-| File | Purpose |
+| File | What to check |
 |---|---|
-| `reports/metrics/quality_gate_report.json` | Current quality-gate decision |
-| `reports/metrics/model_registry.json` | Lightweight model registry record |
-| `reports/model_registry/version_history.json` | Version history |
-| `reports/metrics/model_metadata.json` | Model, data, metrics, and hyperparameter metadata |
+| `reports/metrics/quality_gate_report.json` | Current quality gate result |
+| `reports/metrics/model_registry.json` | Latest model registry entry |
+| `reports/model_registry/version_history.json` | Model version history |
+| `reports/metrics/model_metadata.json` | Model, data, metrics, and settings |
 
-## Continuous Monitoring And Drift Checks
+## Monitoring and drift checks
 
-Monitoring is a lightweight coursework monitoring stage rather than full production telemetry. It has two modes:
+Monitoring is simulated unless an API URL is passed in.
 
-| Mode | How it is used |
-|---|---|
-| Offline simulated monitoring | Checks the processed dataset schema, missing values, feature distributions, and PSI drift logic |
-| API-aware monitoring | Calls a deployed API URL when one is available, for example the Kind port-forward URL |
-
-Run monitoring locally:
+Run offline monitoring:
 
 ```powershell
 python scripts/monitor.py
 python scripts/check_drift.py
 ```
 
-Run monitoring against a deployed API:
+Run monitoring against a live API:
 
 ```powershell
 python scripts/monitor.py --api-url http://127.0.0.1:8080
 ```
 
-Main monitoring reports:
+Main reports:
 
-| File | What to look for |
+| File | What it shows |
 |---|---|
 | `reports/monitoring/data_quality_report.json` | Schema and missing-value checks |
 | `reports/monitoring/monitoring_report.json` | Overall monitoring status |
-| `reports/monitoring/drift_report.json` | PSI drift results, simulated drift batch, and retraining flags |
-| `reports/monitoring/api_monitoring_report.json` | API-aware monitoring output when run against a service |
+| `reports/monitoring/drift_report.json` | PSI drift results and retraining flags |
+| `reports/monitoring/api_monitoring_report.json` | API-aware monitoring output |
 
-The current drift report records no drift in the current batch and includes a deterministic simulated drift batch to show that the retraining-trigger logic works. The simulated signal is useful for demonstration, but it is not the same as observing real production drift.
+The current batch has no drift. The drift report also includes a simulated drift example to show that the retraining trigger works.
 
-## Security And No-Secrets Checks
+## Extra evidence, if included
 
-Security checks are included as practical evidence. They do not claim that dependencies or base images will never have future vulnerabilities.
+### Feature importance and SHAP
 
-| Evidence | Path |
-|---|---|
-| Security workflow | `.github/workflows/security-scan.yml` |
-| Local security script | `scripts/security_scan.py` |
-| Security summary | `reports/security/security_scan_summary.md` |
-| Dependency scan report | `reports/security/dependency_scan.txt` |
-| Secret scan report | `reports/security/secret_scan.txt` |
-| Docker security notes | `reports/security/docker_security_notes.md` |
-| SBOM | `reports/security/sbom.spdx.json` |
+Feature importance is saved in `reports/metrics/feature_importance.json`. The top three features in the current report are alcohol, sulphates, and volatile acidity.
 
-Run the local security evidence script:
+SHAP reports are saved in `reports/explainability/`. The feature report helps explain what the model uses when it makes predictions.
+
+Limit: these reports explain this saved model and dataset split. They do not prove that the same patterns will hold for new real-world data.
+
+### Fairness proxy check
+
+The fairness check is saved in `reports/fairness/`. The wine dataset does not include protected attributes, so the check uses proxy groups based on alcohol and sulphates.
+
+The current report has a maximum equalized-odds-style gap of `0.592`. This means subgroup errors should be reviewed before any real use.
+
+Limit: this is not a protected-attribute audit.
+
+### Cost-benefit example
+
+The cost-benefit example is saved in `reports/business/cost_benefit_report.json`. It links the confusion matrix to made-up decision values.
+
+Limit: the values are simulated examples, not real company values.
+
+### Drift checks
+
+Drift reports are saved in `reports/monitoring/`. They check schema, missing values, PSI drift, and retraining flags.
+
+Limit: the drift signal is simulated unless the script is run against real changing data.
+
+### Security checks
+
+Security outputs are saved in `reports/security/`. They include a secrets scan, dependency scan, Docker notes, security summary, and SBOM.
+
+Run the local security script with:
 
 ```powershell
 python scripts/security_scan.py
 ```
 
-## Branching Strategy
+Limit: these checks are a snapshot. They do not mean future dependencies or images will always be safe.
 
-The repository uses a simple `feature/* -> develop -> main` strategy. `main` is the stable assessment branch. `develop` is the integration branch. Feature branches are used for grouped changes before they are merged.
+## Branching strategy
 
-Branching evidence is saved in `reports/submission/branching_evidence.md`. That file records the pull-request route used for the project and the historic PR links. The current Actions page should still be checked for the submitted commit because older PR evidence does not say anything about a later commit.
+The repository uses a simple `feature/* -> develop -> main` strategy.
 
-## Final Readiness Evidence
+- `main` is the stable branch used for submission.
+- `develop` is the integration branch.
+- `feature/*` branches are used for grouped changes.
 
-The final-readiness script collects a snapshot of local and workflow-facing evidence:
+Branching notes are saved in `reports/submission/branching_evidence.md`.
 
-```bash
-python scripts/final_readiness_check.py
-```
+## Traceability table
 
-It writes generated output under `reports/final_readiness/generated/` and keeps stable supporting notes under:
+| Project need | Where it is shown | How to check it |
+|---|---|---|
+| Model training and testing | `src/train.py`, `src/evaluate.py`, `tests/`, `reports/metrics/latest_metrics.json` | Run `python -m src.train`, `python -m src.evaluate`, and `pytest -q` |
+| Flask prediction API | `app/main.py`, `app/schemas.py`, `scripts/smoke_test_api.ps1` | Run `python -m app.main` and the smoke test |
+| Docker container | `Dockerfile`, `.dockerignore`, `.github/workflows/docker-build.yml` | Run the Docker commands or check the Docker workflow |
+| Kind deployment | `deployment/kind/`, `scripts/deploy_kind.ps1`, `.github/workflows/deploy.yml` | Run the Kind commands or check the Deploy Kind workflow |
+| GitHub Actions | `.github/workflows/` | Open the Actions tab or run `pytest tests/test_workflows.py -q` |
+| Continuous Training | `.github/workflows/continuous-training.yml`, `reports/metrics/quality_gate_report.json` | Start the workflow manually or rerun local training and evaluation |
+| Monitoring | `scripts/monitor.py`, `scripts/check_drift.py`, `reports/monitoring/` | Run the monitoring commands |
+| Tests | `tests/` | Run `pytest -q` |
+| Branching strategy | `reports/submission/branching_evidence.md` | Read the branch notes and compare with PR history |
+| Extra model evidence | `reports/explainability/`, `reports/fairness/`, `reports/business/`, `reports/security/` | Open the saved reports or rerun the matching scripts |
 
-| File | Purpose |
-|---|---|
-| `reports/final_readiness/final_readiness_summary.md` | Summary of final-readiness checks |
-| `reports/final_readiness/live_demo_checklist.md` | Repeatable live-demo checklist |
-| `.github/workflows/final-readiness.yml` | Workflow that uploads current readiness evidence |
+## Demo steps
 
-Generated readiness files can become stale after another commit, so the current workflow artefact is the better evidence for the exact submitted SHA.
+These steps give a quick way to show the project working.
 
-## Traceability Matrix
+1. Open the repository and this README.
+2. Show `src/`, `app/`, `tests/`, `Dockerfile`, `deployment/kind/`, `.github/workflows/`, and `reports/`.
+3. Open `reports/metrics/latest_metrics.json` and `reports/metrics/quality_gate_report.json`.
+4. Run `python -m compileall app src tests scripts`.
+5. Run `pytest -q`.
+6. Start Flask with `python -m app.main`.
+7. Open `http://127.0.0.1:5000/`.
+8. Click `Use Example`, then `Predict Quality`.
+9. Open `http://127.0.0.1:5000/health`.
+10. Run the API smoke test against `http://127.0.0.1:5000`.
+11. Show the Docker workflow or run the Docker commands if Docker is available.
+12. Show the Kind workflow or run the Kind commands if Docker, Kind, and kubectl are ready.
+13. Show `reports/monitoring/drift_report.json`.
+14. Show `reports/fairness/fairness_report.json`.
+15. Show `reports/security/security_scan_summary.md`.
+16. Open the current GitHub Actions runs for CI, Train, Docker, Deploy, Continuous Training, Monitoring, and Security.
 
-| Artefact requirement | Evidence in this repository | How to verify it | Status |
-|---|---|---|---|
-| Public GitHub repository | Public URL, `reports/submission/public_repository_evidence.json`, `.github/workflows/repository-visibility-check.yml` | Open the repository URL or run `python scripts/check_repo_visibility.py` | Current visibility evidence present |
-| Repository public until 21 June 2026 | Repository access section, `reports/submission/public_repository_evidence.json`, scheduled visibility workflow | Keep the repository public and rerun `python scripts/check_repo_visibility.py` or the workflow close to submission | Current public status is checked; future status depends on repository visibility being maintained |
-| Training/testing of ML model | `src/train.py`, `src/evaluate.py`, `tests/`, `reports/metrics/latest_metrics.json` | Run `python -m src.train`, `python -m src.evaluate`, `pytest -q` | Supported by code, tests, and reports |
-| Flask/API deployment | `app/main.py`, `app/schemas.py`, `scripts/smoke_test_api.*` | Run `python -m app.main`, open `/health`, run smoke test | Present |
-| Branching strategy | `reports/submission/branching_evidence.md` | Read the evidence file and compare with GitHub PR history | Evidence recorded |
-| GitHub Actions workflows | `.github/workflows/*.yml` | Open Actions runs or run `pytest tests/test_workflows.py -q` | Workflows present and tested structurally |
-| Data ingestion/preprocessing workflow | `src/data.py`, `src/preprocess.py`, `data/raw/`, `data/processed/`, `data-preprocessing.yml` | Run `python -m src.data` and `python -m src.preprocess` | Present |
-| Retraining/Continuous Training workflow | `continuous-training.yml`, `src/evaluate.py`, `reports/metrics/quality_gate_report.json` | Start workflow manually or rerun local training/evaluation commands | Present |
-| Continuous Deployment workflow | `deploy.yml`, `Dockerfile`, `deployment/kind/`, `scripts/deploy_kind.*` | Check `Deploy Kind` workflow or run the Kind commands locally | Present |
-| Continuous Monitoring/model management | `monitoring.yml`, `scripts/monitor.py`, `scripts/check_drift.py`, `src/model_registry.py`, `reports/model_registry/` | Run monitoring and model registry commands | Present |
-| At least two tests | `tests/` contains API, data, model, monitoring, workflow, UI, and evidence tests | Run `pytest -q` | Present |
-| Docker containerisation | `Dockerfile`, `.dockerignore`, `docker-build.yml` | Run Docker build/run/smoke-test commands | Present |
-| Kind Kubernetes deployment | `deployment/kind/deployment.yaml`, `deployment/kind/service.yaml`, `deploy.yml`, `scripts/check_deployment_readiness.py` | Run Kind commands locally or run `python scripts/check_deployment_readiness.py` to verify local tools or current-SHA Actions evidence | Present |
-| README and reproducibility evidence | `README.md`, `Makefile`, setup scripts, final-readiness reports | Follow README setup and verification commands | Present |
-| Live demo readiness | Flask UI, smoke scripts, final-readiness checklist, reports | Follow the live demo sequence below | Present |
-
-## Live Demo Checklist
-
-This is the shortest route I would use in a live assessment.
-
-1. Open the public repository and this README.
-2. Show the repository structure: `src/`, `app/`, `tests/`, `Dockerfile`, `deployment/kind/`, `.github/workflows/`, and `reports/`.
-3. Show `reports/metrics/latest_metrics.json`, `reports/metrics/model_metadata.json`, and `reports/metrics/quality_gate_report.json`.
-4. Start Flask locally with `python -m app.main`.
-5. Open `http://127.0.0.1:5000/`, click `Use Example`, then click `Predict Quality`.
-6. Show `http://127.0.0.1:5000/health`.
-7. Run the API smoke test against `http://127.0.0.1:5000`.
-8. Show the Docker workflow or run the Docker build and smoke test if Docker is available locally.
-9. Show the Kind workflow or run the Kind deployment if Docker, Kind, and kubectl are already set up.
-10. If local Docker/Kind tools are missing, run `python scripts/check_deployment_readiness.py` and show the `github_actions_current_sha` evidence source.
-11. Show the Continuous Training quality gate and explain what would reject a bad model.
-12. Show `reports/monitoring/drift_report.json` and explain current-batch drift versus simulated drift.
-13. Show `reports/fairness/fairness_report.json` and explain that the groups are proxy groups, not protected attributes.
-14. Show `reports/security/security_scan_summary.md`, `secret_scan.txt`, and `docker_security_notes.md`.
-15. Open the current GitHub Actions runs for CI, Train and Evaluate, Docker Build, Deploy Kind, Continuous Training, Monitoring, Security Scan, and Final Readiness.
-
-Useful live-demo commands:
+Useful demo commands:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/check_setup.ps1
@@ -602,18 +525,16 @@ python scripts/check_drift.py
 
 ## Limitations
 
-This project is a coursework MLOps artefact, not a production wine-quality system. The dataset is a fixed public research dataset, so it does not include live data collection, real customer feedback, or changing production distributions.
+This is a student project, not a live wine-quality service.
 
-Monitoring is offline simulated by default, with optional API-aware checks when the Flask service is running. That is enough to demonstrate schema checks, missing-value checks, PSI drift logic, and retraining signals, but it is not full production telemetry.
+Monitoring is simulated unless an API URL is passed in.
 
-The fairness audit uses proxy groups because the dataset does not contain protected attributes. The proxy subgroup results are useful for spotting uneven behaviour, but they should not be presented as a demographic fairness audit.
+The fairness check uses proxy groups because the dataset does not include protected attributes.
 
-The cost-benefit values are simulated assumptions, not real business values. They are included to show how the confusion matrix could be connected to decision-making.
+The cost-benefit values are made-up examples, not real company values.
 
-The Kind deployment is temporary and local or runner-based. It demonstrates Kubernetes manifests, rollout, probes, service routing, and smoke testing, but it is not a public cloud deployment.
+Kind is used for a local Kubernetes demo. It is not a public cloud service.
 
-Model management is implemented through saved metadata, version reports, quality gates, and workflow artefacts rather than an external registry such as MLflow.
+The model is trained on a fixed public dataset, so it may not work well on very different wine data.
 
-## Final Notes
-
-The most important thing to check is that the commands, reports, and workflow logs all line up. A prediction in the browser should use the same saved model as the local tests, Docker container, and Kind deployment. The saved reports under `reports/` make the training, evaluation, monitoring, and security evidence inspectable instead of relying on a verbal explanation.
+Before showing the project, check that the browser prediction, tests, Docker container, Kind deployment, reports, and GitHub Actions all use the same saved model.
