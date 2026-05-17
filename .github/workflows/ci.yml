@@ -55,6 +55,9 @@ jobs:
       - name: Static checks
         run: ruff check src tests scripts
 
+      - name: Check for stale or internal evidence
+        run: python scripts/check_stale_evidence.py
+
       - name: Compile Python modules
         run: python -m compileall app src tests scripts
 

@@ -10,6 +10,7 @@
 ![Visibility](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/repository-visibility-check.yml/badge.svg)
 ![Security](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/security-scan.yml/badge.svg)
 ![Bash](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/bash-script-verification.yml/badge.svg)
+![Readiness](https://github.com/lorcan973232/mlops-wine-quality-pipeline/actions/workflows/final-readiness.yml/badge.svg)
 ![Dataset](https://img.shields.io/badge/dataset-UCI%20Wine%20Quality-red)
 
 Public GitHub repository: <https://github.com/lorcan973232/mlops-wine-quality-pipeline>
@@ -62,6 +63,14 @@ The artefact classifies a red wine sample as `standard quality` or `good quality
 | Model | `ExtraTreesClassifier` |
 | Model path | `models/wine_quality_classifier.joblib` |
 | Model version | `1.0.1` |
+
+The UCI red wine dataset is intentionally small, public, and deterministic, which
+makes it suitable for demonstrating MLOps engineering rather than hiding pipeline
+behaviour behind large-data infrastructure. The artefact focus is reproducible
+data acquisition, preprocessing, model selection, evaluation, quality gates,
+serving, containerisation, Kind deployment, CT, CM, security evidence, and
+traceability. The report still needs to justify the dataset and binary threshold
+with academic references; that is marked as `USER_ACTION_REQUIRED` below.
 
 ## Input Schema
 
@@ -465,7 +474,7 @@ Security checks are artefact evidence, not report/video material. The repository
 The Security Scan workflow runs a no-secrets check, a Dockerfile non-root check,
 `pip-audit` against `requirements.txt`, a Docker runtime-user check, a Trivy image
 scan, and SBOM generation. The Docker image scan is evidence output; it does not
-pretend that third-party base images are permanently free of CVEs. The workflow uploads
+claim that third-party base images are permanently free of CVEs. The workflow uploads
 `security-reports` so a marker can inspect the current dependency, image, and SBOM
 evidence for the submitted SHA.
 
@@ -501,6 +510,7 @@ flowchart LR
 | Repository Visibility Check | Public-repository evidence | Daily cron `0 8 * * *`; manual | `python scripts/check_repo_visibility.py` | `repository-visibility-evidence` | Fails if the repository is private or visibility is not `public` | `.github/workflows/repository-visibility-check.yml`, `reports/submission/public_repository_evidence.json` | Show current public visibility evidence and deadline note |
 | Bash Script Verification | Bash/Linux reproducibility | `push`/PR on `main`, `develop`; manual | `chmod +x scripts/*.sh`; `bash -n`; `bash scripts/check_bash_environment.sh`; `bash scripts/check_setup.sh --python-only`; local Flask API smoke test | `bash-script-verification-logs` | Fails if Bash scripts have syntax errors, setup check fails, Flask health is unavailable, or Bash smoke test fails | `.github/workflows/bash-script-verification.yml`, `scripts/check_bash_environment.sh`, `scripts/smoke_test_api.sh` | Show Ubuntu Bash run when local Windows bash is blocked |
 | Security Scan | Security/reproducibility evidence | `push`/PR on `main`, `develop`; manual | `python scripts/security_scan.py`; `python -m pip_audit -r requirements.txt`; Docker build; Docker runtime-user check; Trivy image scan; SBOM generation | `security-reports` with dependency, secret, Docker, Trivy, and SBOM evidence | Fails on hard-coded credential findings, missing non-root Docker user, dependency audit failure, or root runtime user | `.github/workflows/security-scan.yml`, `reports/security/` | Show no-secrets report, dependency scan, Docker non-root evidence, Trivy report, and SBOM |
+| Final Readiness | Submission evidence consolidation | `push` to `main`; manual | compile, pytest, Ruff, workflow tests, security summary, stale-evidence check, visibility check, readiness report generation | `final-readiness-evidence` with generated readiness, submission, and security reports | Fails if tests/lint fail, internal files are tracked, stale evidence is committed, visibility is private, or required reports cannot be generated | `.github/workflows/final-readiness.yml`, `scripts/final_readiness_check.py`, `scripts/check_stale_evidence.py` | Show the latest `Final Readiness` artefact for SHA-specific proof |
 
 ### Continuous Integration Details
 
@@ -631,7 +641,7 @@ The repository now includes research-grade artefact evidence beyond the core MLO
 
 ### SHAP and Explainability
 
-SHAP explains a prediction by estimating how much each feature contributes to the model output. `scripts/explain_model.py` uses `shap.TreeExplainer` for the selected tree model. If SHAP is unavailable or incompatible on a runner, the script falls back to sklearn permutation importance and labels the report with `status: shap_fallback` instead of pretending SHAP ran.
+SHAP explains a prediction by estimating how much each feature contributes to the model output. `scripts/explain_model.py` uses `shap.TreeExplainer` for the selected tree model. If SHAP is unavailable or incompatible on a runner, the script falls back to sklearn permutation importance and labels the report with `status: shap_fallback` instead of claiming SHAP ran.
 
 The current explainability evidence identifies `alcohol`, `sulphates`, `volatile_acidity`, and `total_sulfur_dioxide` as leading drivers in the generated report. Exact values are stored in `reports/explainability/shap_feature_importance.json`. Local explanation evidence for one held-out example is stored in `reports/explainability/local_explanation_example.json`.
 
@@ -683,9 +693,9 @@ python scripts/explain_model.py
 Remove-Item Env:\FAST_MODE
 ```
 
-### Tier 3 Mark Mapping
+### Advanced Evidence Mapping
 
-| Mark evidence | Repository evidence |
+| Evidence area | Repository evidence |
 |---|---|
 | Advanced explainability | Real SHAP TreeExplainer reports or explicit fallback, global and local outputs |
 | Responsible ML/fairness | Proxy subgroup audit with limitations and no false protected-attribute claims |
@@ -711,25 +721,66 @@ Remove-Item Env:\FAST_MODE
 ## Live Demo Checklist
 
 1. Show the public GitHub repo and this README.
-2. Show `reports/submission/public_repository_evidence.json` and explain that current public visibility is verified while the repo must remain public until 21 June 2026.
-3. Show `reports/submission/branching_evidence.md` and the linked GitHub pull request evidence.
-4. Open the GitHub Actions tab and show latest successful runs for CI, Data Preprocessing, Train and Evaluate, Docker Build, Deploy Kind, Continuous Training, Monitoring, Repository Visibility Check, and Security Scan.
-5. Open one workflow log and point to the real commands, not just the YAML.
-6. Download or open uploaded artefacts: CI artefacts, preprocessing artefacts, train/evaluate artefacts, Docker logs, Kind deployment logs, CT quality gate, monitoring reports, security reports, and visibility evidence.
-7. On Windows, run `powershell -ExecutionPolicy Bypass -File scripts/run_pipeline.ps1` to show the full local verification path. Use `& "C:\Program Files\Git\bin\bash.exe" scripts/run_pipeline.sh` only when using Git Bash explicitly.
-8. Run `python -m compileall app src tests`, `pytest -q`, and `ruff check src tests` if the marker wants to see the individual CI commands.
-9. Run `python -m src.data`, `python -m src.preprocess`, `python -m src.model_selection`, `python -m src.train`, `python -m src.evaluate`, `python -m src.model_registry`, and `python -m src.predict`.
-10. Show `latest_metrics.json`, `classification_report.json`, `confusion_matrix.json`, `model_metadata.json`, `model_comparison.json`, and `quality_gate_report.json`.
-11. **NEW: Show `feature_importance.json` and explain the top-3 most predictive features (alcohol, sulphates, volatile_acidity) and their importance scores.**
-12. **NEW: Show `fairness_analysis.json` and explain per-class metrics, disparities, and whether the model is balanced (is_balanced: true means no class fairness warnings).**
-13. Explain the CT quality gate and show `passed`, thresholds, baseline comparison, and accepted/rejected decision.
-14. Start Flask and open `http://127.0.0.1:5000/`; click `Use Example`, then `Predict Quality`.
-15. **NEW: While Flask is running, show API logs (structured JSON) by checking stdout/logs; point to request_id, latency_ms, model_version in logs.**
-16. **NEW: Run `python scripts/benchmark_api.py http://127.0.0.1:5000 --samples 50` to show latency benchmark; explain p50, p95, p99, and SLA (sla_met: true).**
-17. Build Docker, open `http://127.0.0.1:5001/`, and run the smoke test.
-18. Deploy to Kind, port-forward the service, open `http://127.0.0.1:8080/`, and run the smoke test.
-19. Run offline monitoring, drift check, and API-aware monitoring; show `retraining_required` and `reason`.
-20. Show `reports/security/secret_scan.txt`, `reports/security/docker_security_notes.md`, and `reports/security/sbom.spdx.json`, plus the latest Security Scan workflow.
+2. Show the latest `Final Readiness`, `Repository Visibility Check`, `Security Scan`, `Docker Build`, `Deploy Kind`, `Continuous Training`, and `Monitoring` GitHub Actions runs.
+3. Open one workflow log and point to the real commands, not just the YAML.
+4. Show `reports/submission/public_repository_evidence.json` as a current snapshot and explain that the repository must remain public until 21 June 2026.
+5. Show `reports/submission/branching_evidence.md` and the linked pull-request evidence.
+6. Open the Flask UI at `http://127.0.0.1:5000/`, click `Use Example`, then `Predict Quality`.
+7. Show `/health` and `/predict` smoke-test responses.
+8. Show `latest_metrics.json`, `model_metadata.json`, `model_comparison.json`, `classification_report.json`, and `quality_gate_report.json`.
+9. Explain the CT quality gate and show `passed`, thresholds, baseline comparison, and accepted/rejected decision.
+10. Show monitoring/drift reports and the `retraining_required` field.
+11. Show security summaries: `reports/security/security_scan_summary.md`, `secret_scan.txt`, `docker_security_notes.md`, and `sbom.spdx.json`.
+12. Run the PowerShell path on Windows: `powershell -ExecutionPolicy Bypass -File scripts/run_pipeline.ps1`.
+13. If using Git Bash explicitly, run `& "C:\Program Files\Git\bin\bash.exe" scripts/run_pipeline.sh`.
+
+## Recommended Live Demo Path
+
+The safest 10-15 minute demonstration path is:
+
+1. Show the public repository, README workflow table, and traceability matrix.
+2. Show latest successful GitHub Actions runs and the `Final Readiness` artefact.
+3. Run or show `powershell -ExecutionPolicy Bypass -File scripts/check_setup.ps1`.
+4. Start Flask locally, open `http://127.0.0.1:5000/`, and make a real prediction.
+5. Show `/health` and one API smoke-test response.
+6. Show Docker evidence through the latest `Docker Build` workflow or a quick local smoke test if Docker is already warm.
+7. Show Kind deployment through the latest `Deploy Kind` workflow artefact.
+8. Show CT quality gate, monitoring report, drift/data-quality report, and security summary.
+
+### If Kind Is Slow During the Live Demo
+
+Kind cluster creation can be slow on Windows. If local Kind is not already running,
+show the latest successful `Deploy Kind` workflow, Kubernetes manifests, deployment
+logs, pod/service output, and saved smoke-test evidence. If the local cluster is
+already running, show `kubectl get pods`, `kubectl get svc`, port-forward the
+service, and open `http://127.0.0.1:8080/`. Do not spend most of the video waiting
+for cluster creation.
+
+## Final Submission Evidence
+
+The latest GitHub Actions runs are the authoritative evidence for workflow success.
+The committed reports are reproducibility evidence and current snapshots; they are
+not permanent proof of future public visibility or future workflow status.
+
+Before final submission and before the live demo, rerun or verify:
+
+- `Final Readiness` workflow for SHA-specific readiness evidence;
+- `Repository Visibility Check` workflow for current public visibility;
+- `Security Scan` workflow for dependency/image/security evidence;
+- `Docker Build` workflow for image and API smoke testing;
+- `Deploy Kind` workflow for automatic Kubernetes deployment evidence;
+- `Continuous Training` workflow for retraining and quality-gate evidence;
+- `Monitoring` workflow for CM/drift evidence.
+
+`USER_ACTION_REQUIRED` outside the artefact:
+
+- add the GitHub repository link to the report;
+- justify the dataset, target threshold, and use case with academic references;
+- record the video with camera on;
+- show latest successful GitHub Actions during the video;
+- show Docker/Kind/deployment architecture during the video;
+- mention model metrics and hyperparameters;
+- submit the report and video to Blackboard.
 
 ## Final Readiness Evidence
 
@@ -739,27 +790,26 @@ The final readiness pack is generated by:
 python scripts/final_readiness_check.py
 ```
 
-It writes:
+It writes SHA-specific evidence under `reports/final_readiness/generated/`:
 
 | File | Purpose |
 |---|---|
-| `reports/final_readiness/final_readiness_report.json` | Consolidated artefact-readiness evidence |
-| `reports/final_readiness/final_readiness_summary.md` | Short marker-facing summary |
-| `reports/final_readiness/latest_github_actions_runs.json` | Latest GitHub Actions run snapshot |
-| `reports/final_readiness/local_command_results.json` | Local verification and Bash/PowerShell route summary |
+| `reports/final_readiness/generated/final_readiness_report.json` | Current artefact-readiness evidence |
+| `reports/final_readiness/generated/latest_github_actions_runs.json` | Current GitHub Actions run snapshot |
+| `reports/final_readiness/generated/local_command_results.json` | Local verification and Bash/PowerShell route summary |
+| `reports/final_readiness/final_readiness_summary.md` | Stable summary of the checks |
 | `reports/final_readiness/live_demo_checklist.md` | Repeatable demo checklist with fallback path |
 
-This pack does not replace the underlying checks. It records where the marker
-can verify repository visibility, latest SHA, GitHub Actions, Docker, Kind,
-Flask/API, UI, CT, CM, monitoring, security, and the remaining responsibility
-to keep the repository public until 21 June 2026.
+The generated directory is not committed because the contents become stale after
+the next commit. The `Final Readiness` workflow uploads the current generated
+files as a workflow artefact.
 
 ## Traceability Matrix
 
 | Requirement | File/path | Local command | GitHub Actions workflow | Artefact produced | Quality gate/test | Status | Remaining action |
 |---|---|---|---|---|---|---|---|
 | Public repository visibility | `reports/submission/public_repository_evidence.json`, `.github/workflows/repository-visibility-check.yml` | `gh repo view --json name,url,visibility,isPrivate` | `repository-visibility-check.yml` | `repository-visibility-evidence` | Fails if repository is private or visibility is not `public` | Current visibility verified; must remain public until 21 June 2026 | Check latest visibility workflow for submitted SHA |
-| Public until 21 June 2026 safeguard | README public-access section, `scripts/check_repo_visibility.py` | `python scripts/check_repo_visibility.py` | `repository-visibility-check.yml` | visibility JSON with latest SHA and public-until note | workflow fails if current visibility is private | Safeguarded honestly; future date still depends on student keeping repository public | Rerun close to submission and before live demo |
+| Public until 21 June 2026 safeguard | README public-access section, `scripts/check_repo_visibility.py` | `python scripts/check_repo_visibility.py` | `repository-visibility-check.yml` | visibility snapshot with current SHA-at-check-time and public-until note | workflow fails if current visibility is private | Safeguarded honestly; future date still depends on student keeping repository public | Rerun close to submission and before live demo |
 | Setup reproducibility | `scripts/setup_local.*`, `scripts/check_setup.*`, `Makefile` | `powershell -ExecutionPolicy Bypass -File scripts/check_setup.ps1`; `bash scripts/check_setup.sh` | `ci.yml`, `bash-script-verification.yml` | setup logs, CI setup check | dependency imports and tooling checks | Windows and Bash/Linux routes documented and checked | Use `.venv` or script/Makefile paths |
 | Bash/PowerShell support | `scripts/check_bash_environment.*`, `scripts/smoke_test_api.*`, `scripts/deploy_kind.*` | `powershell -ExecutionPolicy Bypass -File scripts/check_bash_environment.ps1`; `bash scripts/check_bash_environment.sh` | `bash-script-verification.yml`, `deploy.yml` | Bash verification logs, Kind deployment logs | Bash syntax/setup/API smoke on Ubuntu; PowerShell route on Windows | Implemented with broken-WSL fallback | Use PowerShell if local Windows bash is broken |
 | CI | `.github/workflows/ci.yml`, `tests/` | `python -m compileall app src tests`; `ruff check src tests`; `pytest -q` | `ci.yml` | `ci-artifacts` | compile, lint, Flask import, pytest, ML smoke path | Implemented and verifiable in Actions | Check latest run for submitted SHA |
@@ -777,18 +827,20 @@ to keep the repository public until 21 June 2026.
 | Tier 3 drift/data quality monitoring | `scripts/monitor.py`, `scripts/check_drift.py`, `reports/monitoring/` | `python scripts/monitor.py`; `python scripts/check_drift.py`; optional `python scripts/monitor.py --api-url http://127.0.0.1:8080` | `model-analysis.yml`, `monitoring.yml` | `monitoring_report.json`, `data_quality_report.json`, `drift_report.json` | `tests/test_monitoring.py`; offline simulated mode and PSI flags required | Implemented | Show `retraining_required`, simulated drift signal, and data-quality checks |
 | Model management | `src/model_registry.py`, `reports/metrics/model_metadata.json`, `reports/metrics/model_registry.json`, `reports/model_registry/version_history.json` | `python -m src.model_registry` | `train-and-evaluate.yml`, `continuous-training.yml`, `monitoring.yml` | model metadata, registry record, version history, CT artefacts | quality gate passed before registration in CT | Implemented as lightweight repository/Actions artefact model management, not external MLflow/GHCR promotion | None |
 | Branching strategy | README Branching Strategy section, `reports/submission/branching_evidence.md` | `git branch -a`; `gh pr list --state all` | CI, Docker, Deploy, CT, Monitoring workflows | PR and run evidence in GitHub | CI before merge; `main` deploys; schedules run from workflow definitions | Documented and evidence file present | Check PR links and latest run status |
-| Branch/PR evidence | `reports/submission/branching_evidence.md` | `gh pr view 3`; `gh pr view 4` | PR checks plus push workflows | PR URLs, merge status, SHAs | PR-triggered CI protects `feature/* -> develop -> main` | Real PR evidence recorded | Keep evidence aligned with final SHA |
-| Security evidence | `.github/workflows/security-scan.yml`, `scripts/security_scan.py`, `reports/security/` | `python scripts/security_scan.py`; `python -m pip_audit -r requirements.txt --progress-spinner off`; `docker build -t mlops-flask-api:latest .` | `security-scan.yml` | dependency scan, secret scan, Docker non-root notes, Trivy report, SBOM | no hard-coded credential findings, dependency audit, Docker non-root check, root-runtime check | Implemented and verifiable in Actions | Check latest security workflow for submitted SHA |
+| Branch/PR evidence | `reports/submission/branching_evidence.md` | `gh pr view 3`; `gh pr view 4` | PR checks plus push workflows | PR URLs, merge status, SHAs | PR-triggered CI protects `feature/* -> develop -> main` | Real PR evidence recorded | Verify PR links and latest workflow runs before submission |
+| Security evidence | `.github/workflows/security-scan.yml`, `scripts/security_scan.py`, `reports/security/` | `python scripts/security_scan.py`; `python -m pip_audit -r requirements.txt --progress-spinner off`; `docker build -t mlops-flask-api:latest .` | `security-scan.yml` | safe security summary, dependency scan, secret scan, Docker non-root notes, Trivy report, SBOM | no hard-coded credential findings, dependency audit, Docker non-root check, root-runtime check, no internal planning files | Implemented and verifiable in Actions | Check latest security workflow for submitted SHA |
 | Live demonstration evidence | README Live Demo Checklist, `scripts/run_pipeline.sh`, `scripts/run_pipeline.ps1` | commands in checklist; `powershell -ExecutionPolicy Bypass -File scripts/run_pipeline.ps1`; explicit Git Bash if needed | Actions tab plus local commands | workflow artefacts, API responses, reports, security evidence | marker observes real commands and artefacts | Documented | Student must show during video |
-| Final readiness report | `scripts/final_readiness_check.py`, `reports/final_readiness/` | `python scripts/final_readiness_check.py` | latest run snapshot from GitHub CLI | final readiness report, summary, action snapshot, command snapshot, demo checklist | expected latest-SHA workflow list and evidence presence | Implemented | Regenerate after final push if required |
+| Final readiness report | `scripts/final_readiness_check.py`, `scripts/check_stale_evidence.py`, `.github/workflows/final-readiness.yml` | `python scripts/final_readiness_check.py`; `python scripts/check_stale_evidence.py` | `final-readiness.yml` | current generated readiness artefact plus stable committed summary | tests, lint, workflow tests, security summary, stale-evidence check, visibility check | Implemented without committed stale SHA claims | Rerun `Final Readiness` before submission and live demo |
 
 ## Limitations
 
 The dataset is a fixed public research dataset rather than live production telemetry.
-Monitoring is therefore simulated and API-aware rather than production-grade
-observability. Kind deployment is automated but ephemeral, either local or
-GitHub-runner based, not a persistent public cloud service. Model management is a
-lightweight repository/Actions artefact registry, not an external production registry.
+Monitoring is implemented as offline simulated monitoring plus API-aware checks
+against the deployed service; it does not claim to be production telemetry. Kind
+deployment is automated but ephemeral, either local or GitHub-runner based, not
+a persistent public cloud service. Model management is implemented through
+versioned model metadata, metrics reports, quality gates, and workflow artefacts
+rather than an external model registry.
 Security reports are current evidence for the submitted SHA, not a permanent guarantee
 that future dependency or base-image CVEs will never appear. The model is intended for
 MLOps pipeline demonstration, not wine-production decision making.

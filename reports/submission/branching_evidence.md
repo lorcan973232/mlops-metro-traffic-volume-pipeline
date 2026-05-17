@@ -11,16 +11,16 @@ This file records real branch and pull-request evidence for the artefact branchi
 | `feature/final-artefact-verification` | Earlier evidence branch proving the documented `feature/* -> develop` pull-request path. |
 | `feature/final-artefact-hardening` | Final artefact-hardening branch proving the same path after security, Docker, reproducibility, CT/CM, and evidence updates. |
 
-## Current Branch Evidence
+## Historical Branch Evidence
 
 | Evidence item | Value |
 |---|---|
 | Repository | <https://github.com/lorcan973232/mlops-wine-quality-pipeline> |
 | Default branch | `main` |
-| Current final feature branch | `feature/final-artefact-hardening` |
-| Current feature SHA | `c77d4cf38cea994a249530f95d3fd97f39487cf1` |
-| Current `main` SHA before final promotion | `681e1388d834a0ffd130e51ca1f4acc3b09fc1dc` |
-| Current `develop` SHA after PR #3 merge | `4b5f42d6a3620db189404c5fbda5a8f7fe3f0444` |
+| Evidence feature branch | `feature/final-artefact-hardening` |
+| Evidence feature SHA at PR creation | `c77d4cf38cea994a249530f95d3fd97f39487cf1` |
+| `main` SHA before PR #4 promotion | `681e1388d834a0ffd130e51ca1f4acc3b09fc1dc` |
+| `develop` SHA after PR #3 merge | `4b5f42d6a3620db189404c5fbda5a8f7fe3f0444` |
 | Develop synced with main after PR #4 merge | Yes. After PR #4 merged, `develop` was fast-forwarded to `main`; `git rev-list --left-right --count origin/develop...origin/main` returned `0 0`. |
 
 ## Pull Request Evidence
@@ -49,18 +49,16 @@ hardening. It is not a README-only claim.
 | #3 | `feature/final-artefact-hardening` -> `develop` | Merged | Merged at `2026-05-16T14:30:31Z`; merge commit `4b5f42d6a3620db189404c5fbda5a8f7fe3f0444` | CI setup, CI quality gates, Data Preprocessing, Train and Evaluate, Docker Build, and Security Scan check runs returned `SUCCESS` |
 | #4 | `develop` -> `main` | Merged | Merged at `2026-05-16T14:33:59Z`; merge commit `67436a01d7892b0239aedbf0200368e3455d3006` | CI setup, CI quality gates, Data Preprocessing, Train and Evaluate, Docker Build, and Security Scan check runs returned `SUCCESS` |
 
-Current remote branches observed during final hardening:
+Remote branches observed during final hardening:
 
 - `origin/main`
 - `origin/develop`
 - `origin/feature/final-artefact-hardening`
 - `origin/feature/final-artefact-verification`
 
-The final hardening commit is pushed to `main` after local verification. The
-latest post-push workflow evidence is recorded separately in
-`reports/final_readiness/latest_github_actions_runs.json` and in the GitHub
-Actions UI. This avoids pretending that historic PR checks alone prove future
-workflow health.
+The current post-push workflow evidence is recorded in the GitHub Actions UI and in
+the `Final Readiness` workflow artefact. This avoids claiming that historic PR
+checks alone prove future workflow health.
 
 ## CI Status Recorded For PR #3
 

@@ -2,7 +2,7 @@
   "computed_from_model": true,
   "fallback_reason": null,
   "fallback_used": false,
-  "generated_at": "2026-05-17T00:12:32+00:00",
+  "generated_at": "2026-05-17T13:20:49+00:00",
   "interpretation": "Features with larger mean absolute SHAP values have greater average influence on good-quality predictions for the evaluated sample.",
   "method": "shap.TreeExplainer",
   "model_path": "models\\wine_quality_classifier.joblib",

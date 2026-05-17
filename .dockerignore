@@ -8,5 +8,6 @@ venv/
 deployment/
 tests/
 data/processed/*.csv
+reports/final_readiness/generated/
 *.pyc
 *.log

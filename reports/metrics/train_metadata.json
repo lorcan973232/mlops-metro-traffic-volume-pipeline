@@ -118,5 +118,5 @@
   "test_size": 0.2,
   "training_command": "python -m src.train",
   "training_rows": 1279,
-  "training_timestamp": "2026-05-17T00:11:36+00:00"
+  "training_timestamp": "2026-05-17T13:19:05+00:00"
 }

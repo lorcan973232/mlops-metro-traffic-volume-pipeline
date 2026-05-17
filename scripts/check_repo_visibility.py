@@ -106,8 +106,12 @@ def build_evidence() -> dict[str, Any]:
 
     evidence = {
         **payload,
+        "evidence_scope": (
+            "Snapshot generated at checked_at. The latest workflow artefact is the "
+            "authoritative current visibility proof for the submitted commit."
+        ),
         "checked_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
-        "latest_commit_sha": current_sha(),
+        "latest_commit_sha_at_check_time": current_sha(),
         "command_or_method_used": method,
         "fallback_note": fallback_note,
         "requirement": "Repository must remain public until 21 June 2026.",

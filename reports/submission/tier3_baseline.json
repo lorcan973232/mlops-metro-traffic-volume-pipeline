@@ -1,6 +1,6 @@
 {
   "baseline_recorded_at": "2026-05-16T18:59:31.5819957Z",
-  "scope": "Current working baseline recorded before Tier 3 file modifications in this session.",
+  "scope": "Historical technical baseline recorded before advanced evidence files were added.",
   "model_metrics": {
     "source": "reports/metrics/latest_metrics.json",
     "accuracy": 0.825,
@@ -50,20 +50,5 @@
     "status": "present",
     "pre_tier3_section_status": "README already contained core MLOps, metrics, CI/CD/CT/CM, Docker, Kind, security, live demo, and traceability sections."
   },
-  "git_status_before_changes": {
-    "modified": [
-      "models/wine_quality_classifier.joblib",
-      "reports/metrics/latest_metrics.json",
-      "reports/metrics/metrics.json",
-      "reports/metrics/model_comparison.json",
-      "reports/metrics/model_metadata.json",
-      "reports/metrics/model_registry.json",
-      "reports/metrics/train_metadata.json",
-      "reports/model_registry/version_history.json"
-    ],
-    "untracked": [
-      "TIER3_COMPLETE_IMPLEMENTATION.md"
-    ],
-    "note": "Existing dirty workspace state was preserved and not reverted."
-  }
+  "baseline_note": "This file is retained only as technical evidence for metric and workflow baselines. Internal local planning files referenced during earlier development were removed before final artefact submission."
 }

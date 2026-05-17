@@ -16,6 +16,7 @@ EXPECTED_WORKFLOWS = {
     "repository-visibility-check.yml",
     "security-scan.yml",
     "bash-script-verification.yml",
+    "final-readiness.yml",
 }
 
 REQUIRED_COMMAND_PATHS = [
@@ -30,6 +31,7 @@ REQUIRED_COMMAND_PATHS = [
     "scripts/security_scan.py",
     "scripts/check_repo_visibility.py",
     "scripts/final_readiness_check.py",
+    "scripts/check_stale_evidence.py",
     "scripts/check_bash_environment.sh",
 ]
 
@@ -121,6 +123,15 @@ def test_workflow_triggers_and_dependencies_show_lifecycle() -> None:
     assert "docker build -t mlops-flask-api:security" in security_text
     assert "trivy image" in security_text
     assert "security-reports" in security_text
+
+    final_readiness = load_workflow("final-readiness.yml")
+    final_readiness_text = Path(".github/workflows/final-readiness.yml").read_text(
+        encoding="utf-8"
+    )
+    assert final_readiness["jobs"]["final-readiness"]
+    assert "python scripts/check_stale_evidence.py" in final_readiness_text
+    assert "python scripts/final_readiness_check.py" in final_readiness_text
+    assert "final-readiness-evidence" in final_readiness_text
 
 
 def test_deploy_workflow_and_kind_manifests_are_kind_only() -> None:

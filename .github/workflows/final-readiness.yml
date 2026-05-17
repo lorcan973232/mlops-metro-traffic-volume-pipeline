@@ -1,0 +1,64 @@
+name: Final Readiness
+
+permissions:
+  contents: read
+
+"on":
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  final-readiness:
+    name: Submission artefact readiness evidence
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+
+      - name: Set up Python
+        uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Compile Python modules
+        run: python -m compileall app src tests scripts
+
+      - name: Run tests
+        run: pytest -q
+
+      - name: Run lint
+        run: ruff check src tests scripts
+
+      - name: Validate workflow YAML and references
+        run: pytest tests/test_workflows.py -q
+
+      - name: Generate safe security summary
+        run: python scripts/security_scan.py
+
+      - name: Check for stale or internal evidence
+        run: python scripts/check_stale_evidence.py
+
+      - name: Verify current repository visibility
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/check_repo_visibility.py
+
+      - name: Generate current final readiness evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/final_readiness_check.py
+
+      - name: Upload final readiness evidence
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: final-readiness-evidence
+          path: |
+            reports/final_readiness/
+            reports/submission/
+            reports/security/

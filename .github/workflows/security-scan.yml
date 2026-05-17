@@ -32,6 +32,9 @@ jobs:
       - name: Generate repository security evidence
         run: python scripts/security_scan.py
 
+      - name: Check for stale or internal evidence
+        run: python scripts/check_stale_evidence.py
+
       - name: Run pip-audit vulnerability scan
         run: |
           set +e

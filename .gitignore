@@ -12,6 +12,8 @@ venv/
 *.pid
 *.tmp
 
+reports/final_readiness/generated/
+
 data/raw/*.csv
 data/raw/*.xlsx
 !data/raw/winequality-red.csv

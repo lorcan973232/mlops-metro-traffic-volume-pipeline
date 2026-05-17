@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-05-17T13:38:29+00:00",
+  "status": "PASS",
+  "checks": {
+    "credential_pattern_scan": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "env_file_scan": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "internal_planning_file_scan": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "kind_not_google_vm_scan": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "fake_success_claim_scan": {
+      "status": "PASS",
+      "finding_count": 0
+    },
+    "docker_non_root": {
+      "status": "PASS"
+    },
+    "dependency_inventory_or_audit": {
+      "status": "PASS",
+      "pip_audit_requested": false
+    }
+  },
+  "safe_report_files": [
+    "reports/security/dependency_scan.txt",
+    "reports/security/secret_scan.txt",
+    "reports/security/docker_security_notes.md",
+    "reports/security/sbom.spdx.json",
+    "reports/security/security_scan_summary.json",
+    "reports/security/security_scan_summary.md"
+  ],
+  "note": "This is a safe summary. Raw scanner output should not be committed if it contains sensitive values."
+}
