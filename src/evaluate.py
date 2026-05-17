@@ -13,7 +13,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import joblib
 import numpy as np
 from sklearn.dummy import DummyClassifier
 from sklearn.metrics import (
@@ -28,6 +27,7 @@ from sklearn.model_selection import StratifiedKFold, cross_validate, train_test_
 
 from src.data import FEATURE_COLUMNS, TARGET_COLUMN, TARGET_LABELS, write_json
 from src.preprocess import PROCESSED_DATA_PATH
+from src.sklearn_compat import load_joblib_bundle
 from src.train import MODEL_PATH, RANDOM_STATE, TEST_SIZE, load_processed_data, train_model
 from src.versioning import get_current_version
 
@@ -253,7 +253,7 @@ def evaluate_model(
     )
     # Use the same fixed split as training so evaluation can reload the saved
     # model and still compare it against the correct held-out records.
-    bundle = joblib.load(model_path)
+    bundle = load_joblib_bundle(model_path)
     model = bundle["model"]
     feature_importance: dict[str, float] | None = None
     classifier = (

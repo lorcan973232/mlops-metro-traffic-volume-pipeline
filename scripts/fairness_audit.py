@@ -14,7 +14,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-import joblib
 import pandas as pd
 from sklearn.metrics import (
     accuracy_score,
@@ -29,6 +28,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.data import FEATURE_COLUMNS, TARGET_COLUMN, write_json
 from src.preprocess import PROCESSED_DATA_PATH
+from src.sklearn_compat import load_joblib_bundle
 from src.train import MODEL_PATH, RANDOM_STATE, TEST_SIZE, load_processed_data, train_model
 
 FAIRNESS_DIR = Path("reports/fairness")
@@ -56,7 +56,7 @@ def _load_bundle() -> dict[str, Any]:
     """Load the trained model bundle, creating it first on a fresh checkout."""
     if not MODEL_PATH.exists():
         train_model()
-    return joblib.load(MODEL_PATH)
+    return load_joblib_bundle(MODEL_PATH)
 
 
 def _test_frame() -> tuple[pd.DataFrame, pd.Series]:

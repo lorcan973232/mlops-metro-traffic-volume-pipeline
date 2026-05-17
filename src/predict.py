@@ -13,10 +13,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-import joblib
 import pandas as pd
 
 from app.schemas import FEATURE_COLUMNS, PredictionRequestExample, validate_prediction_payload
+from src.sklearn_compat import load_joblib_bundle
 from src.train import MODEL_PATH
 
 # ==============================================================================
@@ -59,7 +59,7 @@ def predict(payload: dict, model_path: Path = MODEL_PATH) -> list[dict[str, Any]
         raise FileNotFoundError(
             f"Model artefact not found at {model_path}. Run `python -m src.train` first."
         )
-    bundle = joblib.load(model_path)
+    bundle = load_joblib_bundle(model_path)
     if bundle.get("feature_columns") != FEATURE_COLUMNS:
         raise ValueError("Saved model feature schema does not match prediction schema.")
     if bundle.get("task_type") != "classification":

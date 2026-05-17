@@ -12,9 +12,8 @@ import os
 from pathlib import Path
 from typing import Any
 
-import joblib
-
 from app.schemas import FEATURE_COLUMNS
+from src.sklearn_compat import load_joblib_bundle
 
 DEFAULT_MODEL_PATH = Path("models/wine_quality_classifier.joblib")
 
@@ -35,7 +34,7 @@ def load_model(model_path: str | Path | None = None) -> dict[str, Any]:
         )
     # The joblib bundle comes from `src.train`. Loading it here joins the training
     # side of the pipeline to the serving side used by Flask and smoke tests.
-    bundle = joblib.load(resolved_path)
+    bundle = load_joblib_bundle(resolved_path)
     # The feature order is part of the model contract. If the API accepted a
     # different order, predictions could be wrong without raising an obvious error.
     if bundle.get("feature_columns") != FEATURE_COLUMNS:

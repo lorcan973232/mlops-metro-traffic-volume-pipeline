@@ -13,7 +13,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-import joblib
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
@@ -21,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.data import FEATURE_COLUMNS, TARGET_COLUMN, TARGET_LABELS, write_json
 from src.preprocess import PROCESSED_DATA_PATH
+from src.sklearn_compat import load_joblib_bundle
 from src.train import MODEL_PATH, RANDOM_STATE, TEST_SIZE, load_processed_data, train_model
 
 BUSINESS_DIR = Path("reports/business")
@@ -46,7 +46,7 @@ def _load_bundle() -> dict[str, Any]:
     """Load the trained model bundle, training first if the artefact is missing."""
     if not MODEL_PATH.exists():
         train_model()
-    return joblib.load(MODEL_PATH)
+    return load_joblib_bundle(MODEL_PATH)
 
 
 def _evaluation_data() -> tuple[Any, Any]:
