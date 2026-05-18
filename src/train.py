@@ -1,14 +1,8 @@
-"""Train and save the scikit-learn model bundle used by every serving path.
-
-This module is responsible for turning the processed CSV into a saved model
-artefact. It is run locally, in GitHub Actions, during Docker image creation,
-and before Kind deployment. The saved joblib bundle contains the fitted pipeline,
-feature schema, target labels, selected hyperparameters, and metadata because the
-Flask API must not depend on unwritten training assumptions.
-"""
+"""Train and save the traffic-volume classification model bundle used by serving."""
 
 from __future__ import annotations
 
+import argparse
 import json
 from datetime import UTC, datetime
 from pathlib import Path
@@ -17,20 +11,26 @@ from typing import Any
 import joblib
 import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier, VotingClassifier
-from sklearn.impute import SimpleImputer
+from sklearn.ensemble import (
+    ExtraTreesClassifier,
+    HistGradientBoostingClassifier,
+    RandomForestClassifier,
+    VotingClassifier,
+)
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from src.data import (
+    CATEGORICAL_FEATURES,
     DATA_DOI,
     DATA_SHA256,
     DATA_SOURCE_PAGE,
     DATASET_NAME,
     FEATURE_COLUMNS,
-    POSITIVE_CLASS_THRESHOLD,
+    HIGH_TRAFFIC_THRESHOLD,
+    NUMERIC_FEATURES,
     RAW_DATA_PATH,
     SOURCE_TARGET_COLUMN,
     TARGET_COLUMN,
@@ -42,41 +42,43 @@ from src.data import (
 from src.preprocess import PROCESSED_DATA_PATH, preprocess_dataset
 from src.versioning import get_current_version
 
-MODEL_PATH = Path("models/wine_quality_classifier.joblib")
+MODEL_PATH = Path("models/traffic_volume_classifier.joblib")
 TRAIN_METADATA_PATH = Path("reports/metrics/train_metadata.json")
 HYPERPARAMETER_SEARCH_RESULTS_PATH = Path("reports/metrics/hyperparameter_search_results.json")
 MODEL_VERSION = get_current_version()
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
+VALIDATION_SIZE = 0.2
 TRAINING_COMMAND = "python -m src.train"
-CATEGORICAL_FEATURES: list[str] = []
-NUMERIC_FEATURES = FEATURE_COLUMNS.copy()
 MODEL_HYPERPARAMETERS: dict[str, Any] = {
-    "algorithm": "ExtraTreesClassifier",
+    "algorithm": "HistGradientBoostingClassifier",
     "classifier": {
-        "n_estimators": 300,
-        "max_depth": None,
-        "min_samples_leaf": 1,
-        "min_samples_split": 2,
+        "max_iter": 320,
+        "learning_rate": 0.06,
+        "max_leaf_nodes": 31,
+        "l2_regularization": 0.0,
         "class_weight": "balanced",
         "random_state": RANDOM_STATE,
-        "n_jobs": 1,
     },
     "train_test_split": {
         "test_size": TEST_SIZE,
+        "validation_size": VALIDATION_SIZE,
         "random_state": RANDOM_STATE,
         "shuffle": True,
         "stratify": TARGET_COLUMN,
+        "final_fit_rows": "train_plus_validation_only",
+        "final_test_usage": "untouched_until_final_evaluation",
     },
     "preprocessing": {
         "categorical_features": CATEGORICAL_FEATURES,
+        "categorical_encoder": "OneHotEncoder(handle_unknown='ignore')",
         "numeric_features": NUMERIC_FEATURES,
-        "numeric_imputer_strategy": "median",
         "numeric_scaler": "StandardScaler",
         "column_transformer_remainder": "drop",
+        "fit_policy": "encoder fitted inside sklearn Pipeline after splitting",
     },
     "selection": {
-        "method": "reproducible GridSearchCV plus ensemble comparison",
+        "method": "RandomizedSearchCV on training split plus validation candidate selection",
         "main_scoring_metric": "f1_macro",
         "secondary_metrics": [
             "balanced_accuracy",
@@ -84,33 +86,18 @@ MODEL_HYPERPARAMETERS: dict[str, Any] = {
             "precision_macro",
             "recall_macro",
             "f1_weighted",
+            "roc_auc",
         ],
         "cross_validation": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42)",
-        "selection_rule": (
-            "highest macro F1 unless an ensemble improves enough to justify extra runtime"
-        ),
+        "selection_rule": "highest validation macro F1 with stable cross-validation",
     },
 }
 
 
-# ==============================================================================
-# Model construction
-# ==============================================================================
-#
-# Training uses a scikit-learn Pipeline so the imputer, scaler, and classifier are
-# saved together. This is important for the Flask API and Docker image because
-# prediction must use the same preprocessing steps as training.
-
-
 def selected_training_configuration() -> dict[str, Any]:
-    """Use saved model-selection evidence when it exists, otherwise use the default.
-
-    This is the link between `src.model_selection` and training. If the search
-    report has been generated, training follows the recorded choice; otherwise a
-    documented ExtraTrees default is used so a fresh checkout still works.
-    """
+    """Use saved model-selection evidence when it exists, otherwise use defaults."""
     default_config = {
-        "model_name": "extra_trees_default",
+        "model_name": "hist_gradient_boosting_default",
         "algorithm": MODEL_HYPERPARAMETERS["algorithm"],
         "classifier": MODEL_HYPERPARAMETERS["classifier"],
         "source": "src.train default hyperparameters",
@@ -123,10 +110,10 @@ def selected_training_configuration() -> dict[str, Any]:
         return default_config
     selected = search.get("selected_model", {})
     model_name = selected.get("model_name")
-    if model_name == "extra_trees_tuned":
+    if model_name == "hist_gradient_boosting_tuned":
         return {
             "model_name": model_name,
-            "algorithm": "ExtraTreesClassifier",
+            "algorithm": "HistGradientBoostingClassifier",
             "classifier": selected.get("hyperparameters", {}).get(
                 "classifier",
                 MODEL_HYPERPARAMETERS["classifier"],
@@ -145,32 +132,66 @@ def selected_training_configuration() -> dict[str, Any]:
 
 
 def _selected_classifier(config: dict[str, Any]) -> Any:
-    """Build the selected estimator without changing the recorded hyperparameters."""
+    """Build the selected estimator from recorded hyperparameters."""
     if config["algorithm"] == "VotingClassifier":
         voting = config["classifier"].get("voting", "soft")
-        extra_trees_params = config["classifier"].get(
-            "extra_trees",
-            MODEL_HYPERPARAMETERS["classifier"],
-        )
-        random_forest_params = config["classifier"].get(
-            "random_forest",
-            {
-                "n_estimators": 200,
-                "max_depth": None,
-                "min_samples_leaf": 1,
-                "class_weight": "balanced_subsample",
-                "random_state": RANDOM_STATE,
-                "n_jobs": 1,
-            },
-        )
-        logistic_params = config["classifier"].get(
-            "logistic_regression",
-            {
-                "max_iter": 1000,
-                "class_weight": "balanced",
-                "random_state": RANDOM_STATE,
-            },
-        )
+        tree_allowed = {
+            "n_estimators",
+            "criterion",
+            "max_depth",
+            "min_samples_leaf",
+            "min_samples_split",
+            "class_weight",
+            "random_state",
+            "n_jobs",
+            "max_features",
+            "max_leaf_nodes",
+        }
+        logistic_allowed = {
+            "C",
+            "class_weight",
+            "max_iter",
+            "random_state",
+            "solver",
+        }
+        extra_trees_params = {
+            key: value
+            for key, value in config["classifier"]
+            .get("extra_trees", MODEL_HYPERPARAMETERS["classifier"])
+            .items()
+            if key in tree_allowed
+        }
+        random_forest_params = {
+            key: value
+            for key, value in config["classifier"]
+            .get(
+                "random_forest",
+                {
+                    "n_estimators": 220,
+                    "max_depth": None,
+                    "min_samples_leaf": 1,
+                    "class_weight": "balanced_subsample",
+                    "random_state": RANDOM_STATE,
+                    "n_jobs": 1,
+                },
+            )
+            .items()
+            if key in tree_allowed
+        }
+        logistic_params = {
+            key: value
+            for key, value in config["classifier"]
+            .get(
+                "logistic_regression",
+                {
+                    "max_iter": 1000,
+                    "class_weight": "balanced",
+                    "random_state": RANDOM_STATE,
+                },
+            )
+            .items()
+            if key in logistic_allowed
+        }
         return VotingClassifier(
             estimators=[
                 ("extra_trees", ExtraTreesClassifier(**extra_trees_params)),
@@ -180,63 +201,49 @@ def _selected_classifier(config: dict[str, Any]) -> Any:
             voting=voting,
             n_jobs=1,
         )
-    return ExtraTreesClassifier(**config["classifier"])
+    if config["algorithm"] == "ExtraTreesClassifier":
+        return ExtraTreesClassifier(**config["classifier"])
+    return HistGradientBoostingClassifier(**config["classifier"])
 
 
 def build_pipeline() -> Pipeline:
-    """Build the preprocessing and classifier pipeline saved as the model artefact.
-
-    The imputer, scaler, and classifier are saved together. That design prevents
-    the API, Docker container, or Kind deployment from applying different
-    preprocessing to the same input features.
-    """
+    """Build the categorical preprocessing and classifier pipeline."""
     config = selected_training_configuration()
     preprocessor = ColumnTransformer(
         transformers=[
             (
                 "numeric",
-                Pipeline(
-                    steps=[
-                        ("imputer", SimpleImputer(strategy="median")),
-                        ("scaler", StandardScaler()),
-                    ]
-                ),
+                StandardScaler(),
                 NUMERIC_FEATURES,
+            ),
+            (
+                "categorical",
+                OneHotEncoder(handle_unknown="ignore", sparse_output=False),
+                CATEGORICAL_FEATURES,
             ),
         ],
         remainder="drop",
         sparse_threshold=0,
     )
-    model = _selected_classifier(config)
-    return Pipeline(steps=[("preprocessor", preprocessor), ("classifier", model)])
+    return Pipeline(
+        steps=[("preprocessor", preprocessor), ("classifier", _selected_classifier(config))]
+    )
 
 
 def load_processed_data(path: Path = PROCESSED_DATA_PATH) -> pd.DataFrame:
-    """Load processed data, creating it first so a fresh checkout can train.
-
-    This avoids a hidden setup step: if `data/processed/` is missing, the
-    reproducible preprocessing stage is run rather than expecting the marker to
-    create the CSV by hand.
-    """
+    """Load processed data, creating it first so a fresh checkout can train."""
     if not path.exists():
         preprocess_dataset(output_path=path)
     return pd.read_csv(path)
 
 
-def train_model(
-    processed_path: Path = PROCESSED_DATA_PATH,
-    model_path: Path = MODEL_PATH,
-) -> tuple[dict[str, Any], pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-    """Train the classifier and save the model bundle used by the API and workflows.
-
-    The same fixed, stratified split is used wherever training runs. The function
-    writes `models/wine_quality_classifier.joblib`, then returns the split data
-    so evaluation can use the same boundary without recomputing model behaviour.
-    """
-    data = load_processed_data(processed_path)
+def split_train_validation_test(
+    data: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
+    """Create the fixed stratified train/validation/test split used everywhere."""
     x = data[FEATURE_COLUMNS]
     y = data[TARGET_COLUMN]
-    x_train, x_test, y_train, y_test = train_test_split(
+    x_train_validation, x_test, y_train_validation, y_test = train_test_split(
         x,
         y,
         test_size=TEST_SIZE,
@@ -244,10 +251,77 @@ def train_model(
         shuffle=True,
         stratify=y,
     )
-    # The split is fixed and stratified so local runs, Docker builds, and GitHub
-    # Actions produce comparable evidence rather than a different result each time.
+    validation_fraction_of_remaining = VALIDATION_SIZE / (1.0 - TEST_SIZE)
+    x_train, x_validation, y_train, y_validation = train_test_split(
+        x_train_validation,
+        y_train_validation,
+        test_size=validation_fraction_of_remaining,
+        random_state=RANDOM_STATE,
+        shuffle=True,
+        stratify=y_train_validation,
+    )
+    return x_train, x_validation, x_test, y_train, y_validation, y_test
+
+
+def split_metadata(
+    y_train: pd.Series,
+    y_validation: pd.Series,
+    y_test: pd.Series,
+) -> dict[str, Any]:
+    """Return auditable split sizes and class distributions."""
+    return {
+        "method": "two_stage_stratified_train_validation_test_split",
+        "train_size": round(1.0 - TEST_SIZE - VALIDATION_SIZE, 10),
+        "validation_size": VALIDATION_SIZE,
+        "test_size": TEST_SIZE,
+        "random_state": RANDOM_STATE,
+        "shuffle": True,
+        "stratify": TARGET_COLUMN,
+        "final_model_fit": "train_plus_validation",
+        "final_test_policy": "untouched_by_tuning_and_model_selection",
+        "rows": {
+            "train": int(len(y_train)),
+            "validation": int(len(y_validation)),
+            "test": int(len(y_test)),
+            "train_plus_validation": int(len(y_train) + len(y_validation)),
+        },
+        "class_distribution": {
+            "train": {
+                str(key): int(value)
+                for key, value in y_train.value_counts().sort_index().to_dict().items()
+            },
+            "validation": {
+                str(key): int(value)
+                for key, value in y_validation.value_counts().sort_index().to_dict().items()
+            },
+            "test": {
+                str(key): int(value)
+                for key, value in y_test.value_counts().sort_index().to_dict().items()
+            },
+        },
+    }
+
+
+def train_model(
+    processed_path: Path = PROCESSED_DATA_PATH,
+    model_path: Path = MODEL_PATH,
+) -> tuple[
+    dict[str, Any],
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.Series,
+    pd.Series,
+    pd.Series,
+]:
+    """Train the classifier and save the model bundle used by the API."""
+    data = load_processed_data(processed_path)
+    x_train, x_validation, x_test, y_train, y_validation, y_test = split_train_validation_test(data)
+    x_train_final = pd.concat([x_train, x_validation], axis=0)
+    y_train_final = pd.concat([y_train, y_validation], axis=0)
+    split_report = split_metadata(y_train, y_validation, y_test)
     pipeline = build_pipeline()
-    pipeline.fit(x_train, y_train)
+    pipeline.fit(x_train_final, y_train_final)
     selected_config = selected_training_configuration()
 
     raw_hash = file_sha256(RAW_DATA_PATH) if RAW_DATA_PATH.exists() else DATA_SHA256
@@ -269,16 +343,19 @@ def train_model(
         "target_definition": {
             "source_target": SOURCE_TARGET_COLUMN,
             "model_target": TARGET_COLUMN,
-            "positive_class_threshold": POSITIVE_CLASS_THRESHOLD,
+            "high_traffic_threshold": HIGH_TRAFFIC_THRESHOLD,
             "negative_class_label": TARGET_LABELS[0],
             "positive_class_label": TARGET_LABELS[1],
             "description": (
-                "Predict whether a red wine sample is good quality from 11 physicochemical inputs."
+                "Predict whether hourly metro interstate traffic is high from weather, "
+                "calendar, and recent traffic conditions."
             ),
         },
         "classes": [int(value) for value in pipeline.named_steps["classifier"].classes_],
         "random_state": RANDOM_STATE,
         "test_size": TEST_SIZE,
+        "validation_size": VALIDATION_SIZE,
+        "split": split_report,
         "hyperparameters": MODEL_HYPERPARAMETERS,
         "selected_model": {
             "model_name": selected_config["model_name"],
@@ -289,25 +366,40 @@ def train_model(
         "training_timestamp": training_timestamp,
         "training_command": TRAINING_COMMAND,
         "model_path": str(model_path),
-        "training_rows": int(len(x_train)),
+        "training_rows": int(len(x_train_final)),
+        "train_rows": int(len(x_train)),
+        "validation_rows": int(len(x_validation)),
         "test_rows": int(len(x_test)),
         "target_summary": {
-            "source_quality_min": float(data[SOURCE_TARGET_COLUMN].min()),
-            "source_quality_max": float(data[SOURCE_TARGET_COLUMN].max()),
-            "source_quality_mean": float(data[SOURCE_TARGET_COLUMN].mean()),
             "class_distribution": {
                 str(key): int(value)
                 for key, value in data[TARGET_COLUMN].value_counts().sort_index().to_dict().items()
             },
         },
     }
-    joblib.dump(bundle, model_path)
-    return bundle, x_train, x_test, y_train, y_test
+    temp_model_path = model_path.with_name(f"{model_path.name}.tmp")
+    if temp_model_path.exists():
+        temp_model_path.unlink()
+    joblib.dump(bundle, temp_model_path)
+    temp_model_path.replace(model_path)
+    return bundle, x_train, x_validation, x_test, y_train, y_validation, y_test
 
 
 def main() -> None:
     """CLI entry point that trains the model and writes training metadata."""
-    bundle, _, _, _, _ = train_model()
+    parser = argparse.ArgumentParser(description="Train the traffic-volume classifier.")
+    parser.add_argument(
+        "--tune",
+        action="store_true",
+        help="Run model selection before training so saved best parameters are used.",
+    )
+    args = parser.parse_args()
+    if args.tune:
+        from src.model_selection import run_model_selection
+
+        run_model_selection()
+
+    bundle, _, _, _, _, _, _ = train_model()
     report = {
         "status": "trained",
         "model_version": bundle["model_version"],
@@ -320,12 +412,16 @@ def main() -> None:
         "task_type": bundle["task_type"],
         "random_state": bundle["random_state"],
         "test_size": bundle["test_size"],
+        "validation_size": bundle["validation_size"],
+        "split": bundle["split"],
         "hyperparameters": bundle["hyperparameters"],
         "selected_model": bundle["selected_model"],
         "selected_hyperparameters": bundle["selected_hyperparameters"],
         "training_timestamp": bundle["training_timestamp"],
         "training_command": TRAINING_COMMAND,
         "training_rows": bundle["training_rows"],
+        "train_rows": bundle["train_rows"],
+        "validation_rows": bundle["validation_rows"],
         "test_rows": bundle["test_rows"],
         "target_summary": bundle["target_summary"],
     }

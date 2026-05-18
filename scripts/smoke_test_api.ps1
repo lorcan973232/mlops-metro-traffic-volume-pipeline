@@ -4,7 +4,7 @@ param(
 
 # This PowerShell smoke test is the Windows equivalent of `smoke_test_api.sh`.
 # It proves the deployed service has loaded the model through `/health`, then
-# sends a real 11-feature wine payload to `/predict` and checks the response
+# sends a real 15-feature traffic payload to `/predict` and checks the response
 # fields used by the browser UI and workflow logs.
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
@@ -21,7 +21,7 @@ if ($health.task_type -ne "classification") {
 if (-not $health.model_version) {
     throw "Health response does not expose model_version: $($health | ConvertTo-Json -Depth 10)"
 }
-if ($health.feature_count -ne 11) {
+if ($health.feature_count -ne 15) {
     throw "Health response feature_count mismatch: $($health | ConvertTo-Json -Depth 10)"
 }
 $health | ConvertTo-Json -Depth 10
@@ -30,17 +30,21 @@ $health | ConvertTo-Json -Depth 10
 # UI demo, and model schema to one shared prediction contract.
 $payload = @{
     features = @{
-        fixed_acidity = 7.4
-        volatile_acidity = 0.7
-        citric_acid = 0.0
-        residual_sugar = 1.9
-        chlorides = 0.076
-        free_sulfur_dioxide = 11.0
-        total_sulfur_dioxide = 34.0
-        density = 0.9978
-        ph = 3.51
-        sulphates = 0.56
-        alcohol = 9.4
+        temp = 288.28
+        rain_1h = 0.0
+        snow_1h = 0.0
+        clouds_all = 40.0
+        hour = 17
+        month = 10
+        day_of_week = 2
+        is_weekend = 0
+        is_holiday = 0
+        weather_main = "Clouds"
+        lag_1h_volume = 5545.0
+        lag_24h_volume = 6015.0
+        lag_168h_volume = 5365.0
+        rolling_3h_volume = 5480.0
+        rolling_24h_volume = 4210.0
     }
 } | ConvertTo-Json -Depth 10
 
@@ -57,13 +61,13 @@ $prediction = Invoke-RestMethod `
 if ($prediction.prediction -notin @(0, 1)) {
     throw "Invalid classification prediction response: $($prediction | ConvertTo-Json -Depth 10)"
 }
-if ($prediction.prediction_label -notin @("standard quality", "good quality")) {
+if ($prediction.prediction_label -notin @("normal traffic", "high traffic")) {
     throw "Prediction label mismatch: $($prediction | ConvertTo-Json -Depth 10)"
 }
 if (-not $prediction.model_version) {
     throw "Prediction response does not expose model_version: $($prediction | ConvertTo-Json -Depth 10)"
 }
-if ($prediction.target -ne "quality_label") {
+if ($prediction.target -ne "high_traffic") {
     throw "Prediction response target mismatch: $($prediction | ConvertTo-Json -Depth 10)"
 }
 if ($null -eq $prediction.confidence) {

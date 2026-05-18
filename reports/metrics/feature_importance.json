@@ -1,32 +1,37 @@
 {
-  "algorithm": "ExtraTreesClassifier.feature_importances_",
+  "algorithm": "permutation_importance_f1_macro",
   "features": {
-    "alcohol": 0.17906369394012578,
-    "chlorides": 0.07126391348953719,
-    "citric_acid": 0.07242953639888436,
-    "density": 0.08127170138019905,
-    "fixed_acidity": 0.06867671942780089,
-    "free_sulfur_dioxide": 0.06640932239963669,
-    "ph": 0.06682423056725526,
-    "residual_sugar": 0.06499241814216145,
-    "sulphates": 0.12261694277193876,
-    "total_sulfur_dioxide": 0.10299181210962714,
-    "volatile_acidity": 0.10345970937283336
+    "clouds_all": 0.0003361614777593891,
+    "day_of_week": 0.011357257325966152,
+    "hour": 0.3125502271316839,
+    "is_holiday": 0.0,
+    "is_weekend": 0.0,
+    "lag_168h_volume": 0.0,
+    "lag_1h_volume": 0.2417170998397242,
+    "lag_24h_volume": 0.0,
+    "month": 0.0,
+    "rain_1h": 0.0,
+    "rolling_24h_volume": 0.00599739537000125,
+    "rolling_3h_volume": 0.017381795805249418,
+    "snow_1h": 0.0,
+    "temp": 0.0006723229555187782,
+    "weather_main": 0.0
   },
   "model_version": "1.0.1",
+  "source_estimator": "permutation_importance_f1_macro",
   "status": "computed",
   "top_3_features": [
     [
-      "alcohol",
-      0.17906369394012578
+      "hour",
+      0.3125502271316839
     ],
     [
-      "sulphates",
-      0.12261694277193876
+      "lag_1h_volume",
+      0.2417170998397242
     ],
     [
-      "volatile_acidity",
-      0.10345970937283336
+      "rolling_3h_volume",
+      0.017381795805249418
     ]
   ]
 }

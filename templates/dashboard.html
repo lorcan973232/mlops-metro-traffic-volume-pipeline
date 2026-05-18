@@ -98,18 +98,18 @@
                             {% if fairness_metrics.is_balanced %}✓ Balanced{% else %}⚠ Alert{% endif %}
                         </span>
                     </div>
-                    <h4>Class 0 (Standard Quality)</h4>
+                    <h4>Class 0 (Normal Traffic)</h4>
                     <div class="metric-row">
                         <span>F1:</span>
                         <span class="value">{{ "%.4f" | format(fairness_metrics.per_class_metrics.class_0.f1) }}</span>
                     </div>
-                    <h4>Class 1 (Good Quality)</h4>
+                    <h4>Class 1 (High Traffic)</h4>
                     <div class="metric-row">
                         <span>F1:</span>
                         <span class="value">{{ "%.4f" | format(fairness_metrics.per_class_metrics.class_1.f1) }}</span>
                     </div>
                     {% else %}
-                    <!-- The wine dataset has no protected attributes, so this
+                    <!-- The traffic dataset has no protected attributes, so this
                          view is limited to saved class-balance evidence. -->
                     <p>No fairness data available</p>
                     {% endif %}

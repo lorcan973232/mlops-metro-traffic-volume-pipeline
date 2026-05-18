@@ -1,70 +1,64 @@
-"""Create the deterministic model-ready dataset from the validated raw CSV.
-
-Preprocessing is deliberately small for this dataset: the raw physicochemical
-features are kept, the source `quality` score is retained for traceability, and
-the binary `quality_label` target is added. This stage matters because training,
-testing, Docker, Kind, Continuous Training, and monitoring must all start from
-the same processed table rather than separate hand-made inputs.
-"""
+"""Preprocess the UCI traffic-volume dataset for classification."""
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
 
 from src.data import (
     FEATURE_COLUMNS,
-    POSITIVE_CLASS_THRESHOLD,
+    HIGH_TRAFFIC_THRESHOLD,
     RAW_DATA_PATH,
     SOURCE_TARGET_COLUMN,
     TARGET_COLUMN,
     TARGET_LABELS,
+    TASK_TYPE,
     download_dataset,
     load_raw_data,
     validate_raw_data,
     write_json,
 )
 
-PROCESSED_DATA_PATH = Path("data/processed/winequality-red-processed.csv")
-PREPROCESS_REPORT_PATH = Path("reports/metrics/preprocessing.json")
+PROCESSED_DATA_PATH = Path("data/processed/metro-traffic-processed.csv")
+PREPROCESSING_REPORT_PATH = Path("reports/metrics/preprocessing.json")
 
 
-def preprocess_frame(raw_frame: pd.DataFrame) -> pd.DataFrame:
-    """Create the deterministic training table used by training, Docker, and CT.
-
-    The caller supplies a raw UCI-style frame. The returned frame keeps the
-    training features in schema order and adds the binary target, so the next
-    stage can split and train without guessing how the label was produced.
-    """
-    validate_raw_data(raw_frame)
-    # Keep the original numeric quality score for traceability, then add the
-    # binary label used by the classifier. The threshold is documented so the
-    # marker can see exactly how the modelling target was created.
-    processed = raw_frame[[*FEATURE_COLUMNS, SOURCE_TARGET_COLUMN]].copy()
-    processed[TARGET_COLUMN] = (
-        processed[SOURCE_TARGET_COLUMN] >= POSITIVE_CLASS_THRESHOLD
+def preprocess_frame(frame: pd.DataFrame) -> pd.DataFrame:
+    """Create calendar, lag, rolling, and high-traffic target features."""
+    validate_raw_data(frame)
+    prepared = frame.sort_values("date_time").drop_duplicates(subset=["date_time"], keep="last")
+    prepared = prepared.reset_index(drop=True)
+    date_time = pd.to_datetime(prepared["date_time"])
+    prepared["hour"] = date_time.dt.hour
+    prepared["month"] = date_time.dt.month
+    prepared["day_of_week"] = date_time.dt.dayofweek
+    prepared["is_weekend"] = (date_time.dt.dayofweek >= 5).astype(int)
+    prepared["is_holiday"] = (prepared["holiday"] != "None").astype(int)
+    prepared["lag_1h_volume"] = prepared[SOURCE_TARGET_COLUMN].shift(1)
+    prepared["lag_24h_volume"] = prepared[SOURCE_TARGET_COLUMN].shift(24)
+    prepared["lag_168h_volume"] = prepared[SOURCE_TARGET_COLUMN].shift(168)
+    prepared["rolling_3h_volume"] = prepared[SOURCE_TARGET_COLUMN].shift(1).rolling(3).mean()
+    prepared["rolling_24h_volume"] = prepared[SOURCE_TARGET_COLUMN].shift(1).rolling(24).mean()
+    prepared[TARGET_COLUMN] = (
+        prepared[SOURCE_TARGET_COLUMN] >= HIGH_TRAFFIC_THRESHOLD
     ).astype(int)
-    return processed
+    return prepared[[*FEATURE_COLUMNS, SOURCE_TARGET_COLUMN, TARGET_COLUMN]].dropna().reset_index(
+        drop=True
+    )
 
 
 def preprocess_dataset(
     raw_path: Path = RAW_DATA_PATH,
     output_path: Path = PROCESSED_DATA_PATH,
-) -> tuple[pd.DataFrame, dict[str, Any]]:
-    """Write the processed CSV and a short report so preprocessing is auditable.
-
-    The processed CSV is saved under `data/processed/` and the explanation of
-    the transformation is returned for `reports/metrics/preprocessing.json`.
-    """
-    if not raw_path.exists():
+) -> pd.DataFrame:
+    """Run deterministic preprocessing and write the processed CSV/report."""
+    if not Path(raw_path).exists():
         download_dataset(raw_path)
     processed = preprocess_frame(load_raw_data(raw_path))
     output_path.parent.mkdir(parents=True, exist_ok=True)
     processed.to_csv(output_path, index=False)
-    target_distribution = processed[TARGET_COLUMN].value_counts().sort_index().to_dict()
     report = {
         "status": "processed",
         "input": str(raw_path),
@@ -73,24 +67,29 @@ def preprocess_dataset(
         "feature_columns": FEATURE_COLUMNS,
         "source_target_column": SOURCE_TARGET_COLUMN,
         "target_column": TARGET_COLUMN,
-        "task_type": "classification",
-        "positive_class_threshold": POSITIVE_CLASS_THRESHOLD,
         "target_labels": TARGET_LABELS,
-        "target_distribution": {str(key): int(value) for key, value in target_distribution.items()},
+        "task_type": TASK_TYPE,
+        "high_traffic_threshold": HIGH_TRAFFIC_THRESHOLD,
+        "target_distribution": {
+            str(key): int(value)
+            for key, value in processed[TARGET_COLUMN].value_counts().sort_index().to_dict().items()
+        },
         "preprocessing_steps": [
-            "validate official UCI red wine quality schema",
-            "rename semicolon-delimited physicochemical columns to snake_case names",
-            "derive binary quality_label target where quality >= 6 is good quality",
-            "save deterministic processed CSV for training, CT, Docker, and Kind",
+            "validate official UCI Metro Interstate Traffic Volume schema",
+            "sort by date_time and keep one row per hour to avoid duplicate-hour leakage",
+            "derive calendar features from date_time",
+            "derive lagged traffic features using previous traffic-volume observations only",
+            "derive high_traffic target where traffic_volume >= 3800",
+            "save deterministic processed CSV for training, evaluation, and Flask demos",
         ],
     }
-    return processed, report
+    write_json(PREPROCESSING_REPORT_PATH, report)
+    return processed
 
 
 def main() -> None:
-    """Run preprocessing as a CLI stage for local use and GitHub Actions."""
-    _, report = preprocess_dataset()
-    write_json(PREPROCESS_REPORT_PATH, report)
+    preprocess_dataset()
+    report = json.loads(PREPROCESSING_REPORT_PATH.read_text(encoding="utf-8"))
     print(json.dumps(report, indent=2, sort_keys=True))
 
 

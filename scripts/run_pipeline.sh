@@ -11,7 +11,7 @@ python -m src.data
 python -m src.preprocess
 python -m src.model_selection
 python -m src.train
-python -m src.evaluate
+python -m src.evaluate --fail-on-rejection
 python -m src.model_registry
 python -m src.predict
 python scripts/explain_model.py

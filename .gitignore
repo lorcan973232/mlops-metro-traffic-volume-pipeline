@@ -20,10 +20,10 @@ reports/final_readiness/generated/
 
 data/raw/*.csv
 data/raw/*.xlsx
-!data/raw/winequality-red.csv
+!data/raw/Metro_Interstate_Traffic_Volume.csv.gz
 data/processed/*.csv
 models/*.joblib
-!models/wine_quality_classifier.joblib
+!models/traffic_volume_classifier.joblib
 
 .env
 .DS_Store

@@ -1,0 +1,125 @@
+{
+  "best_cv_f1_macro": 0.9782397610339688,
+  "best_params": {
+    "classifier__class_weight": "balanced",
+    "classifier__l2_regularization": 0.1,
+    "classifier__learning_rate": 0.06,
+    "classifier__max_iter": 180,
+    "classifier__max_leaf_nodes": 15
+  },
+  "generated_at": "2026-05-18T02:41:44+00:00",
+  "method": "RandomizedSearchCV",
+  "primary_scoring": "f1_macro",
+  "selected_model": {
+    "algorithm": "HistGradientBoostingClassifier",
+    "cross_validation": {
+      "accuracy": {
+        "mean": 0.9778906218627637,
+        "per_fold": [
+          0.9760775417611879,
+          0.9748401732315941,
+          0.9804083316147659,
+          0.9814356435643564,
+          0.9766914191419142
+        ],
+        "std": 0.002566578451242744
+      },
+      "balanced_accuracy": {
+        "mean": 0.9776366241662066,
+        "per_fold": [
+          0.9761212606094813,
+          0.9743373162627227,
+          0.9802283140522927,
+          0.9811791631833569,
+          0.97631706672318
+        ],
+        "std": 0.00261493519423187
+      },
+      "f1_macro": {
+        "mean": 0.9777392840119863,
+        "per_fold": [
+          0.9759289342013143,
+          0.9746563224973516,
+          0.9802767898677791,
+          0.9813083984032287,
+          0.9765259750902573
+        ],
+        "std": 0.002585793889049262
+      },
+      "f1_weighted": {
+        "mean": 0.9778880121596563,
+        "per_fold": [
+          0.9760822223142547,
+          0.9748312700483378,
+          0.9804073350863797,
+          0.9814330986611338,
+          0.9766861346881758
+        ],
+        "std": 0.0025676325698739686
+      },
+      "folds": 5,
+      "precision_macro": {
+        "mean": 0.9778552662580366,
+        "per_fold": [
+          0.9757487816897552,
+          0.9750092088800355,
+          0.9803260311044122,
+          0.981443086922539,
+          0.9767492226934418
+        ],
+        "std": 0.002558819581321811
+      },
+      "primary_metric": "f1_macro",
+      "recall_macro": {
+        "mean": 0.9776366241662066,
+        "per_fold": [
+          0.9761212606094813,
+          0.9743373162627227,
+          0.9802283140522927,
+          0.9811791631833569,
+          0.97631706672318
+        ],
+        "std": 0.00261493519423187
+      },
+      "roc_auc": {
+        "mean": 0.9974969244713179,
+        "per_fold": [
+          0.9972369626076361,
+          0.9969662243295246,
+          0.9980039687731395,
+          0.9981459084243562,
+          0.9971315582219327
+        ],
+        "std": 0.0004818691528971616
+      }
+    },
+    "hyperparameters": {
+      "classifier": {
+        "class_weight": "balanced",
+        "l2_regularization": 0.0,
+        "learning_rate": 0.06,
+        "max_depth": null,
+        "max_features": 1.0,
+        "max_iter": 320,
+        "max_leaf_nodes": 31,
+        "min_samples_leaf": 20,
+        "random_state": 42
+      }
+    },
+    "model_name": "hist_gradient_boosting_default",
+    "model_version": "1.0.1",
+    "reason_selected": "Selected by highest validation macro F1; final test was not evaluated here.",
+    "validation": {
+      "accuracy": 0.9792130660727543,
+      "balanced_accuracy": 0.9789538923358676,
+      "f1_macro": 0.9790700836255732,
+      "f1_weighted": 0.9792104975257989,
+      "precision_macro": 0.9791906800021537,
+      "precision_weighted": 0.9792122759761449,
+      "recall_macro": 0.9789538923358676,
+      "recall_weighted": 0.9792130660727543,
+      "roc_auc": 0.9979953269913254
+    }
+  },
+  "status": "completed"
+}

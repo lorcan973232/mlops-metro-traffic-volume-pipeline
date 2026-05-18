@@ -1,14 +1,8 @@
-"""Download and validate the fixed UCI red wine dataset used by the pipeline.
-
-This module is the first stage in the artefact. It is used by the student
-locally, by GitHub Actions, by Docker build, and by later training scripts. The
-important point is not just that the CSV exists; the hash, schema, target source,
-and feature ranges are checked so every later report can be traced back to the
-same public dataset.
-"""
+"""Download and validate the UCI Metro Interstate Traffic Volume dataset."""
 
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
 import urllib.request
@@ -17,80 +11,87 @@ from typing import Any
 
 import pandas as pd
 
-DATASET_NAME = "UCI Wine Quality - Red Wine"
-DATA_SOURCE_PAGE = "https://archive.ics.uci.edu/dataset/186/wine+quality"
+DATASET_NAME = "UCI Metro Interstate Traffic Volume"
+DATA_SOURCE_PAGE = "https://archive.ics.uci.edu/dataset/492/metro+interstate+traffic+volume"
 DATA_DOWNLOAD_URL = (
-    "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv"
+    "https://archive.ics.uci.edu/ml/machine-learning-databases/00492/"
+    "Metro_Interstate_Traffic_Volume.csv.gz"
 )
-DATA_SOURCE_NOTE = "Downloaded from the official UCI winequality-red.csv file."
-DATA_DOI = "10.24432/C56S3T"
+DATA_SOURCE_NOTE = "Downloaded from the official UCI Metro Interstate Traffic Volume CSV gzip file."
+DATA_DOI = "10.24432/C5X60B"
 DATA_LICENSE = "Creative Commons Attribution 4.0 International"
-DATA_SHA256 = "4a402cf041b025d4566d954c3b9ba8635a3a8a01e039005d97d6a710278cf05e"
+DATA_SHA256 = "0b3679ac15173f79c6dc6c5ef8a0798d806fa5c5d7f05c84a5fa711bd1b05f07"
 
-# ==============================================================================
-# Dataset contract
-# ==============================================================================
-#
-# The dataset is small enough for repeatable coursework runs, but the contract is
-# still explicit: source URL, expected hash, schema, target rule, and reasonable
-# feature ranges. These checks stop the pipeline from quietly training on the
-# wrong file if the local cache is changed.
-
-RAW_DATA_PATH = Path("data/raw/winequality-red.csv")
+RAW_DATA_PATH = Path("data/raw/Metro_Interstate_Traffic_Volume.csv.gz")
 RAW_CSV_PATH = RAW_DATA_PATH
 INGESTION_REPORT_PATH = Path("reports/metrics/data_ingestion.json")
 
-FEATURE_COLUMNS = [
-    "fixed_acidity",
-    "volatile_acidity",
-    "citric_acid",
-    "residual_sugar",
-    "chlorides",
-    "free_sulfur_dioxide",
-    "total_sulfur_dioxide",
-    "density",
-    "ph",
-    "sulphates",
-    "alcohol",
-]
-SOURCE_TARGET_COLUMN = "quality"
-TARGET_COLUMN = "quality_label"
+SOURCE_TARGET_COLUMN = "traffic_volume"
+TARGET_COLUMN = "high_traffic"
 TASK_TYPE = "classification"
-POSITIVE_CLASS_THRESHOLD = 6
+HIGH_TRAFFIC_THRESHOLD = 3800
 TARGET_LABELS = {
-    0: "standard quality",
-    1: "good quality",
+    0: "normal traffic",
+    1: "high traffic",
 }
 
-RAW_COLUMN_NAMES = [*FEATURE_COLUMNS, SOURCE_TARGET_COLUMN]
+RAW_COLUMN_NAMES = [
+    "holiday",
+    "temp",
+    "rain_1h",
+    "snow_1h",
+    "clouds_all",
+    "weather_main",
+    "weather_description",
+    "date_time",
+    "traffic_volume",
+]
 
-FEATURE_RANGES: dict[str, tuple[float, float]] = {
-    "fixed_acidity": (4.0, 16.0),
-    "volatile_acidity": (0.1, 1.6),
-    "citric_acid": (0.0, 1.1),
-    "residual_sugar": (0.5, 16.0),
-    "chlorides": (0.01, 0.7),
-    "free_sulfur_dioxide": (1.0, 80.0),
-    "total_sulfur_dioxide": (5.0, 300.0),
-    "density": (0.98, 1.01),
-    "ph": (2.5, 4.2),
-    "sulphates": (0.2, 2.2),
-    "alcohol": (8.0, 16.0),
-}
+FEATURE_COLUMNS = [
+    "temp",
+    "rain_1h",
+    "snow_1h",
+    "clouds_all",
+    "hour",
+    "month",
+    "day_of_week",
+    "is_weekend",
+    "is_holiday",
+    "weather_main",
+    "lag_1h_volume",
+    "lag_24h_volume",
+    "lag_168h_volume",
+    "rolling_3h_volume",
+    "rolling_24h_volume",
+]
+
+NUMERIC_FEATURES = [column for column in FEATURE_COLUMNS if column != "weather_main"]
+CATEGORICAL_FEATURES = ["weather_main"]
+WEATHER_MAIN_VALUES = [
+    "Clear",
+    "Clouds",
+    "Drizzle",
+    "Fog",
+    "Haze",
+    "Mist",
+    "Rain",
+    "Smoke",
+    "Snow",
+    "Squall",
+    "Thunderstorm",
+]
 
 
 class DataQualityError(ValueError):
-    """Raised when the raw data does not match the expected coursework dataset."""
+    """Raised when the raw data does not match the expected public dataset."""
 
 
 def write_json(path: Path, payload: dict[str, Any]) -> None:
-    """Write evidence JSON under `reports/` so workflow outputs are inspectable."""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def file_sha256(path: Path) -> str:
-    """Return the file hash used to prove that the raw dataset is reproducible."""
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
@@ -103,12 +104,7 @@ def download_dataset(
     force: bool = False,
     timeout: int = 30,
 ) -> dict[str, Any]:
-    """Download or reuse the raw UCI file after checking its SHA-256 hash.
-
-    The GitHub runner, Docker build, and local student machine all call this
-    path. Reusing the cached file is allowed only when the hash matches the known
-    UCI file, which avoids a hidden manual data swap changing the model.
-    """
+    """Download or reuse the raw UCI gzip file after checking its SHA-256 hash."""
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -144,67 +140,33 @@ def download_dataset(
 
 
 def load_raw_data(path: Path = RAW_DATA_PATH) -> pd.DataFrame:
-    """Load the semicolon-delimited UCI CSV with the feature names used downstream.
-
-    UCI publishes this file with semicolon separators. Naming the columns here
-    gives preprocessing, tests, and API schema checks one shared vocabulary.
-    """
+    """Load the official gzip CSV and normalise holiday blanks."""
     if not Path(path).exists():
         raise FileNotFoundError(f"Raw dataset not found at {path}. Run `python -m src.data`.")
-    frame = pd.read_csv(path, sep=";")
-    frame.columns = RAW_COLUMN_NAMES
+    with gzip.open(path, "rt", encoding="utf-8") as handle:
+        frame = pd.read_csv(handle)
+    frame = frame[RAW_COLUMN_NAMES].copy()
+    frame["holiday"] = frame["holiday"].fillna("None")
     return frame
 
 
-def validate_raw_data(frame: pd.DataFrame, min_rows: int = 1500) -> dict[str, Any]:
-    """Check schema, missing values, ranges, and target distribution before training.
-
-    This validation runs before preprocessing and training. If it fails, the
-    student, marker, and CI runner know the problem is the input dataset rather
-    than a later model issue.
-    """
-    required_columns = [*FEATURE_COLUMNS, SOURCE_TARGET_COLUMN]
-    missing_columns = [column for column in required_columns if column not in frame.columns]
+def validate_raw_data(frame: pd.DataFrame, min_rows: int = 48000) -> dict[str, Any]:
+    """Check schema, missing values, ranges, and target distribution."""
+    missing_columns = [column for column in RAW_COLUMN_NAMES if column not in frame.columns]
     if missing_columns:
         raise DataQualityError(f"Missing required columns: {missing_columns}")
     if len(frame) < min_rows:
         raise DataQualityError(f"Expected at least {min_rows} rows, found {len(frame)}.")
-    non_numeric = [
-        column for column in required_columns if not pd.api.types.is_numeric_dtype(frame[column])
-    ]
-    if non_numeric:
-        raise DataQualityError(f"Columns must be numeric: {non_numeric}")
-    missing_values = int(frame[required_columns].isna().sum().sum())
+    missing_values = int(frame[RAW_COLUMN_NAMES].isna().sum().sum())
     if missing_values:
         raise DataQualityError(f"Dataset contains {missing_values} missing values.")
+    if not set(frame["weather_main"].unique()).issubset(set(WEATHER_MAIN_VALUES)):
+        raise DataQualityError("Unexpected weather_main categories found.")
+    if frame[SOURCE_TARGET_COLUMN].min() < 0:
+        raise DataQualityError("Traffic volume must be non-negative.")
 
-    invalid_ranges: dict[str, dict[str, float]] = {}
-    for column, (minimum, maximum) in FEATURE_RANGES.items():
-        observed_min = float(frame[column].min())
-        observed_max = float(frame[column].max())
-        if observed_min < minimum or observed_max > maximum:
-            invalid_ranges[column] = {
-                "expected_min": minimum,
-                "expected_max": maximum,
-                "observed_min": observed_min,
-                "observed_max": observed_max,
-            }
-    if invalid_ranges:
-        raise DataQualityError(f"Feature ranges are outside expected UCI bounds: {invalid_ranges}")
-
-    observed_quality = sorted(int(value) for value in frame[SOURCE_TARGET_COLUMN].unique())
-    if min(observed_quality) < 0 or max(observed_quality) > 10:
-        raise DataQualityError(
-            f"Quality scores are outside expected 0-10 range: {observed_quality}"
-        )
-
-    target_counts = (
-        (frame[SOURCE_TARGET_COLUMN] >= POSITIVE_CLASS_THRESHOLD)
-        .astype(int)
-        .value_counts()
-        .sort_index()
-        .to_dict()
-    )
+    high_traffic = (frame[SOURCE_TARGET_COLUMN] >= HIGH_TRAFFIC_THRESHOLD).astype(int)
+    target_counts = high_traffic.value_counts().sort_index().to_dict()
     return {
         "status": "valid",
         "rows": int(len(frame)),
@@ -214,24 +176,32 @@ def validate_raw_data(frame: pd.DataFrame, min_rows: int = 1500) -> dict[str, An
         "source_target_column": SOURCE_TARGET_COLUMN,
         "target_column": TARGET_COLUMN,
         "task_type": TASK_TYPE,
-        "positive_class_threshold": POSITIVE_CLASS_THRESHOLD,
+        "high_traffic_threshold": HIGH_TRAFFIC_THRESHOLD,
         "target_labels": TARGET_LABELS,
-        "quality_scores_observed": observed_quality,
-        "target_distribution": {str(key): int(value) for key, value in target_counts.items()},
-        "feature_ranges": {
-            column: {"min": minimum, "max": maximum}
-            for column, (minimum, maximum) in FEATURE_RANGES.items()
+        "target_distribution_before_lag_drop": {
+            str(key): int(value) for key, value in target_counts.items()
         },
-        "source_target_summary": {
+        "weather_main_values": sorted(str(value) for value in frame["weather_main"].unique()),
+        "traffic_volume_summary": {
             "min": float(frame[SOURCE_TARGET_COLUMN].min()),
             "max": float(frame[SOURCE_TARGET_COLUMN].max()),
             "mean": float(frame[SOURCE_TARGET_COLUMN].mean()),
+            "median": float(frame[SOURCE_TARGET_COLUMN].median()),
         },
+        "dataset_selection_reason": (
+            "This public traffic-volume dataset is close in style to bike sharing: "
+            "hourly demand-like counts with weather, holiday, and date/time context. "
+            "It is not the bike-sharing dataset."
+        ),
+        "leakage_note": (
+            "The target traffic_volume is not included as a feature. Lagged traffic "
+            "features are shifted from previous hours only, matching a short-horizon "
+            "forecasting use case where recent observed traffic is known."
+        ),
     }
 
 
 def main() -> None:
-    """Create the ingestion report used by README evidence and data workflows."""
     ingestion = download_dataset()
     frame = load_raw_data()
     validation = validate_raw_data(frame)

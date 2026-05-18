@@ -4,119 +4,161 @@
     1
   ],
   "dataset": {
-    "doi": "10.24432/C56S3T",
-    "name": "UCI Wine Quality - Red Wine",
-    "processed_path": "data\\processed\\winequality-red-processed.csv",
-    "raw_sha256": "4a402cf041b025d4566d954c3b9ba8635a3a8a01e039005d97d6a710278cf05e",
-    "source": "https://archive.ics.uci.edu/dataset/186/wine+quality"
+    "doi": "10.24432/C5X60B",
+    "name": "UCI Metro Interstate Traffic Volume",
+    "processed_path": "data\\processed\\metro-traffic-processed.csv",
+    "raw_sha256": "0b3679ac15173f79c6dc6c5ef8a0798d806fa5c5d7f05c84a5fa711bd1b05f07",
+    "source": "https://archive.ics.uci.edu/dataset/492/metro+interstate+traffic+volume"
   },
   "feature_columns": [
-    "fixed_acidity",
-    "volatile_acidity",
-    "citric_acid",
-    "residual_sugar",
-    "chlorides",
-    "free_sulfur_dioxide",
-    "total_sulfur_dioxide",
-    "density",
-    "ph",
-    "sulphates",
-    "alcohol"
+    "temp",
+    "rain_1h",
+    "snow_1h",
+    "clouds_all",
+    "hour",
+    "month",
+    "day_of_week",
+    "is_weekend",
+    "is_holiday",
+    "weather_main",
+    "lag_1h_volume",
+    "lag_24h_volume",
+    "lag_168h_volume",
+    "rolling_3h_volume",
+    "rolling_24h_volume"
   ],
   "hyperparameters": {
-    "algorithm": "ExtraTreesClassifier",
+    "algorithm": "HistGradientBoostingClassifier",
     "classifier": {
       "class_weight": "balanced",
-      "max_depth": null,
-      "min_samples_leaf": 1,
-      "min_samples_split": 2,
-      "n_estimators": 300,
-      "n_jobs": 1,
+      "l2_regularization": 0.0,
+      "learning_rate": 0.06,
+      "max_iter": 320,
+      "max_leaf_nodes": 31,
       "random_state": 42
     },
     "preprocessing": {
-      "categorical_features": [],
-      "column_transformer_remainder": "drop",
-      "numeric_features": [
-        "fixed_acidity",
-        "volatile_acidity",
-        "citric_acid",
-        "residual_sugar",
-        "chlorides",
-        "free_sulfur_dioxide",
-        "total_sulfur_dioxide",
-        "density",
-        "ph",
-        "sulphates",
-        "alcohol"
+      "categorical_encoder": "OneHotEncoder(handle_unknown='ignore')",
+      "categorical_features": [
+        "weather_main"
       ],
-      "numeric_imputer_strategy": "median",
+      "column_transformer_remainder": "drop",
+      "fit_policy": "encoder fitted inside sklearn Pipeline after splitting",
+      "numeric_features": [
+        "temp",
+        "rain_1h",
+        "snow_1h",
+        "clouds_all",
+        "hour",
+        "month",
+        "day_of_week",
+        "is_weekend",
+        "is_holiday",
+        "lag_1h_volume",
+        "lag_24h_volume",
+        "lag_168h_volume",
+        "rolling_3h_volume",
+        "rolling_24h_volume"
+      ],
       "numeric_scaler": "StandardScaler"
     },
     "selection": {
       "cross_validation": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42)",
       "main_scoring_metric": "f1_macro",
-      "method": "reproducible GridSearchCV plus ensemble comparison",
+      "method": "RandomizedSearchCV on training split plus validation candidate selection",
       "secondary_metrics": [
         "balanced_accuracy",
         "accuracy",
         "precision_macro",
         "recall_macro",
-        "f1_weighted"
+        "f1_weighted",
+        "roc_auc"
       ],
-      "selection_rule": "highest macro F1 unless an ensemble improves enough to justify extra runtime"
+      "selection_rule": "highest validation macro F1 with stable cross-validation"
     },
     "train_test_split": {
+      "final_fit_rows": "train_plus_validation_only",
+      "final_test_usage": "untouched_until_final_evaluation",
       "random_state": 42,
       "shuffle": true,
-      "stratify": "quality_label",
-      "test_size": 0.2
+      "stratify": "high_traffic",
+      "test_size": 0.2,
+      "validation_size": 0.2
     }
   },
-  "model_path": "models\\wine_quality_classifier.joblib",
+  "model_path": "models\\traffic_volume_classifier.joblib",
   "model_version": "1.0.1",
   "random_state": 42,
   "selected_hyperparameters": {
     "class_weight": "balanced",
-    "max_depth": null,
-    "max_leaf_nodes": null,
-    "min_samples_leaf": 1,
-    "min_samples_split": 2,
-    "n_estimators": 300,
-    "n_jobs": 1,
+    "l2_regularization": 0.0,
+    "learning_rate": 0.06,
+    "max_iter": 320,
+    "max_leaf_nodes": 31,
     "random_state": 42
   },
   "selected_model": {
-    "algorithm": "ExtraTreesClassifier",
-    "model_name": "extra_trees_tuned",
-    "source": "reports\\metrics\\hyperparameter_search_results.json"
+    "algorithm": "HistGradientBoostingClassifier",
+    "model_name": "hist_gradient_boosting_default",
+    "source": "src.train default hyperparameters"
+  },
+  "split": {
+    "class_distribution": {
+      "test": {
+        "0": 4369,
+        "1": 3713
+      },
+      "train": {
+        "0": 13104,
+        "1": 11139
+      },
+      "validation": {
+        "0": 4369,
+        "1": 3713
+      }
+    },
+    "final_model_fit": "train_plus_validation",
+    "final_test_policy": "untouched_by_tuning_and_model_selection",
+    "method": "two_stage_stratified_train_validation_test_split",
+    "random_state": 42,
+    "rows": {
+      "test": 8082,
+      "train": 24243,
+      "train_plus_validation": 32325,
+      "validation": 8082
+    },
+    "shuffle": true,
+    "stratify": "high_traffic",
+    "test_size": 0.2,
+    "train_size": 0.6,
+    "validation_size": 0.2
   },
   "status": "trained",
   "target_definition": {
-    "description": "Predict whether a red wine sample is good quality from 11 physicochemical inputs.",
-    "model_target": "quality_label",
-    "negative_class_label": "standard quality",
-    "positive_class_label": "good quality",
-    "positive_class_threshold": 6,
-    "source_target": "quality"
+    "description": "Predict whether hourly metro interstate traffic is high from weather, calendar, and recent traffic conditions.",
+    "high_traffic_threshold": 3800,
+    "model_target": "high_traffic",
+    "negative_class_label": "normal traffic",
+    "positive_class_label": "high traffic",
+    "source_target": "traffic_volume"
   },
   "target_labels": {
-    "0": "standard quality",
-    "1": "good quality"
+    "0": "normal traffic",
+    "1": "high traffic"
   },
   "target_summary": {
     "class_distribution": {
-      "0": 744,
-      "1": 855
-    },
-    "source_quality_max": 8.0,
-    "source_quality_mean": 5.6360225140712945,
-    "source_quality_min": 3.0
+      "0": 21842,
+      "1": 18565
+    }
   },
   "task_type": "classification",
-  "test_rows": 320,
+  "test_rows": 8082,
   "test_size": 0.2,
+  "train_rows": 24243,
   "training_command": "python -m src.train",
-  "training_rows": 1279,
-  "training_timestamp": "2026-05-17T13:19:05+00:00"
+  "training_rows": 32325,
+  "training_timestamp": "2026-05-18T02:47:54+00:00",
+  "validation_rows": 8082,
+  "validation_size": 0.2
 }

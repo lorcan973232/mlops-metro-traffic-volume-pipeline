@@ -26,8 +26,8 @@ def test_fairness_audit_generates_proxy_group_metrics() -> None:
     assert report["dataset_has_protected_attributes"] is False
     assert "not protected characteristics" in report["proxy_group_statement"]
     assert report["computed_from_model"] is True
-    assert "alcohol_tertile_proxy" in group_metrics["group_metrics"]
-    assert "sulphates_tertile_proxy" in group_metrics["group_metrics"]
+    assert "hour_band_proxy" in group_metrics["group_metrics"]
+    assert "weather_main_proxy" in group_metrics["group_metrics"]
     assert "max_equalized_odds_style_gap" in report
     assert isinstance(report["performance_balanced_across_proxy_groups"], bool)
     # The report should be computed from the model and proxy groups, not draft text.

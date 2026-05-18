@@ -1,305 +1,649 @@
 {
-  "accuracy": 0.825,
-  "balanced_accuracy": 0.8237371953373366,
+  "accuracy": 0.9787181390744865,
+  "balanced_accuracy": 0.9784961216789667,
   "baseline": {
     "baseline_model": "DummyClassifier(strategy='most_frequent')",
     "created_by": "python -m src.evaluate",
     "metric_summary": {
-      "accuracy": 0.534375,
+      "accuracy": 0.540584013857956,
       "balanced_accuracy": 0.5,
-      "f1_macro": 0.34826883910386963,
-      "f1_weighted": 0.37221232179226066,
-      "precision_macro": 0.2671875,
-      "precision_weighted": 0.285556640625,
+      "f1_macro": 0.35089551040077105,
+      "f1_weighted": 0.3793770069143699,
+      "precision_macro": 0.270292006928978,
+      "precision_weighted": 0.29223107603877874,
       "recall_macro": 0.5,
-      "recall_weighted": 0.534375,
+      "recall_weighted": 0.540584013857956,
       "roc_auc": null
     },
     "model_version": "dummy-most-frequent-baseline",
     "quality_thresholds": {
-      "min_accuracy": 0.8,
-      "min_balanced_accuracy": 0.8,
+      "max_cv_f1_std": 0.03,
+      "max_test_validation_uplift": 0.03,
+      "min_accuracy": 0.975,
+      "min_balanced_accuracy": 0.975,
       "min_baseline_accuracy_improvement": 0.2,
-      "min_cv_accuracy": 0.77,
-      "min_macro_f1": 0.8,
-      "min_weighted_f1": 0.8
+      "min_cv_accuracy": 0.975,
+      "min_cv_f1_macro": 0.975,
+      "min_macro_f1": 0.975,
+      "min_per_class_metric": 0.975,
+      "min_precision_macro": 0.975,
+      "min_recall_macro": 0.975,
+      "min_roc_auc": 0.975,
+      "min_weighted_f1": 0.975
     },
     "status": "baseline_evaluated"
   },
   "classification_report": {
-    "accuracy": 0.825,
-    "good quality": {
-      "f1-score": 0.8372093023255814,
-      "precision": 0.8323699421965318,
-      "recall": 0.8421052631578947,
-      "support": 171.0
+    "accuracy": 0.9787181390744865,
+    "high traffic": {
+      "f1-score": 0.9768131571852251,
+      "precision": 0.9778677462887989,
+      "recall": 0.97576084029087,
+      "support": 3713.0
     },
     "macro avg": {
-      "f1-score": 0.8240100565681961,
-      "precision": 0.8243482364043884,
-      "recall": 0.8237371953373366,
-      "support": 320.0
+      "f1-score": 0.9785735120479064,
+      "precision": 0.9786528587509793,
+      "recall": 0.9784961216789667,
+      "support": 8082.0
     },
-    "standard quality": {
-      "f1-score": 0.8108108108108109,
-      "precision": 0.8163265306122449,
-      "recall": 0.8053691275167785,
-      "support": 149.0
+    "normal traffic": {
+      "f1-score": 0.9803338669105877,
+      "precision": 0.9794379712131597,
+      "recall": 0.9812314030670634,
+      "support": 4369.0
     },
     "weighted avg": {
-      "f1-score": 0.8249175047140165,
-      "precision": 0.8248997286775982,
-      "recall": 0.825,
-      "support": 320.0
+      "f1-score": 0.9787163965801904,
+      "precision": 0.9787165847810696,
+      "recall": 0.9787181390744865,
+      "support": 8082.0
     }
   },
   "confusion_matrix": [
     [
-      120,
-      29
+      4287,
+      82
     ],
     [
-      27,
-      144
+      90,
+      3623
     ]
   ],
   "confusion_matrix_labels": [
-    "standard quality",
-    "good quality"
+    "normal traffic",
+    "high traffic"
   ],
   "cross_validation": {
     "accuracy": {
-      "mean": 0.8100122549019607,
+      "mean": 0.9796751740139211,
       "per_fold": [
-        0.83984375,
-        0.78515625,
-        0.79296875,
-        0.81640625,
-        0.8156862745098039
+        0.9788089713843774,
+        0.9784996133023975,
+        0.9794276875483372,
+        0.9777262180974478,
+        0.9839133797370456
       ],
-      "std": 0.019345789260910167
+      "std": 0.002188804077501472
+    },
+    "balanced_accuracy": {
+      "mean": 0.9795028703220219,
+      "per_fold": [
+        0.9787827360728214,
+        0.9780934744699621,
+        0.9792026126790075,
+        0.9776795133018309,
+        0.9837560150864872
+      ],
+      "std": 0.002191301707544733
     },
     "f1_macro": {
-      "mean": 0.808498079302489,
+      "mean": 0.9795391408754852,
       "per_fold": [
-        0.838758737230202,
-        0.783407940683311,
-        0.7925857983642894,
-        0.814638505029964,
-        0.8130994152046784
+        0.9786741697594403,
+        0.9783462953715816,
+        0.9792874319665208,
+        0.9775828593345132,
+        0.9838049479453701
       ],
-      "std": 0.01927329903780477
+      "std": 0.002202660220172643
     },
     "f1_weighted": {
-      "mean": 0.8096307921962153,
+      "mean": 0.9796743729670769,
       "per_fold": [
-        0.8396887481757431,
-        0.7847761827572415,
-        0.7932124464954521,
-        0.81591128140839,
-        0.8145653021442495
+        0.9788113317241137,
+        0.978493694779333,
+        0.9794258420801555,
+        0.9777284364148627,
+        0.9839125598369195
       ],
-      "std": 0.01925922291657906
+      "std": 0.0021885842812545708
     },
     "folds": 5,
     "method": "StratifiedKFold",
     "precision_macro": {
-      "mean": 0.8105688804201524,
+      "mean": 0.9795816333919942,
       "per_fold": [
-        0.8395320197044335,
-        0.784717074376081,
-        0.7924908424908425,
-        0.8169642857142857,
-        0.8191401798151197
+        0.9785694683831956,
+        0.9786201991465149,
+        0.9793745939112368,
+        0.9774892563629315,
+        0.9838546491560926
       ],
-      "std": 0.019740127408448598
+      "std": 0.002219387506137281
     },
     "precision_weighted": {
-      "mean": 0.8107663436529755,
+      "mean": 0.9796797117694911,
       "per_fold": [
-        0.8397658174261083,
-        0.7849994015628861,
-        0.7946414262820511,
-        0.816650390625,
-        0.817774682368832
+        0.9788175081250137,
+        0.978508577205854,
+        0.9794263084928282,
+        0.9777336667963717,
+        0.9839124982273878
       ],
-      "std": 0.01922839860382005
+      "std": 0.002185531365452155
     },
     "random_state": 42,
     "recall_macro": {
-      "mean": 0.8079624915659693,
+      "mean": 0.9795028703220219,
       "per_fold": [
-        0.8382199595166533,
-        0.782708703919524,
-        0.7938722934429246,
-        0.8135619211188125,
-        0.8114495798319328
+        0.9787827360728214,
+        0.9780934744699621,
+        0.9792026126790075,
+        0.9776795133018309,
+        0.9837560150864872
       ],
-      "std": 0.018948959002103253
+      "std": 0.002191301707544733
     },
     "recall_weighted": {
-      "mean": 0.8100122549019607,
+      "mean": 0.9796751740139211,
       "per_fold": [
-        0.83984375,
-        0.78515625,
-        0.79296875,
-        0.81640625,
-        0.8156862745098039
+        0.9788089713843774,
+        0.9784996133023975,
+        0.9794276875483372,
+        0.9777262180974478,
+        0.9839133797370456
       ],
-      "std": 0.019345789260910167
+      "std": 0.002188804077501472
+    },
+    "roc_auc": {
+      "mean": 0.9976789657455012,
+      "per_fold": [
+        0.9974777167648267,
+        0.9975959171822562,
+        0.9978446361565103,
+        0.9968157492907135,
+        0.9986608093331985
+      ],
+      "std": 0.0005973281141352753
     },
     "scoring": [
       "accuracy",
+      "balanced_accuracy",
       "precision_macro",
       "recall_macro",
       "f1_macro",
       "precision_weighted",
       "recall_weighted",
-      "f1_weighted"
+      "f1_weighted",
+      "roc_auc"
     ],
     "shuffle": true,
     "status": "completed"
   },
+  "data_leakage_assessment": {
+    "preprocessing_fit_inside_pipeline_after_split": true,
+    "source_traffic_volume_column_excluded_from_features": true,
+    "status": "no_direct_leakage_found_in_pipeline_contract",
+    "target_column_excluded_from_features": true,
+    "test_set_used_for_tuning": false,
+    "validation_set_used_for_candidate_selection": true
+  },
   "dataset": {
-    "doi": "10.24432/C56S3T",
-    "name": "UCI Wine Quality - Red Wine",
-    "processed_path": "data\\processed\\winequality-red-processed.csv",
-    "raw_sha256": "4a402cf041b025d4566d954c3b9ba8635a3a8a01e039005d97d6a710278cf05e",
-    "source": "https://archive.ics.uci.edu/dataset/186/wine+quality"
+    "doi": "10.24432/C5X60B",
+    "name": "UCI Metro Interstate Traffic Volume",
+    "processed_path": "data\\processed\\metro-traffic-processed.csv",
+    "raw_sha256": "0b3679ac15173f79c6dc6c5ef8a0798d806fa5c5d7f05c84a5fa711bd1b05f07",
+    "source": "https://archive.ics.uci.edu/dataset/492/metro+interstate+traffic+volume"
+  },
+  "error_analysis": {
+    "false_negative_rate": 0.024239159709130084,
+    "false_negative_test_indices": [
+      10474,
+      28699,
+      36975,
+      36520,
+      8193,
+      16018,
+      16366,
+      10599,
+      32101,
+      30665,
+      7459,
+      34035,
+      16887,
+      19077,
+      26570,
+      30739,
+      2465,
+      34661,
+      18362,
+      1922,
+      28272,
+      7142,
+      27627,
+      2690,
+      2060,
+      30306,
+      8613,
+      2200,
+      25514,
+      11422,
+      23471,
+      17672,
+      17895,
+      37982,
+      15942,
+      14153,
+      34348,
+      31352,
+      1737,
+      16070,
+      32344,
+      34274,
+      745,
+      34973,
+      37234,
+      17764,
+      7964,
+      12996,
+      23009,
+      7182,
+      36640,
+      4228,
+      3861,
+      9847,
+      10493,
+      6447,
+      9898,
+      15800,
+      10263,
+      36523,
+      27275,
+      3314,
+      17858,
+      18353,
+      35398,
+      8859,
+      19673,
+      12951,
+      23850,
+      36187,
+      7252,
+      23034,
+      33697,
+      10304,
+      13093,
+      21502,
+      17485,
+      24819,
+      3945,
+      26326,
+      35355,
+      10975,
+      34866,
+      18347,
+      24187,
+      30187,
+      4385,
+      38702,
+      7579,
+      30476
+    ],
+    "false_negatives": 90,
+    "false_positive_rate": 0.018768596932936598,
+    "false_positive_test_indices": [
+      1570,
+      38525,
+      38861,
+      5913,
+      27169,
+      3430,
+      37375,
+      2987,
+      3874,
+      31692,
+      32831,
+      23847,
+      10993,
+      35394,
+      17231,
+      21004,
+      17474,
+      23709,
+      23851,
+      2605,
+      4863,
+      9530,
+      34370,
+      37181,
+      22342,
+      40368,
+      37038,
+      39873,
+      38174,
+      36079,
+      9100,
+      22274,
+      16629,
+      18366,
+      9891,
+      12500,
+      38281,
+      5031,
+      30823,
+      11419,
+      8612,
+      21547,
+      2983,
+      2372,
+      542,
+      13808,
+      10992,
+      26568,
+      17269,
+      39585,
+      26841,
+      25385,
+      1242,
+      23821,
+      9235,
+      3982,
+      25410,
+      23198,
+      8471,
+      3979,
+      100,
+      748,
+      15535,
+      20836,
+      2475,
+      9098,
+      19688,
+      4251,
+      29512,
+      39864,
+      9969,
+      36877,
+      34273,
+      27510,
+      25529,
+      10473,
+      29318,
+      19337,
+      5037,
+      11614,
+      5940,
+      27624
+    ],
+    "false_positives": 82,
+    "note": "Indices refer to rows in the processed dataset test partition.",
+    "status": "completed",
+    "true_negatives": 4287,
+    "true_positives": 3623
   },
   "evaluation_command": "python -m src.evaluate",
-  "f1_macro": 0.8240100565681961,
-  "f1_weighted": 0.8249175047140165,
+  "evaluation_policy": {
+    "acceptance_uses_training_data": false,
+    "final_test_set": "untouched_by_hyperparameter_tuning_candidate_selection_and_final_fit",
+    "quality_target": 0.975,
+    "validation_metrics_source": "reports\\metrics\\hyperparameter_search_results.json"
+  },
+  "f1_macro": 0.9785735120479064,
+  "f1_weighted": 0.9787163965801904,
   "feature_schema": [
-    "fixed_acidity",
-    "volatile_acidity",
-    "citric_acid",
-    "residual_sugar",
-    "chlorides",
-    "free_sulfur_dioxide",
-    "total_sulfur_dioxide",
-    "density",
-    "ph",
-    "sulphates",
-    "alcohol"
+    "temp",
+    "rain_1h",
+    "snow_1h",
+    "clouds_all",
+    "hour",
+    "month",
+    "day_of_week",
+    "is_weekend",
+    "is_holiday",
+    "weather_main",
+    "lag_1h_volume",
+    "lag_24h_volume",
+    "lag_168h_volume",
+    "rolling_3h_volume",
+    "rolling_24h_volume"
   ],
   "hyperparameters": {
-    "algorithm": "ExtraTreesClassifier",
+    "algorithm": "HistGradientBoostingClassifier",
     "classifier": {
       "class_weight": "balanced",
-      "max_depth": null,
-      "min_samples_leaf": 1,
-      "min_samples_split": 2,
-      "n_estimators": 300,
-      "n_jobs": 1,
+      "l2_regularization": 0.0,
+      "learning_rate": 0.06,
+      "max_iter": 320,
+      "max_leaf_nodes": 31,
       "random_state": 42
     },
     "preprocessing": {
-      "categorical_features": [],
-      "column_transformer_remainder": "drop",
-      "numeric_features": [
-        "fixed_acidity",
-        "volatile_acidity",
-        "citric_acid",
-        "residual_sugar",
-        "chlorides",
-        "free_sulfur_dioxide",
-        "total_sulfur_dioxide",
-        "density",
-        "ph",
-        "sulphates",
-        "alcohol"
+      "categorical_encoder": "OneHotEncoder(handle_unknown='ignore')",
+      "categorical_features": [
+        "weather_main"
       ],
-      "numeric_imputer_strategy": "median",
+      "column_transformer_remainder": "drop",
+      "fit_policy": "encoder fitted inside sklearn Pipeline after splitting",
+      "numeric_features": [
+        "temp",
+        "rain_1h",
+        "snow_1h",
+        "clouds_all",
+        "hour",
+        "month",
+        "day_of_week",
+        "is_weekend",
+        "is_holiday",
+        "lag_1h_volume",
+        "lag_24h_volume",
+        "lag_168h_volume",
+        "rolling_3h_volume",
+        "rolling_24h_volume"
+      ],
       "numeric_scaler": "StandardScaler"
     },
     "selection": {
       "cross_validation": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42)",
       "main_scoring_metric": "f1_macro",
-      "method": "reproducible GridSearchCV plus ensemble comparison",
+      "method": "RandomizedSearchCV on training split plus validation candidate selection",
       "secondary_metrics": [
         "balanced_accuracy",
         "accuracy",
         "precision_macro",
         "recall_macro",
-        "f1_weighted"
+        "f1_weighted",
+        "roc_auc"
       ],
-      "selection_rule": "highest macro F1 unless an ensemble improves enough to justify extra runtime"
+      "selection_rule": "highest validation macro F1 with stable cross-validation"
     },
     "train_test_split": {
+      "final_fit_rows": "train_plus_validation_only",
+      "final_test_usage": "untouched_until_final_evaluation",
       "random_state": 42,
       "shuffle": true,
-      "stratify": "quality_label",
-      "test_size": 0.2
+      "stratify": "high_traffic",
+      "test_size": 0.2,
+      "validation_size": 0.2
     }
   },
-  "model_path": "models\\wine_quality_classifier.joblib",
+  "model_path": "models\\traffic_volume_classifier.joblib",
   "model_version": "1.0.1",
-  "precision_macro": 0.8243482364043884,
-  "precision_weighted": 0.8248997286775982,
+  "per_class_gate": {
+    "minimum_metric": 0.97576084029087,
+    "per_class": {
+      "high traffic": {
+        "f1_score": 0.9768131571852251,
+        "precision": 0.9778677462887989,
+        "recall": 0.97576084029087
+      },
+      "normal traffic": {
+        "f1_score": 0.9803338669105877,
+        "precision": 0.9794379712131597,
+        "recall": 0.9812314030670634
+      }
+    }
+  },
+  "precision_macro": 0.9786528587509793,
+  "precision_weighted": 0.9787165847810696,
   "quality_gate": {
-    "baseline_accuracy": 0.534375,
-    "baseline_f1_weighted": 0.37221232179226066,
-    "candidate_accuracy": 0.825,
-    "candidate_balanced_accuracy": 0.8237371953373366,
-    "candidate_f1_macro": 0.8240100565681961,
-    "candidate_f1_weighted": 0.8249175047140165,
+    "baseline_accuracy": 0.540584013857956,
+    "baseline_f1_weighted": 0.3793770069143699,
+    "candidate_accuracy": 0.9787181390744865,
+    "candidate_balanced_accuracy": 0.9784961216789667,
+    "candidate_f1_macro": 0.9785735120479064,
+    "candidate_f1_weighted": 0.9787163965801904,
+    "candidate_precision_macro": 0.9786528587509793,
+    "candidate_recall_macro": 0.9784961216789667,
+    "candidate_roc_auc": 0.9977988665707029,
     "checks": {
       "accuracy_above_minimum": true,
       "accuracy_beats_baseline_margin": true,
       "balanced_accuracy_above_minimum": true,
       "cv_accuracy_above_minimum": true,
+      "cv_f1_macro_above_minimum": true,
+      "cv_f1_macro_stability_within_limit": true,
       "macro_f1_above_minimum": true,
+      "per_class_metrics_above_minimum": true,
+      "precision_macro_above_minimum": true,
+      "recall_macro_above_minimum": true,
+      "roc_auc_above_minimum": true,
+      "test_score_not_suspiciously_higher_than_validation": true,
+      "validation_reference_available": true,
       "weighted_f1_above_minimum": true
     },
-    "cv_accuracy_mean": 0.8100122549019607,
+    "cv_accuracy_mean": 0.9796751740139211,
+    "cv_f1_macro_mean": 0.9795391408754852,
+    "cv_f1_macro_std": 0.002202660220172643,
     "decision": "accept_candidate_model",
+    "honest_readiness_statement": "All relevant metrics are genuinely at or above 97.5%.",
+    "model_version": "1.0.1",
     "passed": true,
+    "per_class_gate": {
+      "minimum_metric": 0.97576084029087,
+      "per_class": {
+        "high traffic": {
+          "f1_score": 0.9768131571852251,
+          "precision": 0.9778677462887989,
+          "recall": 0.97576084029087
+        },
+        "normal traffic": {
+          "f1_score": 0.9803338669105877,
+          "precision": 0.9794379712131597,
+          "recall": 0.9812314030670634
+        }
+      }
+    },
+    "quality_target": 0.975,
     "reasons": [
-      "All classification model quality gates passed."
+      "All strict 97.5% classification model quality gates passed."
     ],
     "status": "passed",
+    "strict_acceptance_ready": true,
     "thresholds": {
-      "min_accuracy": 0.8,
-      "min_balanced_accuracy": 0.8,
+      "max_cv_f1_std": 0.03,
+      "max_test_validation_uplift": 0.03,
+      "min_accuracy": 0.975,
+      "min_balanced_accuracy": 0.975,
       "min_baseline_accuracy_improvement": 0.2,
-      "min_cv_accuracy": 0.77,
-      "min_macro_f1": 0.8,
-      "min_weighted_f1": 0.8
-    }
+      "min_cv_accuracy": 0.975,
+      "min_cv_f1_macro": 0.975,
+      "min_macro_f1": 0.975,
+      "min_per_class_metric": 0.975,
+      "min_precision_macro": 0.975,
+      "min_recall_macro": 0.975,
+      "min_roc_auc": 0.975,
+      "min_weighted_f1": 0.975
+    },
+    "validation_accuracy": 0.9792130660727543
   },
-  "recall_macro": 0.8237371953373366,
-  "recall_weighted": 0.825,
-  "roc_auc": 0.9192668472075041,
+  "recall_macro": 0.9784961216789667,
+  "recall_weighted": 0.9787181390744865,
+  "roc_auc": 0.9977988665707029,
   "selected_hyperparameters": {
     "class_weight": "balanced",
-    "max_depth": null,
-    "max_leaf_nodes": null,
-    "min_samples_leaf": 1,
-    "min_samples_split": 2,
-    "n_estimators": 300,
-    "n_jobs": 1,
+    "l2_regularization": 0.0,
+    "learning_rate": 0.06,
+    "max_iter": 320,
+    "max_leaf_nodes": 31,
     "random_state": 42
   },
   "selected_model": {
-    "algorithm": "ExtraTreesClassifier",
-    "model_name": "extra_trees_tuned",
-    "source": "reports\\metrics\\hyperparameter_search_results.json"
+    "algorithm": "HistGradientBoostingClassifier",
+    "model_name": "hist_gradient_boosting_default",
+    "source": "src.train default hyperparameters"
+  },
+  "split": {
+    "class_distribution": {
+      "test": {
+        "0": 4369,
+        "1": 3713
+      },
+      "train": {
+        "0": 13104,
+        "1": 11139
+      },
+      "validation": {
+        "0": 4369,
+        "1": 3713
+      }
+    },
+    "final_model_fit": "train_plus_validation",
+    "final_test_policy": "untouched_by_tuning_and_model_selection",
+    "method": "two_stage_stratified_train_validation_test_split",
+    "random_state": 42,
+    "rows": {
+      "test": 8082,
+      "train": 24243,
+      "train_plus_validation": 32325,
+      "validation": 8082
+    },
+    "shuffle": true,
+    "stratify": "high_traffic",
+    "test_size": 0.2,
+    "train_size": 0.6,
+    "validation_size": 0.2
   },
   "status": "evaluated",
   "target_definition": {
-    "description": "Predict whether a red wine sample is good quality from 11 physicochemical inputs.",
-    "model_target": "quality_label",
-    "negative_class_label": "standard quality",
-    "positive_class_label": "good quality",
-    "positive_class_threshold": 6,
-    "source_target": "quality"
+    "description": "Predict whether hourly metro interstate traffic is high from weather, calendar, and recent traffic conditions.",
+    "high_traffic_threshold": 3800,
+    "model_target": "high_traffic",
+    "negative_class_label": "normal traffic",
+    "positive_class_label": "high traffic",
+    "source_target": "traffic_volume"
   },
   "target_labels": {
-    "0": "standard quality",
-    "1": "good quality"
+    "0": "normal traffic",
+    "1": "high traffic"
   },
   "task_type": "classification",
   "training_command": "python -m src.train",
-  "training_timestamp": "2026-05-17T13:19:05+00:00"
+  "training_timestamp": "2026-05-18T02:47:54+00:00",
+  "validation_reference": {
+    "metrics": {
+      "accuracy": 0.9792130660727543,
+      "balanced_accuracy": 0.9789538923358676,
+      "f1_macro": 0.9790700836255732,
+      "f1_weighted": 0.9792104975257989,
+      "precision_macro": 0.9791906800021537,
+      "precision_weighted": 0.9792122759761449,
+      "recall_macro": 0.9789538923358676,
+      "recall_weighted": 0.9792130660727543,
+      "roc_auc": 0.9979953269913254
+    },
+    "model_name": "hist_gradient_boosting_default",
+    "source": "reports\\metrics\\hyperparameter_search_results.json",
+    "test_set_usage": "not_used_in_hyperparameter_search_or_candidate_selection"
+  }
 }

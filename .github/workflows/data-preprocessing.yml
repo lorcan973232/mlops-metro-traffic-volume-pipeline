@@ -47,7 +47,7 @@ jobs:
       # This stage proves the public data can be acquired and validated before any
       # model is trained. The report is uploaded separately so ingestion evidence
       # is not hidden inside the training workflow.
-      - name: Generate and validate UCI Wine Quality data
+      - name: Generate and validate UCI Metro traffic data
         run: python -m src.data
 
       - name: Upload ingestion report
@@ -82,7 +82,7 @@ jobs:
           python -m src.preprocess
 
       - name: Verify processed data output
-        run: test -s data/processed/winequality-red-processed.csv
+        run: test -s data/processed/metro-traffic-processed.csv
 
       - name: Show processed-data summary
         run: |
@@ -107,6 +107,6 @@ jobs:
         with:
           name: preprocessing-artifacts
           path: |
-            data/processed/winequality-red-processed.csv
+            data/processed/metro-traffic-processed.csv
             reports/metrics/data_ingestion.json
             reports/metrics/preprocessing.json

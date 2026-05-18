@@ -1,37 +1,43 @@
 {
   "feature_columns": [
-    "fixed_acidity",
-    "volatile_acidity",
-    "citric_acid",
-    "residual_sugar",
-    "chlorides",
-    "free_sulfur_dioxide",
-    "total_sulfur_dioxide",
-    "density",
-    "ph",
-    "sulphates",
-    "alcohol"
+    "temp",
+    "rain_1h",
+    "snow_1h",
+    "clouds_all",
+    "hour",
+    "month",
+    "day_of_week",
+    "is_weekend",
+    "is_holiday",
+    "weather_main",
+    "lag_1h_volume",
+    "lag_24h_volume",
+    "lag_168h_volume",
+    "rolling_3h_volume",
+    "rolling_24h_volume"
   ],
-  "input": "data\\raw\\winequality-red.csv",
-  "output": "data\\processed\\winequality-red-processed.csv",
-  "positive_class_threshold": 6,
+  "high_traffic_threshold": 3800,
+  "input": "data\\raw\\Metro_Interstate_Traffic_Volume.csv.gz",
+  "output": "data\\processed\\metro-traffic-processed.csv",
   "preprocessing_steps": [
-    "validate official UCI red wine quality schema",
-    "rename semicolon-delimited physicochemical columns to snake_case names",
-    "derive binary quality_label target where quality >= 6 is good quality",
-    "save deterministic processed CSV for training, CT, Docker, and Kind"
+    "validate official UCI Metro Interstate Traffic Volume schema",
+    "sort by date_time and keep one row per hour to avoid duplicate-hour leakage",
+    "derive calendar features from date_time",
+    "derive lagged traffic features using previous traffic-volume observations only",
+    "derive high_traffic target where traffic_volume >= 3800",
+    "save deterministic processed CSV for training, evaluation, and Flask demos"
   ],
-  "rows": 1599,
-  "source_target_column": "quality",
+  "rows": 40407,
+  "source_target_column": "traffic_volume",
   "status": "processed",
-  "target_column": "quality_label",
+  "target_column": "high_traffic",
   "target_distribution": {
-    "0": 744,
-    "1": 855
+    "0": 21842,
+    "1": 18565
   },
   "target_labels": {
-    "0": "standard quality",
-    "1": "good quality"
+    "0": "normal traffic",
+    "1": "high traffic"
   },
   "task_type": "classification"
 }

@@ -28,29 +28,29 @@ def create_test_app():
     return create_app(
         model_bundle={
             "model": DummyClassifier(),
-            "model_version": "test-ui-wine-v1",
-            "model_path": "models/wine_quality_classifier.joblib",
-            "dataset": {"name": "UCI Wine Quality - Red Wine"},
+            "model_version": "test-ui-traffic-v1",
+            "model_path": "models/traffic_volume_classifier.joblib",
+            "dataset": {"name": "UCI Metro Interstate Traffic Volume"},
             "feature_columns": FEATURE_COLUMNS,
             "task_type": "classification",
-            "target_labels": {0: "standard quality", 1: "good quality"},
-            "target_definition": {"model_target": "quality_label"},
+            "target_labels": {0: "normal traffic", 1: "high traffic"},
+            "target_definition": {"model_target": "high_traffic"},
             "classes": [0, 1],
         }
     )
 
 
-def test_root_page_renders_clear_wine_ui() -> None:
+def test_root_page_renders_clear_traffic_ui() -> None:
     # The first page must be usable in the recorded demo without extra setup text:
     # it should show the model, dataset, version, and real endpoint routes.
     response = create_test_app().test_client().get("/")
     html = response.get_data(as_text=True)
 
     assert response.status_code == 200
-    assert "Red Wine Quality Classifier" in html
-    assert "UCI Wine Quality - Red Wine" in html
-    assert "test-ui-wine-v1" in html
-    assert "Predict Quality" in html
+    assert "Traffic Volume Predictor" in html
+    assert "UCI Metro Interstate Traffic Volume" in html
+    assert "test-ui-traffic-v1" in html
+    assert "Predict Traffic" in html
     assert 'healthUrl: "/health"' in html
     assert 'predictUrl: "/predict"' in html
 
@@ -65,7 +65,7 @@ def test_root_page_form_fields_match_prediction_schema() -> None:
         assert f'name="{feature_name}"' in html
     assert html.count("data-feature-input") == len(FEATURE_COLUMNS)
     assert "Use Example" in html
-    assert "Predict Quality" in html
+    assert "Predict Traffic" in html
 
 
 def test_ui_javascript_handles_unreachable_prediction_api() -> None:
@@ -84,4 +84,5 @@ def test_use_example_payload_matches_model_schema() -> None:
     payload = PredictionRequestExample().as_payload()["features"]
 
     assert set(payload) == set(FEATURE_COLUMNS)
-    assert all(isinstance(value, float) for value in payload.values())
+    assert isinstance(payload["weather_main"], str)
+    assert all(isinstance(value, float) for key, value in payload.items() if key != "weather_main")

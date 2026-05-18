@@ -1,8 +1,8 @@
-                  precision    recall  f1-score   support
+                precision    recall  f1-score   support
 
-standard quality       0.82      0.81      0.81       149
-    good quality       0.83      0.84      0.84       171
+normal traffic       0.98      0.98      0.98      4369
+  high traffic       0.98      0.98      0.98      3713
 
-        accuracy                           0.82       320
-       macro avg       0.82      0.82      0.82       320
-    weighted avg       0.82      0.82      0.82       320
+      accuracy                           0.98      8082
+     macro avg       0.98      0.98      0.98      8082
+  weighted avg       0.98      0.98      0.98      8082

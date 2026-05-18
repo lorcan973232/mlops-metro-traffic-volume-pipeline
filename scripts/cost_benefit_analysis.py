@@ -1,8 +1,8 @@
 """Create a labelled simulated decision-value report from model errors.
 
-The values in this script are not real winery costs. They are included to show
-how a held-out confusion matrix could be discussed in practical terms during a
-demo, while keeping the assumptions plainly marked as simulated.
+The values in this script are not real traffic-management costs. They are
+included to show how a held-out confusion matrix could be discussed in practical
+terms during a demo, while keeping the assumptions plainly marked as simulated.
 """
 
 from __future__ import annotations
@@ -14,14 +14,13 @@ from pathlib import Path
 from typing import Any
 
 from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import train_test_split
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.data import FEATURE_COLUMNS, TARGET_COLUMN, TARGET_LABELS, write_json
+from src.data import TARGET_LABELS, write_json
 from src.preprocess import PROCESSED_DATA_PATH
 from src.sklearn_compat import load_joblib_bundle
-from src.train import MODEL_PATH, RANDOM_STATE, TEST_SIZE, load_processed_data, train_model
+from src.train import MODEL_PATH, load_processed_data, split_train_validation_test, train_model
 
 BUSINESS_DIR = Path("reports/business")
 COST_BENEFIT_REPORT_PATH = BUSINESS_DIR / "cost_benefit_report.json"
@@ -52,14 +51,7 @@ def _load_bundle() -> dict[str, Any]:
 def _evaluation_data() -> tuple[Any, Any]:
     """Recreate the held-out data used to count model decisions."""
     data = load_processed_data(PROCESSED_DATA_PATH)
-    _, x_test, _, y_test = train_test_split(
-        data[FEATURE_COLUMNS],
-        data[TARGET_COLUMN],
-        test_size=TEST_SIZE,
-        random_state=RANDOM_STATE,
-        shuffle=True,
-        stratify=data[TARGET_COLUMN],
-    )
+    _, _, x_test, _, _, y_test = split_train_validation_test(data)
     return x_test, y_test
 
 
@@ -72,15 +64,15 @@ def run_cost_benefit_analysis() -> dict[str, Any]:
     tn, fp, fn, tp = confusion_matrix(y_test, predictions, labels=[0, 1]).ravel()
     assumptions = {
         "assumption_type": "SIMULATED_ASSUMPTIONS",
-        "unit": "relative decision-value points per held-out wine sample",
+        "unit": "relative decision-value points per held-out traffic record",
         "true_positive_benefit": 5.0,
         "true_negative_benefit": 1.0,
         "false_positive_cost": -4.0,
         "false_negative_cost": -3.0,
         "rationale": (
-            "Values are illustrative only. They model a quality-screening scenario where "
-            "correctly identifying good wines has higher value, while false premium routing "
-            "and missed good wines both carry practical cost."
+            "Values are illustrative only. They model a traffic-operations scenario where "
+            "correctly identifying high-traffic periods has higher value, while false alerts "
+            "and missed high-traffic periods both carry practical cost."
         ),
     }
     model_value = (
@@ -112,12 +104,12 @@ def run_cost_benefit_analysis() -> dict[str, Any]:
         "model_version": bundle.get("model_version", "unknown"),
         "model_path": str(MODEL_PATH),
         "use_case": (
-            "Demonstration of how a winery or quality-control team could triage samples "
-            "for premium review using model predictions."
+            "Demonstration of how a traffic-operations team could triage likely high-volume "
+            "periods for extra monitoring using model predictions."
         ),
         "prediction_action_mapping": {
-            TARGET_LABELS[0]: "route_to_standard_quality_review",
-            TARGET_LABELS[1]: "route_to_good_quality_or_premium_review",
+            TARGET_LABELS[0]: "normal_monitoring",
+            TARGET_LABELS[1]: "prioritise_high_traffic_review",
         },
         "assumptions": assumptions,
         "confusion_matrix": {
@@ -139,7 +131,7 @@ def run_cost_benefit_analysis() -> dict[str, Any]:
         "incremental_value_vs_majority_baseline": float(incremental_value),
         "practical_value": (
             "Positive simulated value indicates that the model could support prioritised "
-            "quality review under the stated assumptions."
+            "traffic review under the stated assumptions."
             if incremental_value > 0
             else "The model does not beat the majority-class policy under these assumptions."
         ),

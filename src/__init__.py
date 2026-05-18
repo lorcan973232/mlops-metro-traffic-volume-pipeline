@@ -1,4 +1,4 @@
-"""Source package for the wine-quality MLOps pipeline.
+"""Source package for the traffic-volume MLOps pipeline.
 
 The modules in this package cover data ingestion, preprocessing, model
 selection, training, evaluation, prediction, registry metadata, and supporting

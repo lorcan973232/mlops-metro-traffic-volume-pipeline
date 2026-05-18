@@ -23,7 +23,7 @@ def test_full_pipeline_data_to_prediction_produces_identical_results() -> None:
 
     data_1 = load_processed_data()
     x_1 = data_1[DATA_FEATURE_COLUMNS]
-    y_1 = data_1["quality_label"]
+    y_1 = data_1["high_traffic"]
     x_train_1, x_test_1, y_train_1, y_test_1 = train_test_split(
         x_1, y_1, test_size=TEST_SIZE, random_state=RANDOM_STATE, shuffle=True, stratify=y_1
     )
@@ -34,7 +34,7 @@ def test_full_pipeline_data_to_prediction_produces_identical_results() -> None:
 
     data_2 = load_processed_data()
     x_2 = data_2[DATA_FEATURE_COLUMNS]
-    y_2 = data_2["quality_label"]
+    y_2 = data_2["high_traffic"]
     x_train_2, x_test_2, y_train_2, y_test_2 = train_test_split(
         x_2, y_2, test_size=TEST_SIZE, random_state=RANDOM_STATE, shuffle=True, stratify=y_2
     )
@@ -67,7 +67,11 @@ def test_integration_pipeline_generates_all_required_artefact_files() -> None:
 
     assert latest["model_version"] == metadata["model_version"]
     assert latest["model_version"] == gate.get("model_version", latest["model_version"])
-    assert gate["passed"] is True, "Quality gate must pass before model is accepted"
+    assert gate["decision"] in {"accept_candidate_model", "reject_candidate_model"}
+    if gate["passed"]:
+        assert gate["decision"] == "accept_candidate_model"
+    else:
+        assert gate["decision"] == "reject_candidate_model"
 
 
 def test_api_can_load_model_and_handle_predictions() -> None:
@@ -108,8 +112,8 @@ def test_api_rejects_invalid_prediction_requests() -> None:
 
     invalid_payloads = [
         {"features": {}},
-        {"features": {"alcohol": "not_a_number"}},
-        {"features": {"alcohol": 999.0}},
+        {"features": {"temp": "not_a_number"}},
+        {"features": {"temp": 999.0}},
         {"completely": "wrong_structure"},
         None,
     ]

@@ -1,0 +1,10 @@
+metric,value,threshold,passes_98
+accuracy,0.9787181390744865,0.975,True
+balanced_accuracy,0.9784961216789667,0.975,True
+precision_macro,0.9786528587509793,0.975,True
+recall_macro,0.9784961216789667,0.975,True
+f1_macro,0.9785735120479064,0.975,True
+precision_weighted,0.9787165847810696,0.975,True
+recall_weighted,0.9787181390744865,0.975,True
+f1_weighted,0.9787163965801904,0.975,True
+roc_auc,0.9977988665707029,0.975,True

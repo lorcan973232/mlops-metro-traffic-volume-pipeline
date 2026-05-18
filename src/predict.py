@@ -38,7 +38,7 @@ def _prediction_result(
     result: dict[str, Any] = {
         "prediction": prediction,
         "prediction_label": label,
-        "target": bundle.get("target_definition", {}).get("model_target", "quality_label"),
+        "target": bundle.get("target_definition", {}).get("model_target", "high_traffic"),
     }
     if probabilities is not None:
         classes = [int(value) for value in bundle.get("classes", [0, 1])]
@@ -79,7 +79,7 @@ def predict(payload: dict, model_path: Path = MODEL_PATH) -> list[dict[str, Any]
 
 def main() -> None:
     """Run one prediction from supplied JSON or the shared example payload."""
-    parser = argparse.ArgumentParser(description="Run one local red wine quality prediction.")
+    parser = argparse.ArgumentParser(description="Run one local traffic-volume prediction.")
     parser.add_argument("--payload-json", default=None)
     args = parser.parse_args()
     payload = (

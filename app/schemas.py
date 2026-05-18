@@ -1,131 +1,128 @@
-"""Shared prediction schema for training, tests, API validation, and the UI.
-
-Keeping feature names, broad input ranges, labels, and the example payload in
-one module reduces the risk that the browser form, CLI smoke test, and Flask API
-quietly drift away from the trained model's expected 11-column input.
-"""
+"""Shared prediction schema for the traffic-volume API and UI."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
 
-FEATURE_COLUMNS = [
-    "fixed_acidity",
-    "volatile_acidity",
-    "citric_acid",
-    "residual_sugar",
-    "chlorides",
-    "free_sulfur_dioxide",
-    "total_sulfur_dioxide",
-    "density",
-    "ph",
-    "sulphates",
-    "alcohol",
-]
+from src.data import FEATURE_COLUMNS, NUMERIC_FEATURES, WEATHER_MAIN_VALUES
 
-TARGET_NAME = "quality_label"
-TARGET_LABEL = "Wine Quality Class"
+TARGET_NAME = "high_traffic"
+TARGET_LABEL = "Traffic Level"
 TARGET_LABELS = {
-    0: "standard quality",
-    1: "good quality",
+    0: "normal traffic",
+    1: "high traffic",
 }
 
-FEATURE_RANGES: dict[str, tuple[float, float]] = {
-    "fixed_acidity": (4.0, 16.0),
-    "volatile_acidity": (0.1, 1.6),
-    "citric_acid": (0.0, 1.1),
-    "residual_sugar": (0.5, 16.0),
-    "chlorides": (0.01, 0.7),
-    "free_sulfur_dioxide": (1.0, 80.0),
-    "total_sulfur_dioxide": (5.0, 300.0),
-    "density": (0.98, 1.01),
-    "ph": (2.5, 4.2),
-    "sulphates": (0.2, 2.2),
-    "alcohol": (8.0, 16.0),
+NUMERIC_RANGES: dict[str, tuple[float, float]] = {
+    "temp": (230.0, 320.0),
+    "rain_1h": (0.0, 60.0),
+    "snow_1h": (0.0, 1.0),
+    "clouds_all": (0.0, 100.0),
+    "hour": (0.0, 23.0),
+    "month": (1.0, 12.0),
+    "day_of_week": (0.0, 6.0),
+    "is_weekend": (0.0, 1.0),
+    "is_holiday": (0.0, 1.0),
+    "lag_1h_volume": (0.0, 8000.0),
+    "lag_24h_volume": (0.0, 8000.0),
+    "lag_168h_volume": (0.0, 8000.0),
+    "rolling_3h_volume": (0.0, 8000.0),
+    "rolling_24h_volume": (0.0, 8000.0),
 }
 
-# These groups are only for the browser form. They make the live demo easier to
-# explain without changing the feature order used by the trained model.
+WEATHER_OPTIONS = WEATHER_MAIN_VALUES
+
 FEATURE_GROUPS = {
-    "Acidity Profile": [
-        "fixed_acidity",
-        "volatile_acidity",
-        "citric_acid",
-        "ph",
+    "Date and Weather": [
+        "hour",
+        "month",
+        "day_of_week",
+        "is_weekend",
+        "is_holiday",
+        "weather_main",
+        "temp",
+        "clouds_all",
+        "rain_1h",
+        "snow_1h",
     ],
-    "Fermentation Chemistry": [
-        "residual_sugar",
-        "chlorides",
-        "free_sulfur_dioxide",
-        "total_sulfur_dioxide",
-    ],
-    "Body and Finish": [
-        "density",
-        "sulphates",
-        "alcohol",
+    "Recent Traffic": [
+        "lag_1h_volume",
+        "lag_24h_volume",
+        "lag_168h_volume",
+        "rolling_3h_volume",
+        "rolling_24h_volume",
     ],
 }
 
 
 @dataclass(frozen=True)
 class PredictionRequestExample:
-    """Known-valid wine sample used by smoke tests and the live-demo button."""
-    fixed_acidity: float = 7.4
-    volatile_acidity: float = 0.70
-    citric_acid: float = 0.00
-    residual_sugar: float = 1.9
-    chlorides: float = 0.076
-    free_sulfur_dioxide: float = 11.0
-    total_sulfur_dioxide: float = 34.0
-    density: float = 0.9978
-    ph: float = 3.51
-    sulphates: float = 0.56
-    alcohol: float = 9.4
+    """Known-valid traffic sample used by smoke tests and the live-demo button."""
 
-    def as_payload(self) -> dict[str, dict[str, float]]:
-        """Return the JSON shape expected by `/predict` and smoke tests."""
+    temp: float = 288.3
+    rain_1h: float = 0.0
+    snow_1h: float = 0.0
+    clouds_all: float = 20.0
+    hour: float = 8.0
+    month: float = 10.0
+    day_of_week: float = 1.0
+    is_weekend: float = 0.0
+    is_holiday: float = 0.0
+    weather_main: str = "Clear"
+    lag_1h_volume: float = 5200.0
+    lag_24h_volume: float = 5000.0
+    lag_168h_volume: float = 4800.0
+    rolling_3h_volume: float = 4900.0
+    rolling_24h_volume: float = 3300.0
+
+    def as_payload(self) -> dict[str, dict[str, float | str]]:
         return {"features": self.__dict__.copy()}
 
 
 def feature_label(feature_name: str) -> str:
-    """Return a human label for one schema feature in the browser form."""
     labels = {
-        "fixed_acidity": "Fixed Acidity",
-        "volatile_acidity": "Volatile Acidity",
-        "citric_acid": "Citric Acid",
-        "residual_sugar": "Residual Sugar",
-        "chlorides": "Chlorides",
-        "free_sulfur_dioxide": "Free SO2",
-        "total_sulfur_dioxide": "Total SO2",
-        "density": "Density",
-        "ph": "pH",
-        "sulphates": "Sulphates",
-        "alcohol": "Alcohol",
+        "temp": "Temperature (K)",
+        "rain_1h": "Rain Last Hour",
+        "snow_1h": "Snow Last Hour",
+        "clouds_all": "Cloud Cover (%)",
+        "hour": "Hour",
+        "month": "Month",
+        "day_of_week": "Day of Week",
+        "is_weekend": "Weekend",
+        "is_holiday": "Holiday",
+        "weather_main": "Weather",
+        "lag_1h_volume": "Previous Hour Volume",
+        "lag_24h_volume": "Same Hour Yesterday",
+        "lag_168h_volume": "Same Hour Last Week",
+        "rolling_3h_volume": "Recent 3h Average",
+        "rolling_24h_volume": "Recent 24h Average",
     }
     return labels[feature_name]
 
 
 def feature_helper(feature_name: str) -> str:
-    """Return short field guidance for the UI without changing model inputs."""
     helpers = {
-        "fixed_acidity": "Non-volatile tartaric acid concentration.",
-        "volatile_acidity": "Acetic acid level; high values can reduce quality.",
-        "citric_acid": "Citric acid concentration.",
-        "residual_sugar": "Sugar left after fermentation.",
-        "chlorides": "Salt concentration in the wine.",
-        "free_sulfur_dioxide": "Free sulfur dioxide concentration.",
-        "total_sulfur_dioxide": "Total sulfur dioxide concentration.",
-        "density": "Wine density, usually near 1.0.",
-        "ph": "Acidity/alkalinity value.",
-        "sulphates": "Sulphate concentration.",
-        "alcohol": "Alcohol by volume percentage.",
+        "temp": "Kelvin value from the traffic weather record.",
+        "rain_1h": "Millimetres of rain in the last hour.",
+        "snow_1h": "Millimetres of snow in the last hour.",
+        "clouds_all": "Cloud cover from 0 to 100.",
+        "hour": "0 to 23.",
+        "month": "1 to 12.",
+        "day_of_week": "0 = Monday, 6 = Sunday.",
+        "is_weekend": "0 = no, 1 = yes.",
+        "is_holiday": "0 = no, 1 = yes.",
+        "weather_main": "Main weather condition.",
+        "lag_1h_volume": "Observed traffic count one hour earlier.",
+        "lag_24h_volume": "Observed traffic count 24 hours earlier.",
+        "lag_168h_volume": "Observed traffic count one week earlier.",
+        "rolling_3h_volume": "Average observed count over the previous 3 hours.",
+        "rolling_24h_volume": "Average observed count over the previous 24 hours.",
     }
     return helpers[feature_name]
 
 
 def ui_feature_groups() -> list[dict[str, Any]]:
-    """Group fields for display while preserving the actual training schema."""
     example = PredictionRequestExample().__dict__
     grouped_features = []
     for group_name, features in FEATURE_GROUPS.items():
@@ -138,8 +135,10 @@ def ui_feature_groups() -> list[dict[str, Any]]:
                         "label": feature_label(feature_name),
                         "helper": feature_helper(feature_name),
                         "example": example[feature_name],
-                        "min": FEATURE_RANGES[feature_name][0],
-                        "max": FEATURE_RANGES[feature_name][1],
+                        "kind": "select" if feature_name == "weather_main" else "number",
+                        "options": WEATHER_OPTIONS if feature_name == "weather_main" else [],
+                        "min": NUMERIC_RANGES.get(feature_name, (None, None))[0],
+                        "max": NUMERIC_RANGES.get(feature_name, (None, None))[1],
                     }
                     for feature_name in features
                 ],
@@ -148,17 +147,9 @@ def ui_feature_groups() -> list[dict[str, Any]]:
     return grouped_features
 
 
-def validate_prediction_payload(payload: object) -> list[dict[str, float]]:
-    """Validate user input before it reaches the model prediction pipeline.
-
-    The function accepts one record or a list of records, rejects unknown or
-    missing columns, coerces values to floats, and checks broad UCI-style ranges.
-    Flask, CLI prediction, tests, Docker, and Kind smoke tests all rely on this
-    same validation path.
-    """
+def validate_prediction_payload(payload: object) -> list[dict[str, float | str]]:
     if isinstance(payload, dict) and "features" in payload:
         payload = payload["features"]
-
     if isinstance(payload, dict):
         records = [payload]
     elif isinstance(payload, list) and all(isinstance(record, dict) for record in payload):
@@ -169,30 +160,30 @@ def validate_prediction_payload(payload: object) -> list[dict[str, float]]:
         )
 
     allowed_columns = set(FEATURE_COLUMNS)
-    clean_records: list[dict[str, float]] = []
+    clean_records: list[dict[str, float | str]] = []
     for record in records:
         unknown = sorted(set(record) - allowed_columns)
         if unknown:
             raise ValueError(f"Unknown feature columns: {unknown}")
-
         missing = [column for column in FEATURE_COLUMNS if column not in record]
         if missing:
             raise ValueError(f"Missing feature columns: {missing}")
 
-        clean_record: dict[str, float] = {}
-        for column in FEATURE_COLUMNS:
-            # Range checks catch obvious input mistakes during the API smoke tests
-            # and live demo, while still using broad bounds from the source data.
+        clean_record: dict[str, float | str] = {}
+        weather = str(record["weather_main"])
+        if weather not in WEATHER_OPTIONS:
+            raise ValueError(f"Feature 'weather_main' must be one of: {WEATHER_OPTIONS}.")
+        clean_record["weather_main"] = weather
+
+        for column in NUMERIC_FEATURES:
             try:
                 value = float(record[column])
             except (TypeError, ValueError) as exc:
                 raise ValueError(f"Feature '{column}' must be numeric.") from exc
-            minimum, maximum = FEATURE_RANGES[column]
+            minimum, maximum = NUMERIC_RANGES[column]
             if value < minimum or value > maximum:
-                raise ValueError(
-                    f"Feature '{column}' must be between {minimum} and {maximum}."
-                )
+                raise ValueError(f"Feature '{column}' must be between {minimum} and {maximum}.")
             clean_record[column] = value
-        clean_records.append(clean_record)
+        clean_records.append({column: clean_record[column] for column in FEATURE_COLUMNS})
 
     return clean_records

@@ -15,7 +15,7 @@ from typing import Any
 from app.schemas import FEATURE_COLUMNS
 from src.sklearn_compat import load_joblib_bundle
 
-DEFAULT_MODEL_PATH = Path("models/wine_quality_classifier.joblib")
+DEFAULT_MODEL_PATH = Path("models/traffic_volume_classifier.joblib")
 
 
 def load_model(model_path: str | Path | None = None) -> dict[str, Any]:

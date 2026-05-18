@@ -2,34 +2,34 @@
   "computed_from_model": true,
   "dataset_has_protected_attributes": false,
   "disparities": {
-    "alcohol_tertile_proxy": {
-      "accuracy_gap": 0.14081207704320664,
-      "equalized_odds_style_gap": 0.5918604651162791,
-      "f1_gap": 0.19712707182320444,
-      "false_negative_rate_gap": 0.30980392156862746,
-      "false_positive_rate_gap": 0.5918604651162791,
-      "largest_gap_metric": "false_positive_rate_gap",
-      "precision_gap": 0.08197463768115942,
-      "recall_gap": 0.30980392156862746,
-      "true_positive_rate_gap": 0.30980392156862746
+    "hour_band_proxy": {
+      "accuracy_gap": 0.03522388059701498,
+      "equalized_odds_style_gap": 0.986428130783467,
+      "f1_gap": 0.9867324899722308,
+      "false_negative_rate_gap": 1.0,
+      "false_positive_rate_gap": 0.1891891891891892,
+      "largest_gap_metric": "false_negative_rate_gap",
+      "precision_gap": 0.987037037037037,
+      "recall_gap": 0.986428130783467,
+      "true_positive_rate_gap": 0.986428130783467
     },
-    "sulphates_tertile_proxy": {
-      "accuracy_gap": 0.2196765498652291,
-      "equalized_odds_style_gap": 0.22619047619047616,
-      "f1_gap": 0.22406947890818862,
-      "false_negative_rate_gap": 0.20453190220632084,
-      "false_positive_rate_gap": 0.22619047619047616,
-      "largest_gap_metric": "precision_gap",
-      "precision_gap": 0.2573352573352573,
-      "recall_gap": 0.20453190220632078,
-      "true_positive_rate_gap": 0.20453190220632078
+    "weather_main_proxy": {
+      "accuracy_gap": 0.048913043478260865,
+      "equalized_odds_style_gap": 0.05555555555555555,
+      "f1_gap": 0.04761904761904767,
+      "false_negative_rate_gap": 0.046357615894039736,
+      "false_positive_rate_gap": 0.05555555555555555,
+      "largest_gap_metric": "false_positive_rate_gap",
+      "precision_gap": 0.052631578947368474,
+      "recall_gap": 0.04635761589403975,
+      "true_positive_rate_gap": 0.04635761589403975
     }
   },
-  "generated_at": "2026-05-17T13:34:30+00:00",
+  "generated_at": "2026-05-18T02:44:22+00:00",
   "group_metrics_path": "reports\\fairness\\group_metrics.json",
   "grouping_variables": [
-    "alcohol_tertile_proxy",
-    "sulphates_tertile_proxy"
+    "hour_band_proxy",
+    "weather_main_proxy"
   ],
   "interpretation": "At least one proxy subgroup gap exceeds 0.15; review subgroup errors before use.",
   "limitations": [
@@ -37,11 +37,11 @@
     "Proxy feature bins cannot support legal or demographic fairness claims.",
     "Small subgroup counts can make precision, recall, and F1 volatile."
   ],
-  "max_equalized_odds_style_gap": 0.5918604651162791,
-  "model_path": "models\\wine_quality_classifier.joblib",
+  "max_equalized_odds_style_gap": 0.986428130783467,
+  "model_path": "models\\traffic_volume_classifier.joblib",
   "model_version": "1.0.1",
   "performance_balanced_across_proxy_groups": false,
-  "protected_attribute_statement": "The UCI red wine quality dataset contains physicochemical measurements and a quality score; it does not contain demographic protected attributes.",
+  "protected_attribute_statement": "The UCI traffic-volume dataset contains road, weather, and time measurements; it does not contain demographic protected attributes.",
   "proxy_group_statement": "This is a proxy subgroup performance audit using non-sensitive operational feature bins. These proxy groups are not protected characteristics.",
   "status": "completed"
 }

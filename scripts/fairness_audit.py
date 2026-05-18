@@ -1,7 +1,7 @@
 """Audit model performance across clearly labelled non-sensitive proxy groups.
 
-The UCI wine dataset has no demographic protected attributes. This script
-therefore checks alcohol and sulphates tertiles as operational subgroups only.
+The traffic dataset has no demographic protected attributes. This script checks
+operational time and weather groups only.
 It is useful for showing how subgroup monitoring could be wired into the MLOps
 pipeline, while avoiding a false legal or demographic fairness claim.
 """
@@ -41,8 +41,8 @@ FAIRNESS_SUMMARY_PATH = FAIRNESS_DIR / "fairness_summary.txt"
 # Proxy subgroup audit
 # ==============================================================================
 #
-# The wine dataset has no demographic protected attributes. This audit therefore
-# uses operational proxy groups, such as alcohol and sulphates tertiles, to show
+# The traffic dataset has no demographic protected attributes. This audit therefore
+# uses operational proxy groups, such as hour bands and weather condition, to show
 # how subgroup checks would be wired into the pipeline without making legal or
 # demographic fairness claims.
 
@@ -74,7 +74,7 @@ def _test_frame() -> tuple[pd.DataFrame, pd.Series]:
 
 
 def _bin_feature(series: pd.Series, labels: list[str]) -> pd.Series:
-    """Convert a numeric wine feature into tertile proxy groups."""
+    """Convert a numeric traffic feature into proxy groups."""
     return pd.qcut(series, q=len(labels), labels=labels, duplicates="drop").astype(str)
 
 
@@ -96,8 +96,12 @@ def _group_metric_rows(frame: pd.DataFrame, y_true: pd.Series, y_pred: pd.Series
     """Calculate model performance separately for the proxy feature groups."""
     grouped_reports: dict[str, Any] = {}
     grouping_columns = {
-        "alcohol_tertile_proxy": _bin_feature(frame["alcohol"], ["low", "medium", "high"]),
-        "sulphates_tertile_proxy": _bin_feature(frame["sulphates"], ["low", "medium", "high"]),
+        "hour_band_proxy": pd.cut(
+            frame["hour"],
+            bins=[-1, 5, 10, 15, 20, 23],
+            labels=["night", "morning", "midday", "evening", "late"],
+        ).astype(str),
+        "weather_main_proxy": frame["weather_main"].astype(str),
     }
     for grouping_name, groups in grouping_columns.items():
         rows = {}
@@ -165,14 +169,14 @@ def run_fairness_audit() -> dict[str, Any]:
         "model_path": str(MODEL_PATH),
         "dataset_has_protected_attributes": False,
         "protected_attribute_statement": (
-            "The UCI red wine quality dataset contains physicochemical measurements and a "
-            "quality score; it does not contain demographic protected attributes."
+            "The UCI traffic-volume dataset contains road, weather, and time measurements; "
+            "it does not contain demographic protected attributes."
         ),
         "proxy_group_statement": (
             "This is a proxy subgroup performance audit using non-sensitive operational "
             "feature bins. These proxy groups are not protected characteristics."
         ),
-        "grouping_variables": ["alcohol_tertile_proxy", "sulphates_tertile_proxy"],
+        "grouping_variables": ["hour_band_proxy", "weather_main_proxy"],
         "group_metrics_path": str(GROUP_METRICS_PATH),
         "disparities": disparities,
         "max_equalized_odds_style_gap": float(max_gap),
@@ -201,7 +205,7 @@ def run_fairness_audit() -> dict[str, Any]:
             "Fairness proxy subgroup audit",
             f"Model version: {report['model_version']}",
             "Protected attributes present: no",
-            "Proxy groups: alcohol tertiles and sulphates tertiles",
+            "Proxy groups: hour bands and weather condition",
             f"Maximum equalized-odds-style gap: {max_gap:.4f}",
             f"Balanced under 0.15 threshold: {balanced}",
             report["interpretation"],

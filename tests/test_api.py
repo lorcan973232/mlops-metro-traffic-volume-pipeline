@@ -21,38 +21,38 @@ class DummyClassifier:
         return np.array([[0.18, 0.82]] * len(frame))
 
 
-def test_api_health_and_prediction_use_wine_schema() -> None:
+def test_api_health_and_prediction_use_traffic_schema() -> None:
     # This protects the live demo path: `/health` must prove the model is loaded,
     # and `/predict` must return the same label/confidence fields used by the UI
     # and deployment smoke tests.
     app = create_app(
         model_bundle={
             "model": DummyClassifier(),
-            "model_version": "test-wine-model-v1",
-            "model_path": "models/wine_quality_classifier.joblib",
-            "dataset": {"name": "UCI Wine Quality - Red Wine"},
+            "model_version": "test-traffic-model-v1",
+            "model_path": "models/traffic_volume_classifier.joblib",
+            "dataset": {"name": "UCI Metro Interstate Traffic Volume"},
             "feature_columns": FEATURE_COLUMNS,
             "task_type": "classification",
-            "target_labels": {0: "standard quality", 1: "good quality"},
-            "target_definition": {"model_target": "quality_label"},
+            "target_labels": {0: "normal traffic", 1: "high traffic"},
+            "target_definition": {"model_target": "high_traffic"},
             "classes": [0, 1],
         }
     )
     client = app.test_client()
     health = client.get("/health")
     assert health.status_code == 200
-    assert health.get_json()["feature_count"] == 11
+    assert health.get_json()["feature_count"] == len(FEATURE_COLUMNS)
     assert health.get_json()["task_type"] == "classification"
-    assert health.get_json()["model_version"] == "test-wine-model-v1"
+    assert health.get_json()["model_version"] == "test-traffic-model-v1"
 
     prediction = client.post("/predict", json=PredictionRequestExample().as_payload())
     assert prediction.status_code == 200
     payload = prediction.get_json()
     assert payload["prediction"] == 1
-    assert payload["prediction_label"] == "good quality"
+    assert payload["prediction_label"] == "high traffic"
     assert payload["confidence"] == 0.82
-    assert payload["target"] == "quality_label"
-    assert payload["model_version"] == "test-wine-model-v1"
+    assert payload["target"] == "high_traffic"
+    assert payload["model_version"] == "test-traffic-model-v1"
 
 
 def test_api_rejects_missing_feature() -> None:
@@ -61,16 +61,16 @@ def test_api_rejects_missing_feature() -> None:
     app = create_app(
         model_bundle={
             "model": DummyClassifier(),
-            "model_version": "test-wine-model-v1",
+            "model_version": "test-traffic-model-v1",
             "feature_columns": FEATURE_COLUMNS,
             "task_type": "classification",
-            "target_labels": {0: "standard quality", 1: "good quality"},
-            "target_definition": {"model_target": "quality_label"},
+            "target_labels": {0: "normal traffic", 1: "high traffic"},
+            "target_definition": {"model_target": "high_traffic"},
             "classes": [0, 1],
         }
     )
     payload = PredictionRequestExample().as_payload()
-    del payload["features"]["fixed_acidity"]
+    del payload["features"]["temp"]
     response = app.test_client().post("/predict", json=payload)
     assert response.status_code == 400
     assert "Missing feature columns" in response.get_json()["error"]

@@ -1,106 +1,72 @@
 {
-  "dataset": "UCI Wine Quality - Red Wine",
-  "doi": "10.24432/C56S3T",
-  "download_url": "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv",
+  "dataset": "UCI Metro Interstate Traffic Volume",
+  "doi": "10.24432/C5X60B",
+  "download_url": "https://archive.ics.uci.edu/ml/machine-learning-databases/00492/Metro_Interstate_Traffic_Volume.csv.gz",
   "ingestion": {
     "fallback_used": false,
-    "path": "data\\raw\\winequality-red.csv",
-    "sha256": "4a402cf041b025d4566d954c3b9ba8635a3a8a01e039005d97d6a710278cf05e",
-    "source": "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv",
+    "path": "data\\raw\\Metro_Interstate_Traffic_Volume.csv.gz",
+    "sha256": "0b3679ac15173f79c6dc6c5ef8a0798d806fa5c5d7f05c84a5fa711bd1b05f07",
+    "source": "https://archive.ics.uci.edu/ml/machine-learning-databases/00492/Metro_Interstate_Traffic_Volume.csv.gz",
     "status": "cached"
   },
   "license": "Creative Commons Attribution 4.0 International",
-  "source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
-  "source_note": "Downloaded from the official UCI winequality-red.csv file.",
+  "source": "https://archive.ics.uci.edu/dataset/492/metro+interstate+traffic+volume",
+  "source_note": "Downloaded from the official UCI Metro Interstate Traffic Volume CSV gzip file.",
   "task_type": "classification",
   "validation": {
-    "columns": 12,
+    "columns": 9,
+    "dataset_selection_reason": "This public traffic-volume dataset is close in style to bike sharing: hourly demand-like counts with weather, holiday, and date/time context. It is not the bike-sharing dataset.",
     "feature_columns": [
-      "fixed_acidity",
-      "volatile_acidity",
-      "citric_acid",
-      "residual_sugar",
-      "chlorides",
-      "free_sulfur_dioxide",
-      "total_sulfur_dioxide",
-      "density",
-      "ph",
-      "sulphates",
-      "alcohol"
+      "temp",
+      "rain_1h",
+      "snow_1h",
+      "clouds_all",
+      "hour",
+      "month",
+      "day_of_week",
+      "is_weekend",
+      "is_holiday",
+      "weather_main",
+      "lag_1h_volume",
+      "lag_24h_volume",
+      "lag_168h_volume",
+      "rolling_3h_volume",
+      "rolling_24h_volume"
     ],
-    "feature_ranges": {
-      "alcohol": {
-        "max": 16.0,
-        "min": 8.0
-      },
-      "chlorides": {
-        "max": 0.7,
-        "min": 0.01
-      },
-      "citric_acid": {
-        "max": 1.1,
-        "min": 0.0
-      },
-      "density": {
-        "max": 1.01,
-        "min": 0.98
-      },
-      "fixed_acidity": {
-        "max": 16.0,
-        "min": 4.0
-      },
-      "free_sulfur_dioxide": {
-        "max": 80.0,
-        "min": 1.0
-      },
-      "ph": {
-        "max": 4.2,
-        "min": 2.5
-      },
-      "residual_sugar": {
-        "max": 16.0,
-        "min": 0.5
-      },
-      "sulphates": {
-        "max": 2.2,
-        "min": 0.2
-      },
-      "total_sulfur_dioxide": {
-        "max": 300.0,
-        "min": 5.0
-      },
-      "volatile_acidity": {
-        "max": 1.6,
-        "min": 0.1
-      }
-    },
+    "high_traffic_threshold": 3800,
+    "leakage_note": "The target traffic_volume is not included as a feature. Lagged traffic features are shifted from previous hours only, matching a short-horizon forecasting use case where recent observed traffic is known.",
     "missing_values": 0,
-    "positive_class_threshold": 6,
-    "quality_scores_observed": [
-      3,
-      4,
-      5,
-      6,
-      7,
-      8
-    ],
-    "rows": 1599,
-    "source_target_column": "quality",
-    "source_target_summary": {
-      "max": 8.0,
-      "mean": 5.6360225140712945,
-      "min": 3.0
-    },
+    "rows": 48204,
+    "source_target_column": "traffic_volume",
     "status": "valid",
-    "target_column": "quality_label",
-    "target_distribution": {
-      "0": 744,
-      "1": 855
+    "target_column": "high_traffic",
+    "target_distribution_before_lag_drop": {
+      "0": 26289,
+      "1": 21915
     },
     "target_labels": {
-      "0": "standard quality",
-      "1": "good quality"
+      "0": "normal traffic",
+      "1": "high traffic"
     },
-    "task_type": "classification"
+    "task_type": "classification",
+    "traffic_volume_summary": {
+      "max": 7280.0,
+      "mean": 3259.8183553232097,
+      "median": 3380.0,
+      "min": 0.0
+    },
+    "weather_main_values": [
+      "Clear",
+      "Clouds",
+      "Drizzle",
+      "Fog",
+      "Haze",
+      "Mist",
+      "Rain",
+      "Smoke",
+      "Snow",
+      "Squall",
+      "Thunderstorm"
+    ]
   }
 }

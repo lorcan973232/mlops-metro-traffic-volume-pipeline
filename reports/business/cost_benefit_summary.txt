@@ -1,6 +1,6 @@
 Cost-benefit decision analysis
 Assumption type: SIMULATED_ASSUMPTIONS
-Model decision value: 643.00
-Majority baseline value: 259.00
-Incremental value: 384.00
-Positive simulated value indicates that the model could support prioritised quality review under the stated assumptions.
+Model decision value: 21804.00
+Majority baseline value: -6770.00
+Incremental value: 28574.00
+Positive simulated value indicates that the model could support prioritised traffic review under the stated assumptions.

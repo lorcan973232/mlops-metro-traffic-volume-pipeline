@@ -4,18 +4,18 @@
   "model_management_scope": "Accepted model and metrics are stored as repository evidence and GitHub Actions artefacts. This is not an MLflow, GHCR, or cloud model-registry promotion.",
   "records": [
     {
-      "accuracy": 0.825,
-      "dataset_doi": "10.24432/C56S3T",
-      "dataset_source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
-      "f1_macro": 0.8240100565681961,
-      "f1_weighted": 0.8249175047140165,
+      "accuracy": 0.9787181390744865,
+      "dataset_doi": "10.24432/C5X60B",
+      "dataset_source": "https://archive.ics.uci.edu/dataset/492/metro+interstate+traffic+volume",
+      "f1_macro": 0.9785735120479064,
+      "f1_weighted": 0.9787163965801904,
       "metadata_path": "reports\\metrics\\model_metadata.json",
       "metrics_path": "reports\\metrics\\metrics.json",
-      "model_path": "models\\wine_quality_classifier.joblib",
+      "model_path": "models\\traffic_volume_classifier.joblib",
       "model_version": "1.0.1",
       "promotion_decision": "accepted",
       "quality_gate_passed": true,
-      "training_timestamp": "2026-05-17T00:11:36+00:00"
+      "training_timestamp": "2026-05-18T02:47:54+00:00"
     }
   ],
   "registry_type": "lightweight_repository_metadata"

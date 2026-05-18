@@ -1,16 +1,16 @@
 {
   "labels": [
-    "standard quality",
-    "good quality"
+    "normal traffic",
+    "high traffic"
   ],
   "matrix": [
     [
-      120,
-      29
+      4287,
+      82
     ],
     [
-      27,
-      144
+      90,
+      3623
     ]
   ],
   "predicted_label_axis": "columns",

@@ -41,7 +41,7 @@ jobs:
           python -m src.preprocess
           python -m src.model_selection
           python -m src.train
-          python -m src.evaluate
+          python -m src.evaluate --fail-on-rejection
           python scripts/explain_model.py
           python scripts/fairness_audit.py
           python scripts/cost_benefit_analysis.py
@@ -91,9 +91,14 @@ jobs:
           required_checks = {
               "accuracy_above_minimum",
               "balanced_accuracy_above_minimum",
+              "precision_macro_above_minimum",
+              "recall_macro_above_minimum",
               "weighted_f1_above_minimum",
               "macro_f1_above_minimum",
+              "per_class_metrics_above_minimum",
               "cv_accuracy_above_minimum",
+              "cv_f1_macro_above_minimum",
+              "roc_auc_above_minimum",
               "accuracy_beats_baseline_margin",
           }
           missing_checks = sorted(required_checks - set(gate["checks"]))

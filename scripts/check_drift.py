@@ -47,11 +47,6 @@ def validate_feature_schema(frame: pd.DataFrame) -> None:
     missing_columns = [column for column in FEATURE_COLUMNS if column not in frame.columns]
     if missing_columns:
         raise ValueError(f"Drift batch missing expected feature columns: {missing_columns}")
-    non_numeric_columns = [
-        column for column in FEATURE_COLUMNS if not pd.api.types.is_numeric_dtype(frame[column])
-    ]
-    if non_numeric_columns:
-        raise ValueError(f"Drift batch contains non-numeric feature columns: {non_numeric_columns}")
     missing_values = int(frame[FEATURE_COLUMNS].isna().sum().sum())
     if missing_values:
         raise ValueError(f"Drift batch contains {missing_values} missing feature values.")
@@ -60,11 +55,7 @@ def validate_feature_schema(frame: pd.DataFrame) -> None:
 def data_quality_checks(frame: pd.DataFrame) -> dict[str, Any]:
     """Record schema, type, and missing-value checks for the current batch."""
     missing_columns = [column for column in FEATURE_COLUMNS if column not in frame.columns]
-    non_numeric_columns = [
-        column
-        for column in FEATURE_COLUMNS
-        if column in frame.columns and not pd.api.types.is_numeric_dtype(frame[column])
-    ]
+    non_numeric_columns = []
     missing_by_feature = (
         {column: int(frame[column].isna().sum()) for column in FEATURE_COLUMNS}
         if not missing_columns
@@ -73,7 +64,7 @@ def data_quality_checks(frame: pd.DataFrame) -> dict[str, Any]:
     total_missing = sum(missing_by_feature.values()) if missing_by_feature else None
     status = (
         "passed"
-        if not missing_columns and not non_numeric_columns and total_missing == 0
+        if not missing_columns and total_missing == 0
         else "failed"
     )
     return {
@@ -95,10 +86,18 @@ def feature_distribution_checks(
     checks = {}
     for column in FEATURE_COLUMNS:
         checks[column] = {
-            "reference_mean": float(reference[column].mean()),
-            "current_mean": float(current[column].mean()),
-            "reference_std": float(reference[column].std()),
-            "current_std": float(current[column].std()),
+            "reference_mean": float(reference[column].mean())
+            if pd.api.types.is_numeric_dtype(reference[column])
+            else None,
+            "current_mean": float(current[column].mean())
+            if pd.api.types.is_numeric_dtype(current[column])
+            else None,
+            "reference_std": float(reference[column].std())
+            if pd.api.types.is_numeric_dtype(reference[column])
+            else None,
+            "current_std": float(current[column].std())
+            if pd.api.types.is_numeric_dtype(current[column])
+            else None,
         }
     return checks
 
@@ -129,10 +128,10 @@ def population_stability_index(
 def simulate_drift(frame: pd.DataFrame) -> pd.DataFrame:
     """Create a repeatable shifted batch so drift detection can be demonstrated."""
     drifted = frame.copy()
-    drifted["volatile_acidity"] = (drifted["volatile_acidity"] * 1.55).clip(upper=1.6)
-    drifted["chlorides"] = (drifted["chlorides"] * 1.7).clip(upper=0.7)
-    drifted["sulphates"] = (drifted["sulphates"] * 1.45).clip(upper=2.2)
-    drifted["alcohol"] = (drifted["alcohol"] + 1.8).clip(upper=16.0)
+    drifted["temp"] = drifted["temp"] + 8.0
+    drifted["clouds_all"] = (drifted["clouds_all"] + 30.0).clip(upper=100.0)
+    drifted["lag_1h_volume"] = (drifted["lag_1h_volume"] * 1.25).clip(upper=8000.0)
+    drifted["rolling_24h_volume"] = (drifted["rolling_24h_volume"] * 0.75).clip(lower=0.0)
     return drifted
 
 
@@ -142,7 +141,7 @@ def load_metadata() -> dict[str, Any]:
         return load_model_metadata()
     return {
         "model_version": "metadata_unavailable",
-        "dataset_name": "UCI Wine Quality - Red Wine",
+        "dataset_name": "UCI Metro Interstate Traffic Volume",
         "dataset_source": DATA_SOURCE_PAGE,
         "feature_schema": FEATURE_COLUMNS,
         "quality_gate": {
@@ -171,11 +170,19 @@ def drift_report(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any]:
     current_quality = data_quality_checks(current)
 
     current_scores = {
-        column: population_stability_index(reference[column], current[column])
+        column: (
+            population_stability_index(reference[column], current[column])
+            if pd.api.types.is_numeric_dtype(reference[column])
+            else 0.0
+        )
         for column in FEATURE_COLUMNS
     }
     simulated_scores = {
-        column: population_stability_index(reference[column], simulated[column])
+        column: (
+            population_stability_index(reference[column], simulated[column])
+            if pd.api.types.is_numeric_dtype(reference[column])
+            else 0.0
+        )
         for column in FEATURE_COLUMNS
     }
     current_max = float(max(current_scores.values()))
@@ -212,7 +219,7 @@ def drift_report(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any]:
         "reference_data_source": str(processed_path),
         "current_data_source": str(processed_path),
         "simulated_data_source": "deterministic perturbation of processed reference data",
-        "dataset_name": metadata.get("dataset_name", "UCI Wine Quality - Red Wine"),
+        "dataset_name": metadata.get("dataset_name", "UCI Metro Interstate Traffic Volume"),
         "dataset_source": metadata.get("dataset_source", DATA_SOURCE_PAGE),
         "model_version": metadata.get("model_version"),
         "feature_schema": FEATURE_COLUMNS,

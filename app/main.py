@@ -1,4 +1,4 @@
-"""Flask API and browser UI entry point for the trained wine-quality model.
+"""Flask API and browser UI entry point for the trained traffic-volume model.
 
 The app is used locally, inside Docker, and inside the Kind deployment. Tests can
 inject a model bundle, but normal runs load the same saved artefact produced by
@@ -19,8 +19,8 @@ from typing import Any
 import pandas as pd
 from flask import Flask, jsonify, render_template, request
 
-from app.model_loader import load_model
 from app.dashboard import dashboard_bp
+from app.model_loader import load_model
 from app.schemas import (
     FEATURE_COLUMNS,
     TARGET_LABEL,
@@ -65,7 +65,7 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
         model_status: dict[str, Any] = {
             "model_loaded": False,
             "model_version": "unavailable",
-            "dataset": {"name": "UCI Wine Quality - Red Wine"},
+            "dataset": {"name": "UCI Metro Interstate Traffic Volume"},
             "target_label": TARGET_LABEL,
         }
         try:
@@ -74,7 +74,10 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
                 {
                     "model_loaded": True,
                     "model_version": bundle.get("model_version", "unknown"),
-                    "model_path": bundle.get("model_path", "models/wine_quality_classifier.joblib"),
+                    "model_path": bundle.get(
+                        "model_path",
+                        "models/traffic_volume_classifier.joblib",
+                    ),
                     "dataset": bundle.get("dataset", model_status["dataset"]),
                     "target_labels": _target_labels(bundle),
                 }
@@ -103,7 +106,10 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
                     "status": "healthy",
                     "model_loaded": True,
                     "model_version": bundle.get("model_version", "unknown"),
-                    "model_path": bundle.get("model_path", "models/wine_quality_classifier.joblib"),
+                    "model_path": bundle.get(
+                        "model_path",
+                        "models/traffic_volume_classifier.joblib",
+                    ),
                     "dataset": bundle.get("dataset", {}),
                     "feature_count": len(bundle["feature_columns"]),
                     "task_type": bundle.get("task_type", "classification"),

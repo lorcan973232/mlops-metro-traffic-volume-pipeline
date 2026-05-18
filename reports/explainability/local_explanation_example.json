@@ -1,63 +1,71 @@
 {
   "computed_from_model": true,
-  "expected_value": 0.4999999999999981,
+  "expected_value": null,
   "feature_contributions": {
-    "alcohol": -0.0251292664237505,
-    "chlorides": 0.016421318771057018,
-    "citric_acid": -0.006840590984796209,
-    "density": -0.02908781613633564,
-    "fixed_acidity": 0.006032232592473743,
-    "free_sulfur_dioxide": 0.0020352140626780308,
-    "ph": -0.0029942220776005384,
-    "residual_sugar": -0.003307208334589605,
-    "sulphates": 0.0016390404084920694,
-    "total_sulfur_dioxide": 0.01696785734620286,
-    "volatile_acidity": -0.04573655922383141
+    "clouds_all": 0.0,
+    "day_of_week": 0.0,
+    "hour": -0.0001193601049354065,
+    "is_holiday": 0.0,
+    "is_weekend": 0.0,
+    "lag_168h_volume": -1.5512214964652493e-05,
+    "lag_1h_volume": 0.8763485537088462,
+    "lag_24h_volume": 2.6214764324183903e-05,
+    "month": 0.0,
+    "rain_1h": 0.0,
+    "rolling_24h_volume": 6.970702883113411e-05,
+    "rolling_3h_volume": 0.00020697884510323394,
+    "snow_1h": 0.0,
+    "temp": -3.500078900509074e-05,
+    "weather_main": 0.0
   },
-  "generated_at": "2026-05-17T13:20:49+00:00",
+  "generated_at": "2026-05-18T01:53:18+00:00",
   "input_features": {
-    "alcohol": 10.2,
-    "chlorides": 0.084,
-    "citric_acid": 0.3,
-    "density": 0.9972,
-    "fixed_acidity": 8.3,
-    "free_sulfur_dioxide": 11.0,
-    "ph": 3.4,
-    "residual_sugar": 2.1,
-    "sulphates": 0.61,
-    "total_sulfur_dioxide": 50.0,
-    "volatile_acidity": 0.61
+    "clouds_all": 5,
+    "day_of_week": 3,
+    "hour": 16,
+    "is_holiday": 0,
+    "is_weekend": 0,
+    "lag_168h_volume": 5428.0,
+    "lag_1h_volume": 5794.0,
+    "lag_24h_volume": 5651.0,
+    "month": 11,
+    "rain_1h": 0.0,
+    "rolling_24h_volume": 3953.4166666666665,
+    "rolling_3h_volume": 5465.0,
+    "snow_1h": 0.0,
+    "temp": 266.58,
+    "weather_main": "Clear"
   },
-  "method": "shap.TreeExplainer",
+  "method": "sklearn.permutation_importance",
   "prediction": {
-    "prediction": 0,
-    "prediction_label": "standard quality",
+    "prediction": 1,
+    "prediction_label": "high traffic",
     "probabilities": {
-      "good quality": 0.43,
-      "standard quality": 0.57
+      "high traffic": 0.9994799085538757,
+      "normal traffic": 0.0005200914461243045
     }
   },
-  "status": "computed",
+  "status": "shap_fallback",
   "top_5_absolute_contributions": [
     [
-      "volatile_acidity",
-      -0.04573655922383141
+      "lag_1h_volume",
+      0.8763485537088462
     ],
     [
-      "density",
-      -0.02908781613633564
+      "rolling_3h_volume",
+      0.00020697884510323394
     ],
     [
-      "alcohol",
-      -0.0251292664237505
+      "hour",
+      -0.0001193601049354065
     ],
     [
-      "total_sulfur_dioxide",
-      0.01696785734620286
+      "rolling_24h_volume",
+      6.970702883113411e-05
     ],
     [
-      "chlorides",
-      0.016421318771057018
+      "temp",
+      -3.500078900509074e-05
     ]
   ]
 }

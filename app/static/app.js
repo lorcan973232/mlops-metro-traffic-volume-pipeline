@@ -56,7 +56,7 @@
   }
 
   function collectPayload() {
-    // Collect the exact 11 numeric features expected by the model. Client-side
+    // Collect the exact traffic features expected by the model. Client-side
     // checks help the demo user, while the Flask API still performs the final
     // validation before prediction.
     const payload = {};
@@ -65,6 +65,10 @@
       const value = input.value.trim();
       if (value === "") {
         throw new Error(`${input.name.replaceAll("_", " ")} is required.`);
+      }
+      if (input.tagName === "SELECT") {
+        payload[input.name] = value;
+        continue;
       }
       const numericValue = Number(value);
       if (!Number.isFinite(numericValue)) {

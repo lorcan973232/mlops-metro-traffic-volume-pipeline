@@ -40,7 +40,7 @@ FAST_MODE = os.getenv("FAST_MODE", "0") == "1"
 # ==============================================================================
 #
 # This script is run locally or in the model-analysis workflow after a model has
-# been trained. It explains which wine features influence good-quality
+# been trained. It explains which traffic features influence high-traffic
 # predictions and writes JSON reports under `reports/explainability/`. SHAP is
 # used when available; permutation importance is the honest fallback so the stage
 # still produces real evidence on lighter environments.
@@ -92,7 +92,7 @@ def _prediction_context(model: Any, row: pd.DataFrame) -> dict[str, Any]:
 
 
 def _positive_class_shap_values(raw_values: Any, positive_class_index: int) -> np.ndarray:
-    """Normalise SHAP output shapes so the positive wine-quality class is explained."""
+    """Normalise SHAP output shapes so the positive traffic class is explained."""
     if isinstance(raw_values, list):
         return np.asarray(raw_values[positive_class_index])
     values = np.asarray(raw_values)
@@ -188,10 +188,13 @@ def _fallback_explanation(
     row = x_test.iloc[[0]].copy()
     baseline_proba = model.predict_proba(row)[0][list(model.classes_).index(1)]
     medians = x_test.median(numeric_only=True)
+    modes = x_test.mode(dropna=True).iloc[0]
     local_contributions = {}
     for feature in FEATURE_COLUMNS:
         perturbed = row.copy()
-        perturbed.loc[:, feature] = medians[feature]
+        perturbed.loc[:, feature] = (
+            medians[feature] if feature in medians.index else modes[feature]
+        )
         perturbed_proba = model.predict_proba(perturbed)[0][list(model.classes_).index(1)]
         local_contributions[feature] = float(baseline_proba - perturbed_proba)
     return {
@@ -205,7 +208,7 @@ def _fallback_explanation(
         "local_contributions": dict(
             sorted(local_contributions.items(), key=lambda item: abs(item[1]), reverse=True)
         ),
-        "local_input": {key: float(value) for key, value in row.iloc[0].to_dict().items()},
+        "local_input": row.iloc[0].to_dict(),
     }
 
 
@@ -234,7 +237,7 @@ def generate_explainability_reports() -> dict[str, Any]:
         "top_features": top_features,
         "interpretation": (
             "Features with larger mean absolute SHAP values have greater average influence "
-            "on good-quality predictions for the evaluated sample."
+            "on high-traffic predictions for the evaluated sample."
             if not explanation["fallback_used"]
             else "Permutation importance is used because SHAP was unavailable or incompatible."
         ),

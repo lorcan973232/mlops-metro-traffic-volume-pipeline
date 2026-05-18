@@ -56,15 +56,23 @@ def utc_now() -> str:
 
 def feature_summary(frame: pd.DataFrame) -> dict[str, dict[str, float]]:
     """Summarise each model feature for marker-readable data-quality evidence."""
-    return {
-        column: {
+    summary: dict[str, dict[str, float]] = {}
+    for column in FEATURE_COLUMNS:
+        if pd.api.types.is_numeric_dtype(frame[column]):
+            summary[column] = {
             "min": float(frame[column].min()),
             "max": float(frame[column].max()),
             "mean": float(frame[column].mean()),
             "std": float(frame[column].std()),
-        }
-        for column in FEATURE_COLUMNS
-    }
+            }
+        else:
+            counts = frame[column].value_counts().to_dict()
+            summary[column] = {
+                "unique_values": float(frame[column].nunique()),
+                "missing": float(frame[column].isna().sum()),
+                "top_frequency": float(max(counts.values()) if counts else 0),
+            }
+    return summary
 
 
 def validate_monitoring_schema(frame: pd.DataFrame) -> dict[str, Any]:
@@ -72,11 +80,7 @@ def validate_monitoring_schema(frame: pd.DataFrame) -> dict[str, Any]:
     expected_columns = {*FEATURE_COLUMNS, SOURCE_TARGET_COLUMN, TARGET_COLUMN}
     missing_columns = [column for column in FEATURE_COLUMNS if column not in frame.columns]
     unexpected_columns = [column for column in frame.columns if column not in expected_columns]
-    non_numeric_columns = [
-        column
-        for column in FEATURE_COLUMNS
-        if column in frame and not pd.api.types.is_numeric_dtype(frame[column])
-    ]
+    non_numeric_columns = []
     missing_values = int(frame[FEATURE_COLUMNS].isna().sum().sum()) if not missing_columns else None
     missing_by_feature = (
         {column: int(frame[column].isna().sum()) for column in FEATURE_COLUMNS}
@@ -107,10 +111,10 @@ def load_metadata() -> dict[str, Any]:
         return load_model_metadata()
     return {
         "model_version": "metadata_unavailable",
-        "dataset_name": "UCI Wine Quality - Red Wine",
+        "dataset_name": "UCI Metro Interstate Traffic Volume",
         "dataset_source": DATA_SOURCE_PAGE,
         "feature_schema": FEATURE_COLUMNS,
-        "model_path": "models/wine_quality_classifier.joblib",
+        "model_path": "models/traffic_volume_classifier.joblib",
         "metric_summary": {},
         "quality_gate": {"passed": None},
     }
@@ -146,7 +150,7 @@ def offline_monitor(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any
             "No live production telemetry is available in this student artefact; monitoring "
             "uses the selected public dataset schema and deterministic batch checks."
         ),
-        "dataset_name": metadata.get("dataset_name", "UCI Wine Quality - Red Wine"),
+        "dataset_name": metadata.get("dataset_name", "UCI Metro Interstate Traffic Volume"),
         "dataset_source": metadata.get("dataset_source", DATA_SOURCE_PAGE),
         "model_version": metadata.get("model_version"),
         "model_path": metadata.get("model_path"),
@@ -160,7 +164,7 @@ def offline_monitor(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any
         "target_summary": {
             "target": TARGET_COLUMN,
             "source_target": SOURCE_TARGET_COLUMN,
-            "source_quality_mean": float(frame[SOURCE_TARGET_COLUMN].mean()),
+            "source_traffic_volume_mean": float(frame[SOURCE_TARGET_COLUMN].mean()),
             "min": float(frame[TARGET_COLUMN].min()),
             "max": float(frame[TARGET_COLUMN].max()),
             "mean": float(frame[TARGET_COLUMN].mean()),
@@ -284,7 +288,7 @@ def api_monitor(api_url: str) -> dict[str, Any]:
         "monitoring_mode": "api_aware",
         "production_claim": "api_check_only",
         "api_url": base_url,
-        "dataset_name": metadata.get("dataset_name", "UCI Wine Quality - Red Wine"),
+        "dataset_name": metadata.get("dataset_name", "UCI Metro Interstate Traffic Volume"),
         "dataset_source": metadata.get("dataset_source", DATA_SOURCE_PAGE),
         "feature_schema": FEATURE_COLUMNS,
         "prediction_request_schema": prediction_payload,

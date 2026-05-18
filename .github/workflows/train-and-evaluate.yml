@@ -57,7 +57,7 @@ jobs:
         with:
           name: prepared-data
           path: |
-            data/processed/winequality-red-processed.csv
+            data/processed/metro-traffic-processed.csv
             reports/metrics/data_ingestion.json
             reports/metrics/preprocessing.json
 
@@ -90,7 +90,7 @@ jobs:
           python -m src.preprocess
           python -m src.model_selection
           python -m src.train
-          python -m src.evaluate
+          python -m src.evaluate --fail-on-rejection
           python -m src.model_registry
           python -m src.predict
           python scripts/explain_model.py

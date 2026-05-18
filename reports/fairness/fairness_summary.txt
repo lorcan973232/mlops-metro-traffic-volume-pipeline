@@ -1,7 +1,7 @@
 Fairness proxy subgroup audit
 Model version: 1.0.1
 Protected attributes present: no
-Proxy groups: alcohol tertiles and sulphates tertiles
-Maximum equalized-odds-style gap: 0.5919
+Proxy groups: hour bands and weather condition
+Maximum equalized-odds-style gap: 0.9864
 Balanced under 0.15 threshold: False
 At least one proxy subgroup gap exceeds 0.15; review subgroup errors before use.

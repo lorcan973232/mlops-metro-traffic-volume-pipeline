@@ -1,8 +1,8 @@
 # Kind Deployment
 
 This artefact uses Kind Kubernetes only for deployment evidence. It deploys the Flask
-prediction image `mlops-flask-api:latest`, which serves the UCI red wine quality
-classifier at `models/wine_quality_classifier.joblib`.
+prediction image `mlops-flask-api:latest`, which serves the UCI Metro Interstate
+Traffic Volume classifier at `models/traffic_volume_classifier.joblib`.
 
 Kind is used because the marker can reproduce it on a local Docker machine or
 inspect the GitHub Actions run without needing a persistent cloud account. The
@@ -33,7 +33,7 @@ Open the live-demo UI at:
 http://127.0.0.1:8080/
 ```
 
-The smoke test uses the real Wine Quality feature schema: `fixed_acidity`,
-`volatile_acidity`, `citric_acid`, `residual_sugar`, `chlorides`,
-`free_sulfur_dioxide`, `total_sulfur_dioxide`, `density`, `ph`, `sulphates`,
-and `alcohol`.
+The smoke test uses the real traffic feature schema: `temp`, `rain_1h`,
+`snow_1h`, `clouds_all`, `hour`, `month`, `day_of_week`, `is_weekend`,
+`is_holiday`, `weather_main`, `lag_1h_volume`, `lag_24h_volume`,
+`lag_168h_volume`, `rolling_3h_volume`, and `rolling_24h_volume`.

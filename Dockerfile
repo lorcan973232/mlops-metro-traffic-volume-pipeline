@@ -5,7 +5,7 @@ FROM python:3.11-slim
 # the app at the model file copied into the image.
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV MODEL_PATH=models/wine_quality_classifier.joblib
+ENV MODEL_PATH=models/traffic_volume_classifier.joblib
 
 WORKDIR /app
 
@@ -40,7 +40,7 @@ RUN python -m compileall app src \
     && python -m src.data \
     && python -m src.preprocess \
     && python -m src.train \
-    && python -m src.evaluate \
+    && python -m src.evaluate --fail-on-rejection \
     && python -m src.model_registry \
     && chown -R appuser:app /app
 

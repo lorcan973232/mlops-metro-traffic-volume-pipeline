@@ -1,142 +1,189 @@
 {
   "ct_quality_gate_reference": {
-    "min_accuracy": 0.8,
-    "min_balanced_accuracy": 0.8,
+    "max_cv_f1_std": 0.03,
+    "max_test_validation_uplift": 0.03,
+    "min_accuracy": 0.975,
+    "min_balanced_accuracy": 0.975,
     "min_baseline_accuracy_improvement": 0.2,
-    "min_cv_accuracy": 0.77,
-    "min_macro_f1": 0.8,
-    "min_weighted_f1": 0.8
+    "min_cv_accuracy": 0.975,
+    "min_cv_f1_macro": 0.975,
+    "min_macro_f1": 0.975,
+    "min_per_class_metric": 0.975,
+    "min_precision_macro": 0.975,
+    "min_recall_macro": 0.975,
+    "min_roc_auc": 0.975,
+    "min_weighted_f1": 0.975
   },
   "current_batch": {
     "drift_detected": false,
     "feature_psi": {
-      "alcohol": 0.0,
-      "chlorides": 0.0,
-      "citric_acid": 0.0,
-      "density": 0.0,
-      "fixed_acidity": 0.0,
-      "free_sulfur_dioxide": 0.0,
-      "ph": 0.0,
-      "residual_sugar": 0.0,
-      "sulphates": 0.0,
-      "total_sulfur_dioxide": 0.0,
-      "volatile_acidity": 0.0
+      "clouds_all": 0.0,
+      "day_of_week": 0.0,
+      "hour": 0.0,
+      "is_holiday": 0.0,
+      "is_weekend": 0.0,
+      "lag_168h_volume": 0.0,
+      "lag_1h_volume": 0.0,
+      "lag_24h_volume": 0.0,
+      "month": 0.0,
+      "rain_1h": 0.0,
+      "rolling_24h_volume": 0.0,
+      "rolling_3h_volume": 0.0,
+      "snow_1h": 0.0,
+      "temp": 0.0,
+      "weather_main": 0.0
     },
     "max_psi": 0.0,
     "per_feature_drift_flags": {
-      "alcohol": false,
-      "chlorides": false,
-      "citric_acid": false,
-      "density": false,
-      "fixed_acidity": false,
-      "free_sulfur_dioxide": false,
-      "ph": false,
-      "residual_sugar": false,
-      "sulphates": false,
-      "total_sulfur_dioxide": false,
-      "volatile_acidity": false
+      "clouds_all": false,
+      "day_of_week": false,
+      "hour": false,
+      "is_holiday": false,
+      "is_weekend": false,
+      "lag_168h_volume": false,
+      "lag_1h_volume": false,
+      "lag_24h_volume": false,
+      "month": false,
+      "rain_1h": false,
+      "rolling_24h_volume": false,
+      "rolling_3h_volume": false,
+      "snow_1h": false,
+      "temp": false,
+      "weather_main": false
     }
   },
-  "current_data_source": "data\\processed\\winequality-red-processed.csv",
+  "current_data_source": "data\\processed\\metro-traffic-processed.csv",
   "data_quality_status": "passed",
-  "dataset_name": "UCI Wine Quality - Red Wine",
-  "dataset_source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
+  "dataset_name": "UCI Metro Interstate Traffic Volume",
+  "dataset_source": "https://archive.ics.uci.edu/dataset/492/metro+interstate+traffic+volume",
   "drift_metric": "population_stability_index",
-  "drift_score": 6.995655190821598,
+  "drift_score": 5.890463046990962,
   "feature_distribution_checks": {
-    "alcohol": {
-      "current_mean": 10.422983114446529,
-      "current_std": 1.0656675818473946,
-      "reference_mean": 10.422983114446529,
-      "reference_std": 1.0656675818473946
+    "clouds_all": {
+      "current_mean": 44.21003786472641,
+      "current_std": 38.687014060129165,
+      "reference_mean": 44.21003786472641,
+      "reference_std": 38.687014060129165
     },
-    "chlorides": {
-      "current_mean": 0.08746654158849279,
-      "current_std": 0.0470653020100901,
-      "reference_mean": 0.08746654158849279,
-      "reference_std": 0.0470653020100901
+    "day_of_week": {
+      "current_mean": 3.0073997079713912,
+      "current_std": 1.99889086881272,
+      "reference_mean": 3.0073997079713912,
+      "reference_std": 1.99889086881272
     },
-    "citric_acid": {
-      "current_mean": 0.2709756097560976,
-      "current_std": 0.19480113740531857,
-      "reference_mean": 0.2709756097560976,
-      "reference_std": 0.19480113740531857
+    "hour": {
+      "current_mean": 11.512955675996734,
+      "current_std": 6.950758718866325,
+      "reference_mean": 11.512955675996734,
+      "reference_std": 6.950758718866325
     },
-    "density": {
-      "current_mean": 0.9967466791744841,
-      "current_std": 0.0018873339538425554,
-      "reference_mean": 0.9967466791744841,
-      "reference_std": 0.0018873339538425554
+    "is_holiday": {
+      "current_mean": 0.0012869057341549732,
+      "current_std": 0.03585082169450873,
+      "reference_mean": 0.0012869057341549732,
+      "reference_std": 0.03585082169450873
     },
-    "fixed_acidity": {
-      "current_mean": 8.31963727329581,
-      "current_std": 1.7410963181276953,
-      "reference_mean": 8.31963727329581,
-      "reference_std": 1.7410963181276953
+    "is_weekend": {
+      "current_mean": 0.28586631029277104,
+      "current_std": 0.45183162275311145,
+      "reference_mean": 0.28586631029277104,
+      "reference_std": 0.45183162275311145
     },
-    "free_sulfur_dioxide": {
-      "current_mean": 15.874921826141339,
-      "current_std": 10.460156969809725,
-      "reference_mean": 15.874921826141339,
-      "reference_std": 10.460156969809725
+    "lag_168h_volume": {
+      "current_mean": 3290.2460217289085,
+      "current_std": 1984.7524299442307,
+      "reference_mean": 3290.2460217289085,
+      "reference_std": 1984.7524299442307
     },
-    "ph": {
-      "current_mean": 3.3111131957473416,
-      "current_std": 0.15438646490354277,
-      "reference_mean": 3.3111131957473416,
-      "reference_std": 0.15438646490354277
+    "lag_1h_volume": {
+      "current_mean": 3289.2563169747814,
+      "current_std": 1984.3345974513738,
+      "reference_mean": 3289.2563169747814,
+      "reference_std": 1984.3345974513738
     },
-    "residual_sugar": {
-      "current_mean": 2.53880550343965,
-      "current_std": 1.4099280595072798,
-      "reference_mean": 2.53880550343965,
-      "reference_std": 1.4099280595072798
+    "lag_24h_volume": {
+      "current_mean": 3289.8965278293367,
+      "current_std": 1984.61203624919,
+      "reference_mean": 3289.8965278293367,
+      "reference_std": 1984.61203624919
     },
-    "sulphates": {
-      "current_mean": 0.6581488430268917,
-      "current_std": 0.16950697959010996,
-      "reference_mean": 0.6581488430268917,
-      "reference_std": 0.16950697959010996
+    "month": {
+      "current_mean": 6.474447496720865,
+      "current_std": 3.373004008622132,
+      "reference_mean": 6.474447496720865,
+      "reference_std": 3.373004008622132
     },
-    "total_sulfur_dioxide": {
-      "current_mean": 46.46779237023139,
-      "current_std": 32.895324478299074,
-      "reference_mean": 46.46779237023139,
-      "reference_std": 32.895324478299074
+    "rain_1h": {
+      "current_mean": 0.3199695597297498,
+      "current_std": 48.914007834037896,
+      "reference_mean": 0.3199695597297498,
+      "reference_std": 48.914007834037896
     },
-    "volatile_acidity": {
-      "current_mean": 0.5278205128205128,
-      "current_std": 0.17905970415353537,
-      "reference_mean": 0.5278205128205128,
-      "reference_std": 0.17905970415353537
+    "rolling_24h_volume": {
+      "current_mean": 3289.6661325182927,
+      "current_std": 526.5878328502131,
+      "reference_mean": 3289.6661325182927,
+      "reference_std": 526.5878328502131
+    },
+    "rolling_3h_volume": {
+      "current_mean": 3289.368046790573,
+      "current_std": 1866.8901305928641,
+      "reference_mean": 3289.368046790573,
+      "reference_std": 1866.8901305928641
+    },
+    "snow_1h": {
+      "current_mean": 0.00011780137104957062,
+      "current_std": 0.005687934837816338,
+      "reference_mean": 0.00011780137104957062,
+      "reference_std": 0.005687934837816338
+    },
+    "temp": {
+      "current_mean": 281.3110956764917,
+      "current_std": 13.83980794836473,
+      "reference_mean": 281.3110956764917,
+      "reference_std": 13.83980794836473
+    },
+    "weather_main": {
+      "current_mean": null,
+      "current_std": null,
+      "reference_mean": null,
+      "reference_std": null
     }
   },
   "feature_schema": [
-    "fixed_acidity",
-    "volatile_acidity",
-    "citric_acid",
-    "residual_sugar",
-    "chlorides",
-    "free_sulfur_dioxide",
-    "total_sulfur_dioxide",
-    "density",
-    "ph",
-    "sulphates",
-    "alcohol"
+    "temp",
+    "rain_1h",
+    "snow_1h",
+    "clouds_all",
+    "hour",
+    "month",
+    "day_of_week",
+    "is_weekend",
+    "is_holiday",
+    "weather_main",
+    "lag_1h_volume",
+    "lag_24h_volume",
+    "lag_168h_volume",
+    "rolling_3h_volume",
+    "rolling_24h_volume"
   ],
   "missing_value_checks": {
     "missing_by_feature": {
-      "alcohol": 0,
-      "chlorides": 0,
-      "citric_acid": 0,
-      "density": 0,
-      "fixed_acidity": 0,
-      "free_sulfur_dioxide": 0,
-      "ph": 0,
-      "residual_sugar": 0,
-      "sulphates": 0,
-      "total_sulfur_dioxide": 0,
-      "volatile_acidity": 0
+      "clouds_all": 0,
+      "day_of_week": 0,
+      "hour": 0,
+      "is_holiday": 0,
+      "is_weekend": 0,
+      "lag_168h_volume": 0,
+      "lag_1h_volume": 0,
+      "lag_24h_volume": 0,
+      "month": 0,
+      "rain_1h": 0,
+      "rolling_24h_volume": 0,
+      "rolling_3h_volume": 0,
+      "snow_1h": 0,
+      "temp": 0,
+      "weather_main": 0
     },
     "total_missing_values": 0
   },
@@ -144,71 +191,87 @@
   "monitoring_mode": "offline_simulated",
   "production_claim": "simulated_only",
   "reason": "Current batch has no drift; simulated batch confirms drift detection logic.",
-  "reference_data_source": "data\\processed\\winequality-red-processed.csv",
+  "reference_data_source": "data\\processed\\metro-traffic-processed.csv",
   "retraining_recommended": true,
   "retraining_required": false,
   "schema_validation": {
     "expected_feature_schema": [
-      "fixed_acidity",
-      "volatile_acidity",
-      "citric_acid",
-      "residual_sugar",
-      "chlorides",
-      "free_sulfur_dioxide",
-      "total_sulfur_dioxide",
-      "density",
-      "ph",
-      "sulphates",
-      "alcohol"
+      "temp",
+      "rain_1h",
+      "snow_1h",
+      "clouds_all",
+      "hour",
+      "month",
+      "day_of_week",
+      "is_weekend",
+      "is_holiday",
+      "weather_main",
+      "lag_1h_volume",
+      "lag_24h_volume",
+      "lag_168h_volume",
+      "rolling_3h_volume",
+      "rolling_24h_volume"
     ],
     "missing_by_feature": {
-      "alcohol": 0,
-      "chlorides": 0,
-      "citric_acid": 0,
-      "density": 0,
-      "fixed_acidity": 0,
-      "free_sulfur_dioxide": 0,
-      "ph": 0,
-      "residual_sugar": 0,
-      "sulphates": 0,
-      "total_sulfur_dioxide": 0,
-      "volatile_acidity": 0
+      "clouds_all": 0,
+      "day_of_week": 0,
+      "hour": 0,
+      "is_holiday": 0,
+      "is_weekend": 0,
+      "lag_168h_volume": 0,
+      "lag_1h_volume": 0,
+      "lag_24h_volume": 0,
+      "month": 0,
+      "rain_1h": 0,
+      "rolling_24h_volume": 0,
+      "rolling_3h_volume": 0,
+      "snow_1h": 0,
+      "temp": 0,
+      "weather_main": 0
     },
     "missing_columns": [],
     "missing_values": 0,
     "non_numeric_columns": [],
-    "row_count": 1599,
+    "row_count": 40407,
     "status": "passed"
   },
   "simulated_data_source": "deterministic perturbation of processed reference data",
   "simulated_drift_batch": {
     "drift_detected": true,
     "feature_psi": {
-      "alcohol": 6.995655190821598,
-      "chlorides": 3.6738160288140245,
-      "citric_acid": 0.0,
-      "density": 0.0,
-      "fixed_acidity": 0.0,
-      "free_sulfur_dioxide": 0.0,
-      "ph": 0.0,
-      "residual_sugar": 0.0,
-      "sulphates": 3.916209176054694,
-      "total_sulfur_dioxide": 0.0,
-      "volatile_acidity": 1.441337259199892
+      "clouds_all": 5.890463046990962,
+      "day_of_week": 0.0,
+      "hour": 0.0,
+      "is_holiday": 0.0,
+      "is_weekend": 0.0,
+      "lag_168h_volume": 0.0,
+      "lag_1h_volume": 0.43790249746558196,
+      "lag_24h_volume": 0.0,
+      "month": 0.0,
+      "rain_1h": 0.0,
+      "rolling_24h_volume": 5.4086048941127185,
+      "rolling_3h_volume": 0.0,
+      "snow_1h": 0.0,
+      "temp": 0.5314143460370554,
+      "weather_main": 0.0
     },
-    "max_psi": 6.995655190821598,
+    "max_psi": 5.890463046990962,
     "per_feature_drift_flags": {
-      "alcohol": true,
-      "chlorides": true,
-      "citric_acid": false,
-      "density": false,
-      "fixed_acidity": false,
-      "free_sulfur_dioxide": false,
-      "ph": false,
-      "residual_sugar": false,
-      "sulphates": true,
-      "total_sulfur_dioxide": false,
-      "volatile_acidity": true
+      "clouds_all": true,
+      "day_of_week": false,
+      "hour": false,
+      "is_holiday": false,
+      "is_weekend": false,
+      "lag_168h_volume": false,
+      "lag_1h_volume": true,
+      "lag_24h_volume": false,
+      "month": false,
+      "rain_1h": false,
+      "rolling_24h_volume": true,
+      "rolling_3h_volume": false,
+      "snow_1h": false,
+      "temp": true,
+      "weather_main": false
     }
   },
   "simulated_retraining_signal": {
@@ -217,5 +280,5 @@
   },
   "status": "checked",
   "threshold": 0.2,
-  "timestamp_utc": "2026-05-17T13:35:12+00:00"
+  "timestamp_utc": "2026-05-18T02:47:20+00:00"
 }

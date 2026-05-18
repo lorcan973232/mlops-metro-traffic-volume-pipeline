@@ -1,99 +1,61 @@
 {
   "api_url": "http://127.0.0.1:8080",
-  "dataset_name": "UCI Wine Quality - Red Wine",
-  "dataset_source": "https://archive.ics.uci.edu/dataset/186/wine+quality",
-  "error": null,
+  "dataset_name": "UCI Metro Interstate Traffic Volume",
+  "dataset_source": "https://archive.ics.uci.edu/dataset/492/metro+interstate+traffic+volume",
+  "error": "<urlopen error Unable to connect to the remote server>",
   "expected_model_version": "1.0.1",
   "feature_schema": [
-    "fixed_acidity",
-    "volatile_acidity",
-    "citric_acid",
-    "residual_sugar",
-    "chlorides",
-    "free_sulfur_dioxide",
-    "total_sulfur_dioxide",
-    "density",
-    "ph",
-    "sulphates",
-    "alcohol"
+    "temp",
+    "rain_1h",
+    "snow_1h",
+    "clouds_all",
+    "hour",
+    "month",
+    "day_of_week",
+    "is_weekend",
+    "is_holiday",
+    "weather_main",
+    "lag_1h_volume",
+    "lag_24h_volume",
+    "lag_168h_volume",
+    "rolling_3h_volume",
+    "rolling_24h_volume"
   ],
   "health": {
-    "response": {
-      "classes": [
-        0,
-        1
-      ],
-      "dataset": {
-        "doi": "10.24432/C56S3T",
-        "name": "UCI Wine Quality - Red Wine",
-        "processed_path": "data/processed/winequality-red-processed.csv",
-        "raw_sha256": "4a402cf041b025d4566d954c3b9ba8635a3a8a01e039005d97d6a710278cf05e",
-        "source": "https://archive.ics.uci.edu/dataset/186/wine+quality"
-      },
-      "feature_count": 11,
-      "model_loaded": true,
-      "model_path": "models/wine_quality_classifier.joblib",
-      "model_version": "1.0.1",
-      "status": "healthy",
-      "target": "quality_label",
-      "target_label": "Wine Quality Class",
-      "target_labels": {
-        "0": "standard quality",
-        "1": "good quality"
-      },
-      "task_type": "classification"
-    },
-    "status_code": 200
+    "response": {},
+    "status_code": null
   },
   "model_version": "1.0.1",
   "monitoring_mode": "api_aware",
   "predict": {
-    "response": {
-      "confidence": 1.0,
-      "model_version": "1.0.1",
-      "prediction": 0,
-      "prediction_label": "standard quality",
-      "predictions": [
-        {
-          "confidence": 1.0,
-          "prediction": 0,
-          "prediction_label": "standard quality",
-          "probabilities": {
-            "good quality": 0.0,
-            "standard quality": 1.0
-          },
-          "target": "quality_label"
-        }
-      ],
-      "probabilities": {
-        "good quality": 0.0,
-        "standard quality": 1.0
-      },
-      "target": "quality_label"
-    },
-    "status_code": 200
+    "response": {},
+    "status_code": null
   },
   "prediction_request_schema": {
     "features": {
-      "alcohol": 9.4,
-      "chlorides": 0.076,
-      "citric_acid": 0.0,
-      "density": 0.9978,
-      "fixed_acidity": 7.4,
-      "free_sulfur_dioxide": 11.0,
-      "ph": 3.51,
-      "residual_sugar": 1.9,
-      "sulphates": 0.56,
-      "total_sulfur_dioxide": 34.0,
-      "volatile_acidity": 0.7
+      "clouds_all": 20.0,
+      "day_of_week": 1.0,
+      "hour": 8.0,
+      "is_holiday": 0.0,
+      "is_weekend": 0.0,
+      "lag_168h_volume": 4800.0,
+      "lag_1h_volume": 5200.0,
+      "lag_24h_volume": 5000.0,
+      "month": 10.0,
+      "rain_1h": 0.0,
+      "rolling_24h_volume": 3300.0,
+      "rolling_3h_volume": 4900.0,
+      "snow_1h": 0.0,
+      "temp": 288.3,
+      "weather_main": "Clear"
     }
   },
-  "prediction_response_schema_valid": true,
+  "prediction_response_schema_valid": false,
   "production_claim": "api_check_only",
-  "reason": "No retraining investigation required from API health and prediction checks.",
-  "response_status": "passed",
-  "retraining_recommended": false,
-  "retraining_required": false,
+  "reason": "Investigate deployed API/model because health or prediction monitoring failed.",
+  "response_status": "failed",
+  "retraining_recommended": true,
+  "retraining_required": true,
   "status": "monitored",
-  "timestamp_utc": "2026-05-17T13:31:09+00:00"
+  "timestamp_utc": "2026-05-18T01:05:36+00:00"
 }

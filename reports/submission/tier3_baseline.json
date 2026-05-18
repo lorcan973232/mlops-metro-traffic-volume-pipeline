@@ -13,7 +13,7 @@
     "f1_weighted": 0.8249175047140165,
     "roc_auc": 0.9192668472075041
   },
-  "model_file_path": "models/wine_quality_classifier.joblib",
+  "model_file_path": "models/traffic_volume_classifier.joblib",
   "docker_build_status": {
     "command": "docker build -t mlops-flask-api:baseline .",
     "status": "PARTIAL",

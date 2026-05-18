@@ -185,7 +185,7 @@ def test_workflows_reference_existing_commands_and_upload_artefacts() -> None:
     assert "python -m src.preprocess" in workflow_text
     assert "python -m src.train" in workflow_text
     assert "python -m src.evaluate" in workflow_text
-    assert "data/processed/winequality-red-processed.csv" in workflow_text
+    assert "data/processed/metro-traffic-processed.csv" in workflow_text
     assert "en" + "ergy-efficiency-processed.csv" not in workflow_text
     assert "actions/checkout@v6.0.2" in workflow_text
     assert "actions/setup-python@v6.2.0" in workflow_text
@@ -224,7 +224,7 @@ def test_workflows_do_not_hardcode_credentials() -> None:
 
 def test_docker_workflow_has_verified_dataset_build_context() -> None:
     """Check Docker build context includes the dataset and non-root runtime user."""
-    raw_dataset = Path("data/raw/winequality-red.csv")
+    raw_dataset = Path("data/raw/Metro_Interstate_Traffic_Volume.csv.gz")
     dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
     dockerignore = Path(".dockerignore").read_text(encoding="utf-8")
     gitignore = Path(".gitignore").read_text(encoding="utf-8")
@@ -234,24 +234,29 @@ def test_docker_workflow_has_verified_dataset_build_context() -> None:
     assert "USER appuser" in dockerfile
     assert "useradd --system" in dockerfile
     assert "data/raw/*.csv" not in dockerignore
-    assert "!data/raw/winequality-red.csv" in gitignore
+    assert "!data/raw/Metro_Interstate_Traffic_Volume.csv.gz" in gitignore
+    assert "!models/traffic_volume_classifier.joblib" in gitignore
 
 
 def test_smoke_test_uses_valid_prediction_feature_names() -> None:
     """Check API smoke tests send the real prediction schema."""
     smoke_script = Path("scripts/smoke_test_api.sh").read_text(encoding="utf-8")
     for feature_name in [
-        "fixed_acidity",
-        "volatile_acidity",
-        "citric_acid",
-        "residual_sugar",
-        "chlorides",
-        "free_sulfur_dioxide",
-        "total_sulfur_dioxide",
-        "density",
-        "ph",
-        "sulphates",
-        "alcohol",
+        "temp",
+        "rain_1h",
+        "snow_1h",
+        "clouds_all",
+        "hour",
+        "month",
+        "day_of_week",
+        "is_weekend",
+        "is_holiday",
+        "weather_main",
+        "lag_1h_volume",
+        "lag_24h_volume",
+        "lag_168h_volume",
+        "rolling_3h_volume",
+        "rolling_24h_volume",
     ]:
         assert feature_name in smoke_script
 

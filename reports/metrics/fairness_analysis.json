@@ -1,23 +1,23 @@
 {
   "disparities": {
-    "f1_disparity": 0.0264,
-    "precision_disparity": 0.016,
-    "recall_disparity": 0.0367
+    "f1_disparity": 0.0035,
+    "precision_disparity": 0.0016,
+    "recall_disparity": 0.0055
   },
   "is_balanced": true,
   "model_version": "1.0.1",
   "per_class_metrics": {
-    "good quality": {
-      "f1_score": 0.8372093023255814,
-      "precision": 0.8323699421965318,
-      "recall": 0.8421052631578947,
-      "support": 171
+    "high traffic": {
+      "f1_score": 0.9768131571852251,
+      "precision": 0.9778677462887989,
+      "recall": 0.97576084029087,
+      "support": 3713
     },
-    "standard quality": {
-      "f1_score": 0.8108108108108109,
-      "precision": 0.8163265306122449,
-      "recall": 0.8053691275167785,
-      "support": 149
+    "normal traffic": {
+      "f1_score": 0.9803338669105877,
+      "precision": 0.9794379712131597,
+      "recall": 0.9812314030670634,
+      "support": 4369
     }
   },
   "status": "fairness_analyzed"

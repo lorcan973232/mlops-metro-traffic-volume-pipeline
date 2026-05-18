@@ -3,45 +3,45 @@
     "assumption_type": "SIMULATED_ASSUMPTIONS",
     "false_negative_cost": -3.0,
     "false_positive_cost": -4.0,
-    "rationale": "Values are illustrative only. They model a quality-screening scenario where correctly identifying good wines has higher value, while false premium routing and missed good wines both carry practical cost.",
+    "rationale": "Values are illustrative only. They model a traffic-operations scenario where correctly identifying high-traffic periods has higher value, while false alerts and missed high-traffic periods both carry practical cost.",
     "true_negative_benefit": 1.0,
     "true_positive_benefit": 5.0,
-    "unit": "relative decision-value points per held-out wine sample"
+    "unit": "relative decision-value points per held-out traffic record"
   },
   "computed_from_model": true,
   "confusion_matrix": {
-    "false_negative": 27,
-    "false_positive": 29,
+    "false_negative": 90,
+    "false_positive": 82,
     "labels": [
-      "standard quality",
-      "good quality"
+      "normal traffic",
+      "high traffic"
     ],
-    "true_negative": 120,
-    "true_positive": 144
+    "true_negative": 4287,
+    "true_positive": 3623
   },
-  "generated_at": "2026-05-17T13:34:04+00:00",
-  "incremental_value_vs_majority_baseline": 384.0,
+  "generated_at": "2026-05-18T02:43:16+00:00",
+  "incremental_value_vs_majority_baseline": 28574.0,
   "limitations": [
     "The values are simulated and are not real business figures.",
     "A real deployment would need domain-calibrated costs, intervention capacity, and risk review.",
     "The analysis uses a held-out public dataset split rather than production outcomes."
   ],
   "majority_class_baseline": {
-    "decision_value": 259.0,
-    "false_negative": 0,
-    "false_positive": 149,
-    "predicted_class": "good quality",
-    "true_negative": 0,
-    "true_positive": 171
+    "decision_value": -6770.0,
+    "false_negative": 3713,
+    "false_positive": 0,
+    "predicted_class": "normal traffic",
+    "true_negative": 4369,
+    "true_positive": 0
   },
-  "model_decision_value": 643.0,
-  "model_path": "models\\wine_quality_classifier.joblib",
+  "model_decision_value": 21804.0,
+  "model_path": "models\\traffic_volume_classifier.joblib",
   "model_version": "1.0.1",
-  "practical_value": "Positive simulated value indicates that the model could support prioritised quality review under the stated assumptions.",
+  "practical_value": "Positive simulated value indicates that the model could support prioritised traffic review under the stated assumptions.",
   "prediction_action_mapping": {
-    "good quality": "route_to_good_quality_or_premium_review",
-    "standard quality": "route_to_standard_quality_review"
+    "high traffic": "prioritise_high_traffic_review",
+    "normal traffic": "normal_monitoring"
   },
   "status": "completed",
-  "use_case": "Demonstration of how a winery or quality-control team could triage samples for premium review using model predictions."
+  "use_case": "Demonstration of how a traffic-operations team could triage likely high-volume periods for extra monitoring using model predictions."
 }

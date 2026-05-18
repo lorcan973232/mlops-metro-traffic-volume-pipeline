@@ -36,7 +36,7 @@ def rollback_model(target_version: str) -> None:
         "model_version": target_version,
         "model_path": version_record["model_path"],
         "metrics_path": version_record.get("metadata_path"),
-        "dataset_source": "UCI Wine Quality",
+        "dataset_source": "UCI Metro Interstate Traffic Volume",
         "dataset_doi": "10.24432/C5PC84",
         "task_type": "classification",
         "accuracy": version_record["metrics"]["accuracy"],

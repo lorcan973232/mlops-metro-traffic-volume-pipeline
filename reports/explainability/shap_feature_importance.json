@@ -1,41 +1,45 @@
 {
   "computed_from_model": true,
   "feature_importance": {
-    "alcohol": 0.12246130429657369,
-    "chlorides": 0.014930919313090705,
-    "citric_acid": 0.02513538149131303,
-    "density": 0.02694438380269057,
-    "fixed_acidity": 0.017061680106443027,
-    "free_sulfur_dioxide": 0.015485180204703098,
-    "ph": 0.01419961685625454,
-    "residual_sugar": 0.0124763361600265,
-    "sulphates": 0.061611534676787504,
-    "total_sulfur_dioxide": 0.05135430739443219,
-    "volatile_acidity": 0.05877899939501938
+    "clouds_all": 0.00047399765785742786,
+    "day_of_week": 0.01222013932693391,
+    "hour": 0.32251421945521,
+    "is_holiday": 0.0,
+    "is_weekend": 0.0,
+    "lag_168h_volume": 0.00032703039554966563,
+    "lag_1h_volume": 0.2364568484123022,
+    "lag_24h_volume": 0.0006001321095909784,
+    "month": 0.0007711718778746102,
+    "rain_1h": 0.00012448560306956846,
+    "rolling_24h_volume": 0.0030470298176120012,
+    "rolling_3h_volume": 0.016135969290028206,
+    "snow_1h": 0.0,
+    "temp": 0.0007224301407668277,
+    "weather_main": 0.0005745693820582654
   },
-  "generated_at": "2026-05-17T13:20:49+00:00",
-  "method": "shap.TreeExplainer",
-  "status": "computed",
+  "generated_at": "2026-05-18T01:53:18+00:00",
+  "method": "sklearn.permutation_importance",
+  "status": "shap_fallback",
   "top_5_features": [
     [
-      "alcohol",
-      0.12246130429657369
+      "hour",
+      0.32251421945521
     ],
     [
-      "sulphates",
-      0.061611534676787504
+      "lag_1h_volume",
+      0.2364568484123022
     ],
     [
-      "volatile_acidity",
-      0.05877899939501938
+      "rolling_3h_volume",
+      0.016135969290028206
     ],
     [
-      "total_sulfur_dioxide",
-      0.05135430739443219
+      "day_of_week",
+      0.01222013932693391
     ],
     [
-      "density",
-      0.02694438380269057
+      "rolling_24h_volume",
+      0.0030470298176120012
     ]
   ]
 }
