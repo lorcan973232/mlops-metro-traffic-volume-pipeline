@@ -17,7 +17,7 @@ import pandas as pd
 
 from app.schemas import FEATURE_COLUMNS, PredictionRequestExample, validate_prediction_payload
 from src.sklearn_compat import load_joblib_bundle
-from src.train import MODEL_PATH
+from src.train import MODEL_PATH, train_model
 
 # ==============================================================================
 # Local prediction helper
@@ -56,10 +56,12 @@ def predict(payload: dict, model_path: Path = MODEL_PATH) -> list[dict[str, Any]
     """Validate a payload and score it with the saved training artefact."""
 
     if not model_path.exists():
-        raise FileNotFoundError(
-            f"Model artefact not found at {model_path}. Run `python -m src.train` first."
-        )
-    bundle = load_joblib_bundle(model_path)
+        train_model(model_path=model_path)
+    try:
+        bundle = load_joblib_bundle(model_path)
+    except Exception:
+        train_model(model_path=model_path)
+        bundle = load_joblib_bundle(model_path)
     if bundle.get("feature_columns") != FEATURE_COLUMNS:
         raise ValueError("Saved model feature schema does not match prediction schema.")
     if bundle.get("task_type") != "classification":

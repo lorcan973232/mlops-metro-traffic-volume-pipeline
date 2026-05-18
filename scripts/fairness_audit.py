@@ -56,7 +56,11 @@ def _load_bundle() -> dict[str, Any]:
     """Load the trained model bundle, creating it first on a fresh checkout."""
     if not MODEL_PATH.exists():
         train_model()
-    return load_joblib_bundle(MODEL_PATH)
+    try:
+        return load_joblib_bundle(MODEL_PATH)
+    except Exception:
+        train_model()
+        return load_joblib_bundle(MODEL_PATH)
 
 
 def _test_frame() -> tuple[pd.DataFrame, pd.Series]:

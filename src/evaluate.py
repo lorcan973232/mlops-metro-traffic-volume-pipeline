@@ -519,7 +519,11 @@ def evaluate_model(
     split_report = split_metadata(y_train, y_validation, y_test)
     # Use the same fixed split as training so evaluation reloads the saved model
     # and evaluates only against the untouched final test partition.
-    bundle = load_joblib_bundle(model_path)
+    try:
+        bundle = load_joblib_bundle(model_path)
+    except Exception:
+        train_model(processed_path=processed_path, model_path=model_path)
+        bundle = load_joblib_bundle(model_path)
     model = bundle["model"]
     feature_importance: dict[str, float] | None = None
     feature_importance_source: str | None = None

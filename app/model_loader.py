@@ -14,6 +14,7 @@ from typing import Any
 
 from app.schemas import FEATURE_COLUMNS
 from src.sklearn_compat import load_joblib_bundle
+from src.train import train_model
 
 DEFAULT_MODEL_PATH = Path("models/traffic_volume_classifier.joblib")
 
@@ -29,12 +30,17 @@ def load_model(model_path: str | Path | None = None) -> dict[str, Any]:
     # the container environment.
     resolved_path = Path(model_path or os.getenv("MODEL_PATH", DEFAULT_MODEL_PATH))
     if not resolved_path.exists():
-        raise FileNotFoundError(
-            f"Model artefact not found at {resolved_path}. Run `python -m src.train` first."
-        )
+        train_model(model_path=resolved_path)
     # The joblib bundle comes from `src.train`. Loading it here joins the training
     # side of the pipeline to the serving side used by Flask and smoke tests.
-    bundle = load_joblib_bundle(resolved_path)
+    try:
+        bundle = load_joblib_bundle(resolved_path)
+    except Exception:
+        # Joblib files are not guaranteed to load across every NumPy/sklearn
+        # build. A clean runner can recover by rebuilding the deterministic
+        # model from the committed public dataset.
+        train_model(model_path=resolved_path)
+        bundle = load_joblib_bundle(resolved_path)
     # The feature order is part of the model contract. If the API accepted a
     # different order, predictions could be wrong without raising an obvious error.
     if bundle.get("feature_columns") != FEATURE_COLUMNS:
