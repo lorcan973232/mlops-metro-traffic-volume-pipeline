@@ -2,7 +2,7 @@
   "api_url": "http://127.0.0.1:8080",
   "dataset_name": "UCI Metro Interstate Traffic Volume",
   "dataset_source": "https://archive.ics.uci.edu/dataset/492/metro+interstate+traffic+volume",
-  "error": "<urlopen error Unable to connect to the remote server>",
+  "error": null,
   "expected_model_version": "1.0.1",
   "feature_schema": [
     "temp",
@@ -22,14 +22,60 @@
     "rolling_24h_volume"
   ],
   "health": {
-    "response": {},
-    "status_code": null
+    "response": {
+      "classes": [
+        0,
+        1
+      ],
+      "dataset": {
+        "doi": "10.24432/C5X60B",
+        "name": "UCI Metro Interstate Traffic Volume",
+        "processed_path": "data/processed/metro-traffic-processed.csv",
+        "raw_sha256": "0b3679ac15173f79c6dc6c5ef8a0798d806fa5c5d7f05c84a5fa711bd1b05f07",
+        "source": "https://archive.ics.uci.edu/dataset/492/metro+interstate+traffic+volume"
+      },
+      "feature_count": 15,
+      "model_loaded": true,
+      "model_path": "models/traffic_volume_classifier.joblib",
+      "model_version": "1.0.1",
+      "status": "healthy",
+      "target": "high_traffic",
+      "target_label": "Traffic Level",
+      "target_labels": {
+        "0": "normal traffic",
+        "1": "high traffic"
+      },
+      "task_type": "classification"
+    },
+    "status_code": 200
   },
   "model_version": "1.0.1",
   "monitoring_mode": "api_aware",
   "predict": {
-    "response": {},
-    "status_code": null
+    "response": {
+      "confidence": 0.9994,
+      "model_version": "1.0.1",
+      "prediction": 1,
+      "prediction_label": "high traffic",
+      "predictions": [
+        {
+          "confidence": 0.9994,
+          "prediction": 1,
+          "prediction_label": "high traffic",
+          "probabilities": {
+            "high traffic": 0.9994,
+            "normal traffic": 0.0006
+          },
+          "target": "high_traffic"
+        }
+      ],
+      "probabilities": {
+        "high traffic": 0.9994,
+        "normal traffic": 0.0006
+      },
+      "target": "high_traffic"
+    },
+    "status_code": 200
   },
   "prediction_request_schema": {
     "features": {
@@ -50,12 +96,12 @@
       "weather_main": "Clear"
     }
   },
-  "prediction_response_schema_valid": false,
+  "prediction_response_schema_valid": true,
   "production_claim": "api_check_only",
-  "reason": "Investigate deployed API/model because health or prediction monitoring failed.",
-  "response_status": "failed",
-  "retraining_recommended": true,
-  "retraining_required": true,
+  "reason": "No retraining investigation required from API health and prediction checks.",
+  "response_status": "passed",
+  "retraining_recommended": false,
+  "retraining_required": false,
   "status": "monitored",
-  "timestamp_utc": "2026-05-18T01:05:36+00:00"
+  "timestamp_utc": "2026-05-23T11:27:28+00:00"
 }

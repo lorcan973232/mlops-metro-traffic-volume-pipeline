@@ -13,9 +13,11 @@ import json
 import shutil
 import subprocess
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 REQUIRED_WORKFLOWS = ("Docker Build", "Deploy Kind")
+REPORT_PATH = Path("reports/final_readiness/generated/deployment_readiness_report.json")
 
 
 def run_command(args: list[str], timeout: int = 120) -> tuple[int, str, str]:
@@ -170,6 +172,8 @@ def build_report() -> dict[str, Any]:
 def main() -> None:
     """Print deployment readiness and return non-zero only when evidence is insufficient."""
     report = build_report()
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    REPORT_PATH.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2, sort_keys=True))
     if report["status"] != "PASS":
         raise SystemExit(1)

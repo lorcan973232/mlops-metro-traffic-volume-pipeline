@@ -34,21 +34,21 @@
     },
     "lag_168h_volume": {
       "current_mean": 3290.2460217289085,
-      "current_std": 1984.7524299442307,
+      "current_std": 1984.752429944231,
       "reference_mean": 3290.2460217289085,
-      "reference_std": 1984.7524299442307
+      "reference_std": 1984.752429944231
     },
     "lag_1h_volume": {
       "current_mean": 3289.2563169747814,
-      "current_std": 1984.3345974513738,
+      "current_std": 1984.3345974513736,
       "reference_mean": 3289.2563169747814,
-      "reference_std": 1984.3345974513738
+      "reference_std": 1984.3345974513736
     },
     "lag_24h_volume": {
       "current_mean": 3289.8965278293367,
-      "current_std": 1984.61203624919,
+      "current_std": 1984.6120362491902,
       "reference_mean": 3289.8965278293367,
-      "reference_std": 1984.61203624919
+      "reference_std": 1984.6120362491902
     },
     "month": {
       "current_mean": 6.474447496720865,
@@ -64,21 +64,21 @@
     },
     "rolling_24h_volume": {
       "current_mean": 3289.6661325182927,
-      "current_std": 526.5878328502131,
+      "current_std": 526.587832850213,
       "reference_mean": 3289.6661325182927,
-      "reference_std": 526.5878328502131
+      "reference_std": 526.587832850213
     },
     "rolling_3h_volume": {
-      "current_mean": 3289.368046790573,
-      "current_std": 1866.8901305928641,
-      "reference_mean": 3289.368046790573,
-      "reference_std": 1866.8901305928641
+      "current_mean": 3289.3680467905724,
+      "current_std": 1866.8901305928644,
+      "reference_mean": 3289.3680467905724,
+      "reference_std": 1866.8901305928644
     },
     "snow_1h": {
       "current_mean": 0.00011780137104957062,
-      "current_std": 0.005687934837816338,
+      "current_std": 0.0056879348378163375,
       "reference_mean": 0.00011780137104957062,
-      "reference_std": 0.005687934837816338
+      "reference_std": 0.0056879348378163375
     },
     "temp": {
       "current_mean": 281.3110956764917,
@@ -157,5 +157,5 @@
     "status": "passed"
   },
   "status": "passed",
-  "timestamp_utc": "2026-05-18T03:05:43+00:00"
+  "timestamp_utc": "2026-05-23T11:29:39+00:00"
 }

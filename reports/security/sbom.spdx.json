@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "mlops-wine-quality-pipeline-python-dependencies",
-  "documentNamespace": "https://github.com/lorcan973232/mlops-wine-quality-pipeline/sbom/20260518025243",
+  "documentNamespace": "https://github.com/lorcan973232/mlops-wine-quality-pipeline/sbom/20260523113016",
   "creationInfo": {
-    "created": "2026-05-18T02:52:43+00:00",
+    "created": "2026-05-23T11:30:16+00:00",
     "creators": [
       "Tool: scripts/security_scan.py"
     ]

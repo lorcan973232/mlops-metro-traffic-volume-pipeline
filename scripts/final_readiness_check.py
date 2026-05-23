@@ -15,6 +15,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from check_deployment_readiness import build_report as build_deployment_readiness_report
 from check_repo_visibility import build_evidence
 
 REPORT_DIR = Path("reports/final_readiness")
@@ -173,8 +174,12 @@ def command_results() -> dict[str, Any]:
             "model_metadata": Path("reports/metrics/model_metadata.json").is_file(),
             "quality_gate": Path("reports/metrics/quality_gate_report.json").is_file(),
             "monitoring": Path("reports/monitoring/monitoring_report.json").is_file(),
+            "api_monitoring": Path("reports/monitoring/api_monitoring_report.json").is_file(),
             "drift": Path("reports/monitoring/drift_report.json").is_file(),
             "security": Path("reports/security/secret_scan.txt").is_file(),
+            "deployment_readiness": Path(
+                "reports/final_readiness/generated/deployment_readiness_report.json"
+            ).is_file(),
         },
         "bash_environment": bash_status(),
         "powershell_path": {
@@ -199,8 +204,10 @@ def build_report() -> dict[str, Any]:
     metrics = read_json("reports/metrics/latest_metrics.json")
     gate = read_json("reports/metrics/quality_gate_report.json")
     monitoring = read_json("reports/monitoring/monitoring_report.json")
+    api_monitoring = read_json("reports/monitoring/api_monitoring_report.json")
     drift = read_json("reports/monitoring/drift_report.json")
     metadata = read_json("reports/metrics/model_metadata.json")
+    deployment_readiness = build_deployment_readiness_report()
 
     report = {
         "generated_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
@@ -217,11 +224,16 @@ def build_report() -> dict[str, Any]:
         "docker": {
             "dockerfile_present": Path("Dockerfile").is_file(),
             "docker_workflow": actions["latest_sha_runs"].get("Docker Build", {}),
+            "local_deployment_tools_ready": deployment_readiness["local"][
+                "all_local_deployment_tools_ready"
+            ],
         },
         "kind": {
             "manifests_present": Path("deployment/kind/deployment.yaml").is_file()
             and Path("deployment/kind/service.yaml").is_file(),
             "deploy_workflow": actions["latest_sha_runs"].get("Deploy Kind", {}),
+            "deployment_readiness_status": deployment_readiness["status"],
+            "deployment_readiness_source": deployment_readiness["verification_source"],
         },
         "flask_api": {
             "app_module_present": Path("app/main.py").is_file(),
@@ -238,6 +250,13 @@ def build_report() -> dict[str, Any]:
         "monitoring": {
             "monitoring_status": monitoring.get("status"),
             "monitoring_mode": monitoring.get("monitoring_mode"),
+            "api_monitoring_status": api_monitoring.get("status"),
+            "api_monitoring_mode": api_monitoring.get("monitoring_mode"),
+            "api_response_status": api_monitoring.get("response_status"),
+            "api_prediction_response_schema_valid": api_monitoring.get(
+                "prediction_response_schema_valid"
+            ),
+            "api_url": api_monitoring.get("api_url"),
             "drift_status": drift.get("status"),
             "drift_metric": drift.get("drift_metric"),
             "retraining_required": drift.get("retraining_required"),
@@ -249,6 +268,7 @@ def build_report() -> dict[str, Any]:
             "security_workflow": actions["latest_sha_runs"].get("Security Scan", {}),
         },
         "bash_and_windows_support": command_results()["bash_environment"],
+        "deployment_readiness": deployment_readiness,
         "public_until_21_june_2026_note": visibility["future_compliance_note"],
         "remaining_student_responsibilities": [
             "Keep the repository public until 21 June 2026.",

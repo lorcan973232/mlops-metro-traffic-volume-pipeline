@@ -158,7 +158,7 @@
   "train_rows": 24243,
   "training_command": "python -m src.train",
   "training_rows": 32325,
-  "training_timestamp": "2026-05-18T02:47:54+00:00",
+  "training_timestamp": "2026-05-23T11:20:48+00:00",
   "validation_rows": 8082,
   "validation_size": 0.2
 }
