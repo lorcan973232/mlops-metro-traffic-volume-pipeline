@@ -9,8 +9,8 @@ ENV MODEL_PATH=models/traffic_volume_classifier.joblib
 
 WORKDIR /app
 
-# Install pinned coursework dependencies before copying the full repository. This
-# keeps Docker builds repeatable and avoids depending on packages from the host.
+# Install pinned dependencies before copying the full repository. This keeps
+# Docker builds repeatable and avoids depending on packages from the host.
 COPY requirements.txt .
 RUN pip install --no-cache-dir \
     --default-timeout=120 \
@@ -54,5 +54,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=5 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=8)"
 
 # Gunicorn serves the same `app.main:app` object that tests import locally. One
-# worker is enough for this student project and keeps the demo predictable.
+# worker is enough for this project and keeps the demo predictable.
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--timeout", "90", "app.main:app"]

@@ -1,9 +1,9 @@
 """Record accepted model metadata for the repository-local registry.
 
 The project does not use an external registry. This module writes the model,
-metrics, quality gate, dataset, and feature-schema evidence under `reports/` so
-Continuous Training, monitoring, README tables, and the live demo all point to
-the same accepted model record.
+metrics, quality gate, dataset, and feature-schema record under `reports/` so
+Continuous Training, monitoring, README tables, and the demo all point to the
+same accepted model.
 """
 
 from __future__ import annotations
@@ -27,10 +27,9 @@ MODEL_REGISTRY_HISTORY_PATH = Path("reports/model_registry/version_history.json"
 # ==============================================================================
 #
 # This is repository-based model management rather than an external registry.
-# After evaluation, the student and GitHub Actions use this file to connect the
-# accepted model, metrics, quality gate, dataset source, and feature schema. The
-# outputs are saved under `reports/` so they can be inspected in the README,
-# workflow artefacts, and live demo.
+# After evaluation, this file connects the accepted model, metrics, quality gate,
+# dataset source, and feature schema. The outputs are saved under `reports/` so
+# local runs, workflows, and the browser demo all refer to the same model record.
 
 
 def register_model(
@@ -40,7 +39,7 @@ def register_model(
     metadata_path: Path = MODEL_METADATA_PATH,
     history_path: Path = MODEL_REGISTRY_HISTORY_PATH,
 ) -> dict[str, Any]:
-    """Register the evaluated model only after metrics and gate evidence exist."""
+    """Register the evaluated model only after metrics and gate reports exist."""
     if not model_path.exists():
         raise FileNotFoundError(f"Model not found: {model_path}")
     if not metrics_path.exists():
@@ -172,7 +171,7 @@ def model_registry_summary(
     registry_path: Path = MODEL_REGISTRY_PATH,
     metadata_path: Path = MODEL_METADATA_PATH,
 ) -> dict[str, Any]:
-    """Build a compact registry view for CLI output and demo inspection."""
+    """Build a compact registry view for CLI output and quick inspection."""
     if not registry_path.exists():
         raise FileNotFoundError(
             f"Model registry not found: {registry_path}. Run `python -m src.model_registry`."

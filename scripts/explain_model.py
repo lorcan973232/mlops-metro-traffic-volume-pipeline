@@ -2,9 +2,8 @@
 
 This script is used by local verification and the Tier 3 model-analysis
 workflow. It explains the saved model using SHAP when available and a clearly
-labelled permutation-importance fallback otherwise. The reports are evidence
-files, not screenshots, so the JSON shows which features
-influenced global and local predictions.
+labelled permutation-importance fallback otherwise. The JSON reports show which
+features influenced global and local predictions.
 """
 
 from __future__ import annotations
@@ -36,14 +35,14 @@ FAST_MODE = os.getenv("FAST_MODE", "0") == "1"
 
 
 # ==============================================================================
-# Explainability evidence
+# Explainability reports
 # ==============================================================================
 #
 # This script is run locally or in the model-analysis workflow after a model has
 # been trained. It explains which traffic features influence high-traffic
 # predictions and writes JSON reports under `reports/explainability/`. SHAP is
-# used when available; permutation importance is the honest fallback so the stage
-# still produces real evidence on lighter environments.
+# used when available; permutation importance is the clear fallback for lighter
+# environments.
 
 
 def utc_now() -> str:

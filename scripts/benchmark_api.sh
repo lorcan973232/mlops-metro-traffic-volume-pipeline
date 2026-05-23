@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# Bash wrapper for API latency evidence. Use it after the Flask, Docker, or Kind
+# Bash wrapper for the API latency benchmark. Use it after the Flask, Docker, or Kind
 # API is reachable; it delegates to the Python benchmark so Windows and Bash
 # routes produce the same report format under reports/benchmarks/.
 

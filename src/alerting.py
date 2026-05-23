@@ -23,9 +23,9 @@ INCIDENTS_PATH = ALERTS_PATH / "incidents.json"
 # ==============================================================================
 #
 # These rules turn monitoring, drift, fairness, and metric checks into simple
-# incident evidence. They are not connected to a real pager; they show how a
-# Continuous Monitoring stage could flag conditions that would matter before a
-# model is promoted or shown in the demo.
+# incident records. They are not connected to a real pager; they show how a
+# Continuous Monitoring stage could flag conditions that matter before a model is
+# promoted or shown in the demo.
 
 
 @dataclass
@@ -110,7 +110,7 @@ def check_alert_triggered(metrics: dict[str, Any], rule: AlertRule) -> bool:
 def generate_alert(
     rule: AlertRule, metric_value: float, model_version: str, training_timestamp: str
 ) -> dict[str, Any]:
-    """Create the JSON alert record saved by the monitoring evidence path."""
+    """Create the JSON alert record saved by the monitoring path."""
     import uuid
 
     return {
@@ -130,7 +130,7 @@ def generate_alert(
 
 
 def _get_recommended_action(rule: AlertRule) -> str:
-    """Explain what the student should inspect if the alert triggers."""
+    """Explain what should be inspected if the alert triggers."""
     actions = {
         "sla_breach": "Investigate API performance; profile prediction latency",
         "drift_detected": "Trigger immediate model retraining with latest data",
@@ -163,7 +163,7 @@ def get_open_incidents() -> list[dict[str, Any]]:
 
 
 def create_incident(alert: dict[str, Any]) -> None:
-    """Convert an alert into an incident record for model-management evidence."""
+    """Convert an alert into an incident record for model-management reports."""
     import uuid
 
     ALERTS_PATH.mkdir(parents=True, exist_ok=True)

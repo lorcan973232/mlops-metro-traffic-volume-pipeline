@@ -1,9 +1,9 @@
-"""Check that committed evidence does not contain stale or internal claims.
+"""Check that committed reports do not contain stale or internal claims.
 
-This script is used by CI, Security Scan, and Final Readiness. It protects the
-student by failing when committed files contain internal planning language,
-hard-coded final-readiness SHAs, or visibility wording that claims future public
-access has already been proven.
+This script is used by CI, Security Scan, and Final Readiness. It fails when
+committed files contain internal planning language, hard-coded final-readiness
+SHAs, or visibility wording that claims future public access has already been
+proven.
 """
 
 from __future__ import annotations
@@ -46,7 +46,7 @@ EXCLUDED_TEXT_SCAN_FILES = {
 
 
 def run_command(args: list[str]) -> tuple[int, str, str]:
-    """Run a git command and return stdout/stderr for evidence checks."""
+    """Run a git command and return stdout/stderr for report checks."""
     completed = subprocess.run(
         args,
         check=False,
@@ -59,7 +59,7 @@ def run_command(args: list[str]) -> tuple[int, str, str]:
 
 
 def tracked_files() -> list[Path]:
-    """List tracked files so scans focus on submitted repository content."""
+    """List tracked files so scans focus on committed repository content."""
     code, stdout, stderr = run_command(["git", "ls-files"])
     if code != 0:
         raise SystemExit(f"git ls-files failed: {stderr}")
@@ -67,7 +67,7 @@ def tracked_files() -> list[Path]:
 
 
 def check_internal_files(files: list[Path]) -> list[str]:
-    """Find internal planning files that should not be part of the artefact."""
+    """Find internal planning files that should not be committed."""
     findings: list[str] = []
     for file_name in INTERNAL_FILENAMES:
         if Path(file_name).exists():
@@ -119,10 +119,10 @@ def check_final_readiness_reports() -> list[str]:
 
 
 def check_public_visibility_snapshot() -> list[str]:
-    """Ensure visibility evidence is a current snapshot, not a future guarantee."""
+    """Ensure visibility output is a current snapshot, not a future guarantee."""
     path = Path("reports/submission/public_repository_evidence.json")
     if not path.is_file():
-        return [f"{path.as_posix()}: missing public repository evidence"]
+        return [f"{path.as_posix()}: missing public repository snapshot"]
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
@@ -133,7 +133,7 @@ def check_public_visibility_snapshot() -> list[str]:
         findings.append(f"{path.as_posix()}: must not claim future public access is proven")
     scope = str(payload.get("evidence_scope", "")).lower()
     if "snapshot" not in scope:
-        findings.append(f"{path.as_posix()}: must label visibility evidence as a snapshot")
+        findings.append(f"{path.as_posix()}: must label visibility output as a snapshot")
     if payload.get("private") is not False or payload.get("visibility") != "public":
         findings.append(f"{path.as_posix()}: current visibility is not verified public")
     return findings
@@ -149,12 +149,12 @@ def main() -> None:
     findings.extend(check_public_visibility_snapshot())
 
     if findings:
-        print("FAIL: stale or internal evidence found.")
+        print("FAIL: stale or internal report wording found.")
         for finding in findings:
             print(f"- {finding}")
         raise SystemExit(1)
 
-    print("PASS: no stale SHA claims, internal planning files, or misleading evidence found.")
+    print("PASS: no stale SHA claims, internal planning files, or misleading report wording found.")
 
 
 if __name__ == "__main__":

@@ -20,7 +20,7 @@ jobs:
     name: Secrets, dependencies, Docker, and SBOM evidence
     runs-on: ubuntu-latest
     steps:
-      # This job gives a repeatable security snapshot for the submitted commit.
+      # This job gives a repeatable security snapshot for the current commit.
       # It records what was checked; it is not a future safety claim.
       - name: Checkout
         uses: actions/checkout@v6.0.2

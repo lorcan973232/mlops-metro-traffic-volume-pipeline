@@ -1,8 +1,8 @@
 """Compare candidate metrics with recent accepted model versions.
 
-This module supports Continuous Training discussions. It gives the student a
-clear way to spot harmful drops against previous accepted versions before a
-candidate is promoted, while keeping the thresholds visible in code and reports.
+This module supports Continuous Training. It spots harmful drops against previous
+accepted versions before a candidate is promoted, while keeping the thresholds
+visible in code and reports.
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ from src.versioning import VERSION_MANIFEST_PATH
 #
 # Continuous Training should not only check the current model in isolation. These
 # helpers compare a candidate against recent accepted versions so a retraining run
-# can be rejected if it noticeably weakens the model evidence.
+# can be rejected if it noticeably weakens the saved model metrics.
 
 
 def get_recent_versions(count: int = 5) -> list[dict[str, Any]]:
@@ -38,7 +38,7 @@ def detect_regressions(
     recent_versions = get_recent_versions(5)
 
     # The current version may already be in the manifest after registration, so
-    # exclude it before checking whether the new run is worse than prior evidence.
+    # exclude it before checking whether the new run is worse than prior metrics.
     comparison_versions = [v for v in recent_versions if v["version"] != current_version]
 
     if not comparison_versions:
@@ -110,7 +110,7 @@ def detect_regressions(
             )
 
     # Only critical regressions automatically recommend rejection. Other findings
-    # are still recorded so the student can discuss them in CT evidence.
+    # are still recorded so they can be reviewed during Continuous Training.
     critical_regressions = [r for r in regressions if r["severity"] == "critical"]
     overall_status = (
         "critical_regressions" if critical_regressions else "acceptable"

@@ -1,9 +1,9 @@
-"""Measure Flask prediction latency and write an SLA evidence report.
+"""Measure Flask prediction latency and write an SLA report.
 
 The Docker workflow and local demos use this script after the API is already
 running. It sends the same valid example payload repeatedly, records latency
 percentiles, and writes `reports/benchmarks/api_sla_report.json` so performance
-evidence is based on real requests rather than a static claim.
+numbers are based on real requests rather than a static claim.
 """
 from __future__ import annotations
 
@@ -71,8 +71,8 @@ def benchmark_api(api_url: str, samples: int = 100, warmup_samples: int = 10) ->
             print(f"Error during benchmark: {exc}", file=sys.stderr)
             raise
 
-    # Percentiles are easier to explain in a demo than a long list of request
-    # times. The JSON report keeps the evidence under `reports/benchmarks/`.
+    # Percentiles are easier to read than a long list of request times. The JSON
+    # report keeps the benchmark output under `reports/benchmarks/`.
     sorted_latencies = sorted(latencies)
     p50 = sorted_latencies[int(len(sorted_latencies) * 0.50)]
     p95 = sorted_latencies[int(len(sorted_latencies) * 0.95)]
@@ -131,7 +131,7 @@ def main() -> None:
 
     report = benchmark_api(args.api_url, samples=args.samples, warmup_samples=args.warmup)
 
-    # Save the report so the dashboard, README evidence, and workflow artefacts
+    # Save the report so the dashboard, README, and workflow artefacts
     # can point to the same benchmark output instead of a hand-written number.
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)

@@ -1,5 +1,5 @@
 (function () {
-  // The browser page is a live-demo client for the real Flask API. It uses the
+  // The browser page is a client for the real Flask API. It uses the
   // feature list injected by Flask so the UI cannot silently drift away from the
   // trained model schema used by `/predict`.
   const config = window.MODEL_UI_CONFIG || {};
@@ -30,7 +30,7 @@
   }
 
   async function requestJson(url, options) {
-    // The live demo should fail with a useful message if the Flask server or
+    // The page should fail with a useful message if the Flask server or
     // Kubernetes port-forward is not running, instead of leaving a silent browser
     // error that is hard to interpret.
     let response;

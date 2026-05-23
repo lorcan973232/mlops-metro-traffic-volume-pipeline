@@ -1,10 +1,10 @@
-"""Generate repeatable monitoring reports for the student project.
+"""Generate repeatable monitoring reports for the Metro traffic project.
 
-The project has no live production telemetry, so this script is honest about its
-scope. It runs offline data-quality checks on the processed public dataset and,
+The project has no live telemetry, so this script is honest about its scope. It
+runs offline data-quality checks on the processed public dataset and,
 when an API URL is provided, checks the deployed Flask service through `/health`
 and `/predict`. Outputs are written under `reports/monitoring/` for GitHub
-Actions, the README, and the live demo.
+Actions, the README, and the demo.
 """
 
 from __future__ import annotations
@@ -41,12 +41,12 @@ DATA_QUALITY_REPORT_PATH = Path("reports/monitoring/data_quality_report.json")
 
 
 # ==============================================================================
-# Continuous monitoring evidence
+# Continuous monitoring reports
 # ==============================================================================
 #
-# This is a lightweight monitoring stage rather than full production telemetry.
-# It still gives repeatable reports for schema checks, missing-value checks,
-# feature summaries, and optional API health/prediction checks.
+# This is a lightweight monitoring stage, not full service telemetry. It still
+# gives repeatable reports for schema checks, missing-value checks, feature
+# summaries, and optional API health/prediction checks.
 
 
 def utc_now() -> str:
@@ -126,6 +126,8 @@ def offline_monitor(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any
         preprocess_dataset(output_path=processed_path)
     frame = pd.read_csv(processed_path)
     metadata = load_metadata()
+    # The offline path uses the same processed table as training. This makes the
+    # monitoring report repeatable for local runs and GitHub Actions.
     data_quality = validate_monitoring_schema(frame)
     data_quality_report = {
         "status": data_quality["status"],
@@ -147,7 +149,7 @@ def offline_monitor(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any
         "monitoring_mode": "offline_simulated",
         "production_claim": "simulated_only",
         "production_limitation": (
-            "No live production telemetry is available in this student artefact; monitoring "
+            "No live production telemetry is available in this project; monitoring "
             "uses the selected public dataset schema and deterministic batch checks."
         ),
         "dataset_name": metadata.get("dataset_name", "UCI Metro Interstate Traffic Volume"),
@@ -258,6 +260,8 @@ def api_monitor(api_url: str) -> dict[str, Any]:
     base_url = api_url.rstrip("/")
     prediction_payload = PredictionRequestExample().as_payload()
     metadata = load_metadata()
+    # The API-aware path is used after Flask, Docker, or Kind is running. It calls
+    # the same routes and example payload that the browser demo uses.
     try:
         health_status, health = _request_json(f"{base_url}/health")
         predict_status, prediction = _request_json(

@@ -27,7 +27,7 @@ kubectl port-forward service/mlops-flask-api 8080:80
 powershell -ExecutionPolicy Bypass -File scripts/smoke_test_api.ps1 -ApiUrl http://127.0.0.1:8080
 ```
 
-Open the live-demo UI at:
+Open the browser UI at:
 
 ```text
 http://127.0.0.1:8080/

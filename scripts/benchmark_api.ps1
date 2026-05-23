@@ -19,7 +19,7 @@ param(
 Write-Host "Benchmarking API at $ApiUrl" -ForegroundColor Green
 
 # The report directory is created here so a fresh checkout can produce benchmark
-# evidence without manual folder setup.
+# output without manual folder setup.
 $OutputDir = Split-Path -Parent $Output
 if (!(Test-Path $OutputDir)) {
     New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null

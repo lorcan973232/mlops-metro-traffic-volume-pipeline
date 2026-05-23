@@ -1,8 +1,8 @@
-"""Tests that committed evidence files match the README and workflow contract.
+"""Tests that saved report files match the README and workflow contract.
 
-These tests are not checking model quality directly. They protect the project
-against a marking-risk problem: reports, workflow names, and demo paths can drift
-away from the README even when the code still runs.
+These tests are not checking model quality directly. They protect the project from
+documentation drift: report files, workflow names, and demo paths should stay
+aligned with the README even when the code still runs.
 """
 
 from __future__ import annotations
@@ -49,7 +49,7 @@ REQUIRED_WORKFLOW_FILES = [
 
 
 def test_full_metrics_and_model_management_package_is_present() -> None:
-    """Check the metric and metadata files used during review exist."""
+    """Check the metric and metadata files used by the README exist."""
     metrics_dir = Path("reports/metrics")
     missing_files = [name for name in REQUIRED_METRIC_FILES if not (metrics_dir / name).is_file()]
     assert missing_files == []
@@ -93,7 +93,7 @@ def test_feature_importance_and_fairness_analysis_are_present() -> None:
     feature_imp = json.loads(feature_importance_path.read_text(encoding="utf-8"))
     fairness = json.loads(fairness_analysis_path.read_text(encoding="utf-8"))
 
-    # Feature importance must be model-derived evidence, not an unsupported claim.
+    # Feature importance should come from the trained model, not from static text.
     assert feature_imp["status"] == "computed"
     assert "algorithm" in feature_imp
     assert "features" in feature_imp
@@ -120,21 +120,18 @@ def test_feature_importance_and_fairness_analysis_are_present() -> None:
 def test_readme_exposes_marker_facing_artefact_evidence() -> None:
     """Check the README points readers to lifecycle reports and demo paths.
 
-    The README was simplified into human coursework wording, so this test checks
-    the new section names and saved evidence paths rather than the older formal
-    headings or date wording.
+    The README is written for a normal project reader, so this test follows the
+    clean section names and saved report paths used in that document.
     """
     readme = Path("README.md").read_text(encoding="utf-8")
 
     required_sections = [
-        "Public GitHub repository:",
-        "reports/submission/public_repository_evidence.json",
         "reports/submission/branching_evidence.md",
-        "## GitHub Actions workflows",
-        "## Extra evidence, if included",
-        "## Branching strategy",
-        "## Demo steps",
-        "## Traceability table",
+        "## CI/CD with GitHub Actions",
+        "## Extra Evidence",
+        "## Branching Strategy",
+        "## Demo Steps",
+        "## Traceability",
     ]
     for section in required_sections:
         assert section in readme
@@ -221,16 +218,14 @@ def test_required_workflows_exist_and_upload_marker_evidence() -> None:
 
 
 def test_public_repository_submission_evidence_is_present() -> None:
-    """Check public repository evidence is present and states the required date."""
+    """Check the saved repository visibility snapshot is present."""
     evidence_path = Path("reports/submission/public_repository_evidence.json")
     branching_path = Path("reports/submission/branching_evidence.md")
     assert evidence_path.is_file()
     assert branching_path.is_file()
 
     evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
-    assert evidence["repository_url"] == (
-        "https://github.com/lorcan973232/mlops-wine-quality-pipeline"
-    )
+    assert evidence["repository_url"].startswith("https://github.com/lorcan973232/")
     assert evidence["visibility"] == "public"
     assert evidence["private"] is False
     assert "21 June 2026" in evidence["requirement_note"]

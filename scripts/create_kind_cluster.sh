@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Create or reuse the local Kind cluster used by the deployment workflow and live
-# demo. Keeping this separate from deploy_kind.sh lets setup checks prove the
+# Create or reuse the local Kind cluster used by the deployment workflow and demo.
+# Keeping this separate from deploy_kind.sh lets setup checks prove the
 # cluster step independently when Docker and Kind are available.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=env_paths.sh
@@ -40,7 +40,7 @@ fi
 echo "Available Kind clusters:"
 kind get clusters
 
-# kubectl output is helpful evidence, but kubectl may be installed separately
+# kubectl output is helpful context, but kubectl may be installed separately
 # from Kind. The script reports that clearly instead of failing after the cluster
 # has already been created.
 if command -v kubectl >/dev/null 2>&1; then

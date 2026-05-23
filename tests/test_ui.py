@@ -70,7 +70,7 @@ def test_root_page_form_fields_match_prediction_schema() -> None:
 
 def test_ui_javascript_handles_unreachable_prediction_api() -> None:
     # If Flask, Docker, or Kind is not reachable, the browser should explain the
-    # problem instead of failing silently during the live demo.
+    # problem instead of failing silently during the demo.
     script = Path("app/static/app.js").read_text(encoding="utf-8")
 
     assert 'endpointUrl("healthUrl", "/health")' in script

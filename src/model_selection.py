@@ -1,4 +1,8 @@
-"""Compare traffic-volume classifiers and save hyperparameter evidence."""
+"""Compare traffic-volume classifiers and save model-selection reports.
+
+This stage runs before final training. It compares candidate models on the
+training and validation split, while leaving the final test split for evaluation.
+"""
 
 from __future__ import annotations
 
@@ -65,6 +69,7 @@ SCORING = {
 
 
 def _json_ready(value: Any) -> Any:
+    """Convert NumPy values into JSON-friendly Python values for reports."""
     if isinstance(value, dict):
         return {str(key): _json_ready(item) for key, item in value.items()}
     if isinstance(value, list | tuple):
@@ -79,6 +84,7 @@ def _json_ready(value: Any) -> Any:
 
 
 def _preprocessor() -> ColumnTransformer:
+    """Build the preprocessing block shared by every candidate model."""
     return ColumnTransformer(
         transformers=[
             ("numeric", StandardScaler(), NUMERIC_FEATURES),
@@ -94,14 +100,17 @@ def _preprocessor() -> ColumnTransformer:
 
 
 def _pipeline(model: Any) -> Pipeline:
+    """Attach one candidate classifier to the shared preprocessing block."""
     return Pipeline(steps=[("preprocessor", _preprocessor()), ("classifier", model)])
 
 
 def _base_hist_gradient_boosting() -> Pipeline:
+    """Return the default gradient-boosting candidate used as a strong baseline."""
     return _pipeline(HistGradientBoostingClassifier(**MODEL_HYPERPARAMETERS["classifier"]))
 
 
 def _param_distributions() -> dict[str, list[Any]]:
+    """Return the search space, with a smaller version for fast workflow runs."""
     if FAST_MODE:
         return {
             "classifier__max_iter": [180],
@@ -120,6 +129,7 @@ def _param_distributions() -> dict[str, list[Any]]:
 
 
 def _summary(values: np.ndarray) -> dict[str, Any]:
+    """Summarise fold scores while keeping the per-fold values."""
     return {
         "per_fold": [float(value) for value in values],
         "mean": float(np.mean(values)),
@@ -132,6 +142,7 @@ def _classification_metrics(
     predictions: Any,
     positive_probabilities: np.ndarray | None,
 ) -> dict[str, float | None]:
+    """Calculate the validation metrics used to compare candidates."""
     precision_macro, recall_macro, f1_macro, _ = precision_recall_fscore_support(
         y_true, predictions, average="macro", zero_division=0
     )
@@ -156,6 +167,7 @@ def _classification_metrics(
 
 
 def _positive_class_probabilities(estimator: Pipeline, features: Any) -> np.ndarray | None:
+    """Return high-traffic probabilities when the estimator supports them."""
     if not hasattr(estimator, "predict_proba"):
         return None
     probabilities = estimator.predict_proba(features)
@@ -166,6 +178,7 @@ def _positive_class_probabilities(estimator: Pipeline, features: Any) -> np.ndar
 
 
 def _classifier_params(estimator: Pipeline) -> dict[str, Any]:
+    """Keep only readable classifier settings in the saved report."""
     classifier = estimator.named_steps["classifier"]
     wanted = {
         "max_iter",
@@ -194,6 +207,7 @@ def evaluate_estimator(
     y_validation: Any,
     cv: StratifiedKFold,
 ) -> dict[str, Any]:
+    """Fit one candidate and report cross-validation plus validation metrics."""
     cv_results = cross_validate(
         estimator,
         x_train,
@@ -235,6 +249,7 @@ def _run_hyperparameter_search(
     y_train: Any,
     cv: StratifiedKFold,
 ) -> tuple[Pipeline, dict[str, Any]]:
+    """Run RandomizedSearchCV for the gradient-boosting candidate."""
     search = RandomizedSearchCV(
         estimator=_base_hist_gradient_boosting(),
         param_distributions=_param_distributions(),
@@ -278,6 +293,7 @@ def _run_hyperparameter_search(
 
 
 def _write_hyperparameter_csv(rows: list[dict[str, Any]]) -> None:
+    """Write the search rows as CSV for quick inspection outside JSON."""
     HYPERPARAMETER_RESULTS_CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = [
         "rank_f1_macro",
@@ -296,9 +312,12 @@ def _write_hyperparameter_csv(rows: list[dict[str, Any]]) -> None:
 
 
 def run_model_selection() -> dict[str, Any]:
+    """Compare candidates and save the reports consumed by training and README."""
     data = load_processed_data()
     x_train, x_validation, x_test, y_train, y_validation, y_test = split_train_validation_test(data)
     split_report = split_metadata(y_train, y_validation, y_test)
+    # The test split is created here only so the report can record the full split.
+    # Candidate selection does not score against it.
     cv = StratifiedKFold(n_splits=CV_SPLITS, shuffle=True, random_state=RANDOM_STATE)
     tuned_estimator, search_details = _run_hyperparameter_search(x_train, y_train, cv)
     candidates = [
@@ -350,6 +369,8 @@ def run_model_selection() -> dict[str, Any]:
         candidates,
         key=lambda row: (row["validation"]["f1_macro"], row["validation"]["balanced_accuracy"]),
     )
+    # Select on validation macro F1, with balanced accuracy as the tie-breaker, so
+    # both classes matter during model choice.
     generated_at = datetime.now(UTC).replace(microsecond=0).isoformat()
     ordered = sorted(
         candidates,
@@ -409,7 +430,7 @@ def run_model_selection() -> dict[str, Any]:
     ensemble_report = {
         "status": "not_applicable",
         "reason": (
-            "No ensemble selected; tuned gradient boosting gave the best validation evidence."
+            "No ensemble selected; tuned gradient boosting gave the best validation metrics."
         ),
     }
     write_json(HYPERPARAMETER_SEARCH_RESULTS_PATH, search_report)

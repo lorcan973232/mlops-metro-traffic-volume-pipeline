@@ -1,8 +1,8 @@
-"""Evaluate the saved classifier and enforce the coursework quality gate.
+"""Evaluate the saved classifier and enforce the quality gate.
 
 This stage is used after training locally, in CI, in Continuous Training, and
 inside Docker builds. It writes the metric reports that the README, tests, model
-registry, and live demo all inspect. The quality gate is intentionally explicit:
+registry, and demo all inspect. The quality gate is intentionally explicit:
 the model must clear several classification metrics and beat a majority-class
 baseline before it is accepted by the pipeline.
 """
@@ -89,13 +89,13 @@ CLASS_NAMES = [TARGET_LABELS[0], TARGET_LABELS[1]]
 
 
 # ==============================================================================
-# Evaluation evidence
+# Evaluation reports
 # ==============================================================================
 #
-# The test set is held back from model selection, so these reports give the
-# fairest view of the chosen model after training. The quality gate is deliberately
-# more than a smoke test: it checks useful classification metrics and requires the
-# model to beat a simple baseline by a visible margin.
+# The test set is held back from model selection, so these reports give the best
+# view of the chosen model after training. The quality gate is more than a smoke
+# test: it checks useful classification metrics and requires the model to beat a
+# simple baseline by a visible margin.
 
 
 def _positive_class_probabilities(model: Any, x_test: Any) -> np.ndarray | None:
@@ -384,7 +384,7 @@ def _write_metrics_csv(
 
 
 def _write_cross_validation_csv(cv_report: dict[str, Any]) -> None:
-    """Save fold-level CV results as CSV for reproducibility checks."""
+    """Save fold-level CV results as CSV for repeatable checks."""
     CROSS_VALIDATION_RESULTS_CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
     with CROSS_VALIDATION_RESULTS_CSV_PATH.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(
@@ -604,9 +604,9 @@ def evaluate_model(
     validation_reference = _validation_reference_from_search()
     error_analysis = _confusion_error_analysis(y_test, predictions, matrix)
 
-    # This is a class-balance check, not a demographic fairness claim. The fuller
-    # proxy-group audit lives in scripts/fairness_audit.py because the dataset has
-    # no protected attributes.
+    # This is a class-balance check, not a demographic fairness claim. The proxy
+    # subgroup audit lives in scripts/fairness_audit.py because the dataset has no
+    # protected attributes.
     fairness_report: dict[str, Any] = {
         "status": "fairness_analyzed",
         "model_version": bundle.get("model_version", "unknown"),
@@ -848,7 +848,7 @@ def evaluate_model(
 
 
 def main() -> None:
-    """Run evaluation from the command line and print the full evidence payload."""
+    """Run evaluation from the command line and print the full report payload."""
     parser = argparse.ArgumentParser(description="Evaluate the saved traffic-volume classifier.")
     parser.add_argument(
         "--threshold",

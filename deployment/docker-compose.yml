@@ -2,7 +2,7 @@ services:
   mlops-flask-api:
     # Docker Compose is a local convenience path for the same image that the
     # Docker Build workflow and Kind deployment use. It is useful during a demo
-    # when the student wants to run the container without typing the full
+    # when the user wants to run the container without typing the full
     # `docker build` and `docker run` commands.
     build:
       context: ..

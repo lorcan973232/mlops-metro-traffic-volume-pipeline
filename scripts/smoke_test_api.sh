@@ -43,8 +43,8 @@ if payload.get("feature_count") != 15:
 print(json.dumps(payload, indent=2, sort_keys=True))
 PY
 
-# The payload uses all 15 trained features. If any name or response field drifts,
-# this script fails before the Docker or Kind evidence is accepted.
+# The payload uses all 15 trained features. If any name or response field changes,
+# this script fails before Docker or Kind is treated as working.
 curl -fsS "${API_URL}/predict" \
   -H "Content-Type: application/json" \
   -d '{"features":{"temp":288.28,"rain_1h":0.0,"snow_1h":0.0,"clouds_all":40.0,"hour":17,"month":10,"day_of_week":2,"is_weekend":0,"is_holiday":0,"weather_main":"Clouds","lag_1h_volume":5545.0,"lag_24h_volume":6015.0,"lag_168h_volume":5365.0,"rolling_3h_volume":5480.0,"rolling_24h_volume":4210.0}}' \

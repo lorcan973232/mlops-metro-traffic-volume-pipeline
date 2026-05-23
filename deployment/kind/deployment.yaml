@@ -7,7 +7,7 @@ metadata:
     component: prediction-api
 spec:
   # Three replicas make the deployment visibly resilient in the demo while still
-  # keeping the Kind cluster light enough for a coursework machine.
+  # keeping the Kind cluster light enough for a local machine.
   replicas: 3
   strategy:
     type: RollingUpdate
@@ -28,7 +28,7 @@ spec:
           # The deployment script loads this local image into Kind before
           # `kubectl apply`. `imagePullPolicy: Never` is deliberate: the cluster
           # should use the Docker image built from this repository, not try to
-          # pull an unrelated registry image during the live demo or workflow.
+          # pull an unrelated registry image during the demo or workflow.
           image: mlops-flask-api:latest
           imagePullPolicy: Never
           env:

@@ -4,7 +4,7 @@
 This script is a lightweight Continuous Monitoring support tool. It reads metric
 and drift reports already produced by the pipeline, applies the explicit rules
 from `src.alerting`, and writes repository-local alert history. It is not wired
-to a pager; it exists to show how model evidence could trigger follow-up action.
+to a pager; it shows how model reports could trigger follow-up action.
 """
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ from src.alerting import (
 def generate_alerts_from_metrics(
     metrics_path: Path = Path("reports/metrics/latest_metrics.json"),
 ) -> list[dict]:
-    """Check latest metrics against alert rules and create incident evidence."""
+    """Check latest metrics against alert rules and create incident records."""
     if not metrics_path.exists():
         print(f"Metrics file not found: {metrics_path}")
         return []
@@ -58,7 +58,7 @@ def generate_alerts_from_metrics(
 def generate_alerts_from_drift(
     drift_path: Path = Path("reports/monitoring/drift_report.json"),
 ) -> list[dict]:
-    """Check the drift report and create drift-related incident evidence."""
+    """Check the drift report and create drift-related incident records."""
     if not drift_path.exists():
         return []
 

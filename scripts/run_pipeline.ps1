@@ -3,9 +3,8 @@ param(
 )
 
 # This is the Windows one-command verification path. It uses the selected Python
-# interpreter, runs each coursework stage in order, and stops at the first
-# failure so the user can see exactly which part of the project
-# needs attention.
+# interpreter, runs each main project stage in order, and stops at the first
+# failure so the user can see exactly which part needs attention.
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 

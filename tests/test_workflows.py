@@ -2,7 +2,7 @@
 
 These checks do not prove the latest remote run succeeded. They protect the
 repository contract by ensuring workflows exist, parse as YAML, reference real
-commands, upload evidence, and avoid hard-coded secrets.
+commands, upload the expected reports, and avoid hard-coded secrets.
 """
 
 from __future__ import annotations
@@ -54,7 +54,7 @@ WINDOWS_SCRIPT_PATHS = [
 
 
 def load_workflow(name: str) -> dict:
-    """Load one workflow so tests inspect the same YAML committed for marking."""
+    """Load one workflow so tests inspect the committed YAML directly."""
     return yaml.safe_load((Path(".github/workflows") / name).read_text(encoding="utf-8"))
 
 
@@ -145,7 +145,7 @@ def test_workflow_triggers_and_dependencies_show_lifecycle() -> None:
 
 
 def test_deploy_workflow_and_kind_manifests_are_kind_only() -> None:
-    """Check deployment evidence stays on the declared Kind Kubernetes route."""
+    """Check deployment stays on the declared Kind Kubernetes route."""
     relevant_paths = [
         Path(".github/workflows/deploy.yml"),
         Path("deployment/kind/deployment.yaml"),
@@ -162,9 +162,9 @@ def test_deploy_workflow_and_kind_manifests_are_kind_only() -> None:
 
 
 def test_workflows_reference_existing_commands_and_upload_artefacts() -> None:
-    # Workflow files should be runnable, not decorative YAML. This test checks
-    # that Actions reference real repository commands and upload reports with
-    # current upload/download action versions.
+    # Workflow files should be runnable. This test checks that Actions reference
+    # real repository commands and upload reports with current upload/download
+    # action versions.
     workflow_text = "\n".join(
         path.read_text(encoding="utf-8") for path in Path(".github/workflows").glob("*.yml")
     )

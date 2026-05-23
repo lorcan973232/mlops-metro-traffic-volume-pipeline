@@ -4,7 +4,7 @@ The app is used locally, inside Docker, and inside the Kind deployment. Tests ca
 inject a model bundle, but normal runs load the same saved artefact produced by
 `src.train`. The route design is intentionally small: `/health` checks the model
 is loaded, `/predict` validates and scores real feature payloads, and `/` serves
-the live-demo form that calls the same API.
+the browser form that calls the same API.
 """
 
 from __future__ import annotations
@@ -39,9 +39,9 @@ logger = logging.getLogger(__name__)
 # Flask application
 # ==============================================================================
 #
-# The UI and API share the same `/predict` route. This matters for the live demo:
-# a prediction made through the browser is exercising the same validation and
-# model bundle as the smoke tests and Docker/Kind deployments.
+# The UI and API share the same `/predict` route. A browser prediction exercises
+# the same validation and model bundle as the smoke tests and Docker/Kind
+# deployments.
 
 
 def _target_labels(bundle: dict[str, Any]) -> dict[int, str]:

@@ -4,8 +4,8 @@
 This is a model-management support script for the repository-local registry. It
 does not change the trained model itself; it updates metadata so the current
 version points at an earlier quality-gate-approved record. A real deployment
-would need additional operational controls, which this student project does
-not claim to provide.
+would need additional operational controls, which this project does not claim to
+provide.
 """
 from __future__ import annotations
 

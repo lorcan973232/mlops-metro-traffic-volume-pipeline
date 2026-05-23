@@ -45,10 +45,10 @@ IGNORED_FILES = {
 # Safe local security reports
 # ==============================================================================
 #
-# This script gives a readable security summary without committing raw
-# scanner output that might contain sensitive values. GitHub Actions runs the
-# heavier dependency and image checks; the local path still catches obvious
-# secrets, private environment files, and unprofessional internal notes.
+# This script gives a readable security summary without committing raw scanner
+# output that might contain sensitive values. GitHub Actions runs the heavier
+# dependency and image checks; the local path still catches obvious secrets,
+# private environment files, and internal planning notes.
 
 
 def _timestamp() -> str:
@@ -170,7 +170,7 @@ def _run_env_file_scan() -> list[str]:
 
 
 def _run_internal_file_scan() -> list[str]:
-    """Find internal planning wording that would weaken the submitted artefact."""
+    """Find internal planning wording that should not be committed."""
     risky_names = {
         "CLA" + "UDE.md",
         "TIER3_" + "ROADMAP.md",
@@ -290,9 +290,9 @@ def _write_minimal_spdx_sbom() -> None:
         "spdxVersion": "SPDX-2.3",
         "dataLicense": "CC0-1.0",
         "SPDXID": "SPDXRef-DOCUMENT",
-        "name": "mlops-wine-quality-pipeline-python-dependencies",
+        "name": "mlops-metro-traffic-pipeline-python-dependencies",
         "documentNamespace": (
-            "https://github.com/lorcan973232/mlops-wine-quality-pipeline/"
+            "https://spdx.org/spdxdocs/mlops-metro-traffic-pipeline/"
             f"sbom/{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
         ),
         "creationInfo": {

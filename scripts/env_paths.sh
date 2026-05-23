@@ -2,7 +2,7 @@
 
 # Normalise common Windows tool locations for Git Bash without affecting
 # Linux/macOS. This lets the Bash scripts find Docker and winget-installed tools
-# when the student runs them from Git Bash during local verification.
+# when they are run from Git Bash during local verification.
 if [[ "${OSTYPE:-}" == msys* || "${OSTYPE:-}" == cygwin* || -n "${WINDIR:-}" ]]; then
   to_unix_path() {
     local raw_path="$1"

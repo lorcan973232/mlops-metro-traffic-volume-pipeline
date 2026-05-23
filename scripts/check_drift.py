@@ -1,9 +1,9 @@
-"""Create offline drift evidence using Population Stability Index.
+"""Create offline drift reports using Population Stability Index.
 
-Continuous Monitoring needs a repeatable drift stage even though this student
-project has no live production batch. The script compares the processed dataset
-with itself, then compares it with a deterministic shifted batch. That checks the
-no-drift and drift-trigger paths without pretending to have production data.
+Continuous Monitoring needs a repeatable drift stage even though the project has
+no live batch. The script compares the processed dataset with itself, then
+compares it with a deterministic shifted batch. That checks the no-drift and
+drift-trigger paths without pretending to have live traffic data.
 """
 
 from __future__ import annotations
@@ -82,7 +82,7 @@ def feature_distribution_checks(
     reference: pd.DataFrame,
     current: pd.DataFrame,
 ) -> dict[str, Any]:
-    """Compare reference and current feature summaries for monitoring evidence."""
+    """Compare reference and current feature summaries for monitoring reports."""
     checks = {}
     for column in FEATURE_COLUMNS:
         checks[column] = {
@@ -136,7 +136,7 @@ def simulate_drift(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_metadata() -> dict[str, Any]:
-    """Load model metadata so drift evidence can name the model it relates to."""
+    """Load model metadata so drift reports can name the related model."""
     if MODEL_METADATA_PATH.exists():
         return load_model_metadata()
     return {
@@ -157,7 +157,7 @@ def load_metadata() -> dict[str, Any]:
 
 
 def drift_report(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any]:
-    """Write the data-quality and drift reports used by CM and CT discussion."""
+    """Write the data-quality and drift reports used by monitoring and CT."""
     if not processed_path.exists():
         preprocess_dataset(output_path=processed_path)
     metadata = load_metadata()
@@ -267,7 +267,7 @@ def main() -> None:
     """Run the drift report and fail if the demonstration signal is absent."""
     report = drift_report()
     if not report["simulated_drift_batch"]["drift_detected"]:
-        raise RuntimeError("Synthetic drift was not detected; monitoring evidence is incomplete.")
+        raise RuntimeError("Synthetic drift was not detected; monitoring report is incomplete.")
     print(json.dumps(report, indent=2, sort_keys=True))
 
 

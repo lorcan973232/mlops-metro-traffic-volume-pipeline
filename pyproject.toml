@@ -7,9 +7,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mlops-wine-quality-pipeline"
 version = "0.1.0"
-description = "MLOps coursework artefact for UCI Metro Interstate traffic-volume classification."
-# Python is capped below 3.13 because the committed scikit-learn model artefact
-# and pinned dependencies are validated on the supported coursework environment.
+description = "MLOps project for UCI Metro Interstate traffic-volume classification."
+# Python is capped below 3.13 because the committed scikit-learn model file
+# and pinned dependencies are checked on the supported local environment.
 requires-python = ">=3.11,<3.13"
 
 [tool.setuptools]

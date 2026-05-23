@@ -25,7 +25,7 @@ echo "Building Docker image: ${IMAGE_NAME}"
 docker build -t "${IMAGE_NAME}" .
 
 # Kind does not pull this image from a registry. Loading the local image keeps the
-# coursework deployment reproducible without needing cloud credentials.
+# deployment reproducible without needing cloud credentials.
 echo "Creating or reusing Kind cluster: ${CLUSTER_NAME}"
 KIND_CLUSTER_NAME="${CLUSTER_NAME}" bash scripts/create_kind_cluster.sh
 
@@ -53,7 +53,7 @@ Run a local service tunnel and smoke test:
 NEXT
 
 # The optional background port-forward is useful for automation, while the
-# default printed command is safer for a manual live demo.
+# default printed command is safer for a manual demo.
 if [[ "${START_PORT_FORWARD:-0}" == "1" ]]; then
   echo "Starting background port-forward for ${API_URL}"
   kubectl port-forward service/mlops-flask-api 8080:80 >/tmp/mlops-flask-api-port-forward.log 2>&1 &

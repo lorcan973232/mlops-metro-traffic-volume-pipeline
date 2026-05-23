@@ -24,8 +24,8 @@ from src.train import MODEL_PATH, train_model
 # ==============================================================================
 #
 # The command-line prediction path uses the same schema validation and saved
-# model bundle as the Flask API. This keeps local smoke tests and the browser
-# demo tied to the real trained model instead of a separate example path.
+# model bundle as the Flask API. This keeps local smoke tests and the browser UI
+# tied to the real trained model instead of a separate example path.
 
 
 def _prediction_result(

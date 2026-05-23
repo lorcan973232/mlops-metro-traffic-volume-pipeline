@@ -1,6 +1,6 @@
 """Optional dashboard routes for reading already-generated reports.
 
-The main live demo uses the prediction form, but this blueprint shows how the
+The main demo uses the prediction form, but this blueprint shows how the
 same saved reports could feed a metrics dashboard. It deliberately reads JSON
 created by the pipeline instead of recalculating values, so the UI, README, and
 workflow reports stay aligned.

@@ -22,7 +22,7 @@ class DummyClassifier:
 
 
 def test_api_health_and_prediction_use_traffic_schema() -> None:
-    # This protects the live demo path: `/health` must prove the model is loaded,
+    # This protects the demo path: `/health` must prove the model is loaded,
     # and `/predict` must return the same label/confidence fields used by the UI
     # and deployment smoke tests.
     app = create_app(

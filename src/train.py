@@ -1,4 +1,9 @@
-"""Train and save the traffic-volume classification model bundle used by serving."""
+"""Train and save the traffic-volume classification model bundle used by serving.
+
+The saved bundle is the hand-off between training and the Flask API. It includes
+the fitted scikit-learn pipeline, feature order, target labels, split details,
+and dataset metadata used by tests, Docker, Kind, and monitoring.
+"""
 
 from __future__ import annotations
 
@@ -95,7 +100,7 @@ MODEL_HYPERPARAMETERS: dict[str, Any] = {
 
 
 def selected_training_configuration() -> dict[str, Any]:
-    """Use saved model-selection evidence when it exists, otherwise use defaults."""
+    """Use saved model-selection results when they exist, otherwise use defaults."""
     default_config = {
         "model_name": "hist_gradient_boosting_default",
         "algorithm": MODEL_HYPERPARAMETERS["algorithm"],
@@ -207,8 +212,11 @@ def _selected_classifier(config: dict[str, Any]) -> Any:
 
 
 def build_pipeline() -> Pipeline:
-    """Build the categorical preprocessing and classifier pipeline."""
+    """Build the preprocessing and classifier pipeline used for final training."""
     config = selected_training_configuration()
+    # The transformers are fitted inside the pipeline after the split. That keeps
+    # preprocessing tied to training data and avoids fitting encoders or scalers
+    # on the held-out test set.
     preprocessor = ColumnTransformer(
         transformers=[
             (
@@ -243,6 +251,8 @@ def split_train_validation_test(
     """Create the fixed stratified train/validation/test split used everywhere."""
     x = data[FEATURE_COLUMNS]
     y = data[TARGET_COLUMN]
+    # Keep the split fixed so model selection, training, and evaluation use the
+    # same boundaries on every run.
     x_train_validation, x_test, y_train_validation, y_test = train_test_split(
         x,
         y,
@@ -268,7 +278,7 @@ def split_metadata(
     y_validation: pd.Series,
     y_test: pd.Series,
 ) -> dict[str, Any]:
-    """Return auditable split sizes and class distributions."""
+    """Return split sizes and class distributions for the saved reports."""
     return {
         "method": "two_stage_stratified_train_validation_test_split",
         "train_size": round(1.0 - TEST_SIZE - VALIDATION_SIZE, 10),
@@ -317,6 +327,9 @@ def train_model(
     """Train the classifier and save the model bundle used by the API."""
     data = load_processed_data(processed_path)
     x_train, x_validation, x_test, y_train, y_validation, y_test = split_train_validation_test(data)
+    # The final model can use training plus validation rows because model
+    # selection has already happened. The test split stays untouched until
+    # evaluation.
     x_train_final = pd.concat([x_train, x_validation], axis=0)
     y_train_final = pd.concat([y_train, y_validation], axis=0)
     split_report = split_metadata(y_train, y_validation, y_test)
@@ -324,6 +337,8 @@ def train_model(
     pipeline.fit(x_train_final, y_train_final)
     selected_config = selected_training_configuration()
 
+    # Store the model together with its schema and metadata so serving can check
+    # that requests still match the trained feature order.
     raw_hash = file_sha256(RAW_DATA_PATH) if RAW_DATA_PATH.exists() else DATA_SHA256
     training_timestamp = datetime.now(UTC).replace(microsecond=0).isoformat()
     model_path.parent.mkdir(parents=True, exist_ok=True)
@@ -380,6 +395,8 @@ def train_model(
     temp_model_path = model_path.with_name(f"{model_path.name}.tmp")
     if temp_model_path.exists():
         temp_model_path.unlink()
+    # Write through a temporary file so a failed save does not leave a half-written
+    # model bundle for Flask, Docker, or Kind to load.
     joblib.dump(bundle, temp_model_path)
     temp_model_path.replace(model_path)
     return bundle, x_train, x_validation, x_test, y_train, y_validation, y_test

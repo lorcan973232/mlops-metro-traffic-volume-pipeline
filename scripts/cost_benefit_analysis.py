@@ -33,11 +33,11 @@ COST_BENEFIT_SUMMARY_PATH = BUSINESS_DIR / "cost_benefit_summary.txt"
 #
 # These values are not real business costs. They are included to show how model
 # errors from the confusion matrix could be translated into a decision-making
-# discussion during the live demo.
+# discussion during a demo.
 
 
 def utc_now() -> str:
-    """Return a UTC timestamp for the business evidence report."""
+    """Return a UTC timestamp for the business report."""
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
@@ -166,7 +166,7 @@ def run_cost_benefit_analysis() -> dict[str, Any]:
 
 
 def main() -> None:
-    """Run the simulated cost-benefit analysis as a CLI evidence stage."""
+    """Run the simulated cost-benefit analysis from the command line."""
     print(json.dumps(run_cost_benefit_analysis(), indent=2, sort_keys=True))
 
 

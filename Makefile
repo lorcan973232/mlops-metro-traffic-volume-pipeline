@@ -1,7 +1,7 @@
 PYTHON ?= python
 ifeq ($(OS),Windows_NT)
 # On Windows, Git Bash is used only for the Bash route. PowerShell targets below
-# give the normal Windows path, which avoids relying on WSL during marking.
+# give the normal Windows path, which avoids relying on WSL for local checks.
 BASH ?= "C:/Program Files/Git/bin/bash.exe"
 else
 BASH ?= bash
@@ -33,7 +33,7 @@ check-setup-ps:
 	powershell -ExecutionPolicy Bypass -File scripts/check_setup.ps1
 
 test:
-	# Compile and pytest protect the Python, API, and evidence contracts.
+	# Compile and pytest protect the Python, API, and report contracts.
 	$(PYTHON) -m compileall app src tests
 	$(PYTHON) -m pytest -q
 
@@ -43,7 +43,7 @@ lint:
 
 workflow-test:
 	# Workflow tests check that Actions files still point at real scripts and
-	# upload evidence. This catches broken YAML links before a remote run fails.
+	# upload reports. This catches broken YAML links before a remote run fails.
 	$(PYTHON) -m pytest tests/test_workflows.py -q
 
 data:
@@ -91,7 +91,7 @@ api-smoke-ps:
 
 docker-build:
 	# Build the image that is later loaded into Kind. The Dockerfile reruns core
-	# pipeline checks so the container is tied to the same training evidence.
+	# pipeline checks so the container is tied to the same training path.
 	docker build -t $(IMAGE_NAME) .
 
 docker-run:
@@ -137,12 +137,12 @@ monitor-api:
 
 drift-check:
 	# The drift check writes retraining flags without claiming live production
-	# monitoring. It is a repeatable coursework monitoring stage.
+	# monitoring. It is a repeatable monitoring stage for this project.
 	$(PYTHON) scripts/check_drift.py
 
 security-scan:
 	# The security scan creates a snapshot of dependency, secret, Docker, and SBOM
-	# evidence. It does not claim future packages will stay safe.
+	# reports. It does not claim future packages will stay safe.
 	$(PYTHON) scripts/security_scan.py
 
 workflow-validate:

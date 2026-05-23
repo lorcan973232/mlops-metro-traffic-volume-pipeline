@@ -1,4 +1,8 @@
-"""Download and validate the UCI Metro Interstate Traffic Volume dataset."""
+"""Load, download, and check the UCI Metro Interstate Traffic Volume dataset.
+
+This module is the first stage of the pipeline. It makes sure the raw CSV gzip
+matches the expected schema and hash before preprocessing creates model features.
+"""
 
 from __future__ import annotations
 
@@ -87,11 +91,13 @@ class DataQualityError(ValueError):
 
 
 def write_json(path: Path, payload: dict[str, Any]) -> None:
+    """Write a report file and create its parent directory if needed."""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def file_sha256(path: Path) -> str:
+    """Return the SHA-256 hash used to tie reports back to the raw data file."""
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
@@ -108,6 +114,8 @@ def download_dataset(
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Reusing a cached file is only safe if its hash still matches the pinned UCI
+    # file. This keeps local runs, CI, Docker, and Kind tied to the same dataset.
     if output_path.exists() and not force:
         actual_hash = file_sha256(output_path)
         if actual_hash == DATA_SHA256:
@@ -143,6 +151,8 @@ def load_raw_data(path: Path = RAW_DATA_PATH) -> pd.DataFrame:
     """Load the official gzip CSV and normalise holiday blanks."""
     if not Path(path).exists():
         raise FileNotFoundError(f"Raw dataset not found at {path}. Run `python -m src.data`.")
+    # Keep only the known source columns so later schema checks are not affected
+    # by accidental extra columns in a local file.
     with gzip.open(path, "rt", encoding="utf-8") as handle:
         frame = pd.read_csv(handle)
     frame = frame[RAW_COLUMN_NAMES].copy()
@@ -152,6 +162,8 @@ def load_raw_data(path: Path = RAW_DATA_PATH) -> pd.DataFrame:
 
 def validate_raw_data(frame: pd.DataFrame, min_rows: int = 48000) -> dict[str, Any]:
     """Check schema, missing values, ranges, and target distribution."""
+    # These checks fail before preprocessing so the model is never trained from a
+    # partial or unexpected traffic dataset.
     missing_columns = [column for column in RAW_COLUMN_NAMES if column not in frame.columns]
     if missing_columns:
         raise DataQualityError(f"Missing required columns: {missing_columns}")

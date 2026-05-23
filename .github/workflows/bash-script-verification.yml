@@ -1,8 +1,8 @@
 name: Bash Script Verification
 
-# This workflow checks the Bash route on Ubuntu independently from the student's
-# Windows machine. That matters because a local broken WSL installation should
-# not be confused with broken project scripts.
+# This workflow checks the Bash route on Ubuntu independently from a local
+# Windows machine. That matters because a broken WSL setup should not be
+# confused with broken project scripts.
 
 permissions:
   contents: read

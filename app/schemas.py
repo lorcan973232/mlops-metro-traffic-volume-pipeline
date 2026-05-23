@@ -58,7 +58,7 @@ FEATURE_GROUPS = {
 
 @dataclass(frozen=True)
 class PredictionRequestExample:
-    """Known-valid traffic sample used by smoke tests and the live-demo button."""
+    """Known-valid traffic sample used by smoke tests and the example button."""
 
     temp: float = 288.3
     rain_1h: float = 0.0

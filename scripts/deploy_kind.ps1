@@ -8,7 +8,7 @@ param(
 # This is the Windows Kind deployment route. It builds the local Docker image,
 # creates or reuses the Kind cluster, loads that exact image into the cluster,
 # applies the manifests, and prints the port-forward/smoke-test commands needed
-# for the live demo.
+# for a local demo.
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
