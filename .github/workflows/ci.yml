@@ -1,9 +1,8 @@
 name: CI
 
-# CI is the first automated check a marker should inspect on a push or pull
-# request. It installs the project, runs static checks, tests the Python modules,
-# exercises the ML pipeline, and uploads reports/models as evidence rather than
-# relying on a README claim.
+# CI is the first automated check on a push or pull request. It installs the
+# project, runs static checks, tests the Python modules, exercises the ML
+# pipeline, and uploads reports/models from the run.
 
 permissions:
   contents: read
@@ -63,8 +62,8 @@ jobs:
       - name: Check for stale or internal evidence
         run: python scripts/check_stale_evidence.py
 
-      # These checks are deliberately close to the README commands so a marker can
-      # connect the local reproduction path with the automated CI evidence.
+      # These checks are deliberately close to the README commands so local
+      # reproduction and automated CI follow the same path.
       - name: Compile Python modules
         run: python -m compileall app src tests scripts
 

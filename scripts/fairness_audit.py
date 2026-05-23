@@ -153,7 +153,7 @@ def _disparities(group_metrics: dict[str, Any]) -> dict[str, Any]:
 
 
 def run_fairness_audit() -> dict[str, Any]:
-    """Write the proxy subgroup audit reports used in the marker evidence pack."""
+    """Write the proxy subgroup audit reports used in the project report pack."""
     bundle = _load_bundle()
     x_test, y_test = _test_frame()
     model = bundle["model"]

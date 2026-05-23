@@ -1,8 +1,7 @@
 name: Repository Visibility Check
 
-# The public-until requirement needs repeatable evidence. This workflow checks
-# the current repository visibility on a schedule or manually, then uploads a
-# timestamped snapshot without claiming future public access is already proven.
+# This workflow records the current repository visibility on a schedule or
+# manually, then uploads a timestamped snapshot from the run.
 
 permissions:
   contents: read
@@ -20,8 +19,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6.0.2
 
-      # Future public access cannot be proven once and for all, so this workflow
-      # gives a repeatable check that can be rerun before submission and demo.
+      # Repository visibility can change, so this workflow gives a repeatable
+      # check that can be rerun before a demo.
       - name: Check GitHub repository visibility
         env:
           GH_TOKEN: ${{ github.token }}

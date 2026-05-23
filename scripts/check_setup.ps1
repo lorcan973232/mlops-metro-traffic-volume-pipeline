@@ -5,7 +5,7 @@ param(
 )
 
 # This check is intentionally diagnostic rather than clever. It tells the student
-# or marker whether Python, the virtual environment, Docker, Kind, kubectl, Git,
+# or reviewer whether Python, the virtual environment, Docker, Kind, kubectl, Git,
 # and optionally GitHub CLI are ready before a live demo or local verification run.
 $ErrorActionPreference = "Continue"
 Set-StrictMode -Version Latest

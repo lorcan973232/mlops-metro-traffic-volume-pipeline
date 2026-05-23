@@ -23,7 +23,7 @@ from app.schemas import PredictionRequestExample
 
 
 def benchmark_api(api_url: str, samples: int = 100, warmup_samples: int = 10) -> dict:
-    """Benchmark `/predict` latency and compute marker-readable percentiles."""
+    """Benchmark `/predict` latency and compute readable percentiles."""
     example_payload = json.dumps(PredictionRequestExample().as_payload()).encode("utf-8")
     endpoint = f"{api_url}/predict"
     sla_threshold_ms = 200
@@ -103,7 +103,7 @@ def benchmark_api(api_url: str, samples: int = 100, warmup_samples: int = 10) ->
 
 def main() -> None:
     """Parse CLI options, run the benchmark, and fail if the p99 SLA is missed."""
-    parser = argparse.ArgumentParser(description="Benchmark Flask API latency and SLA compliance")
+    parser = argparse.ArgumentParser(description="Benchmark Flask API latency and SLA checks")
     parser.add_argument("api_url", help="Base URL of the API (e.g., http://127.0.0.1:5000)")
     parser.add_argument(
         "--samples",

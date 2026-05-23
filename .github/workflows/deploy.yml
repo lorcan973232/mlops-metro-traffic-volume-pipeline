@@ -1,6 +1,6 @@
 name: Deploy Kind
 
-# Deploy Kind is the CD evidence for this artefact. It builds the same Docker
+# Deploy Kind is the local Kubernetes deployment path. It builds the same Docker
 # image, loads it into an ephemeral Kind cluster, applies the Kubernetes
 # manifests, waits for rollout, and smoke-tests the service through port-forward.
 
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-image
     steps:
-      # This job is the end-to-end deployment proof: install local cluster tools,
+      # This job is the end-to-end deployment check: install local cluster tools,
       # load the saved image, apply manifests, wait for rollout, then call the API.
       - name: Checkout
         uses: actions/checkout@v6.0.2
@@ -74,9 +74,9 @@ jobs:
       - name: Load image into Docker
         run: docker load -i mlops-flask-api.tar
 
-      # Kind gives a repeatable Kubernetes deployment for marking without
-      # relying on a long-lived cloud VM. These steps prove that the same Docker
-      # image can be loaded, rolled out, and smoke-tested inside a real cluster.
+      # Kind gives a repeatable Kubernetes deployment without relying on a
+      # long-lived cloud VM. These steps check that the same Docker image can be
+      # loaded, rolled out, and smoke-tested inside a real cluster.
       - name: kind create cluster
         run: kind create cluster --name mlops-kind --image kindest/node:v1.30.2
 

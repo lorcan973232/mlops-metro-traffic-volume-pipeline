@@ -172,7 +172,7 @@ def model_registry_summary(
     registry_path: Path = MODEL_REGISTRY_PATH,
     metadata_path: Path = MODEL_METADATA_PATH,
 ) -> dict[str, Any]:
-    """Build a compact registry view for CLI output and marker inspection."""
+    """Build a compact registry view for CLI output and demo inspection."""
     if not registry_path.exists():
         raise FileNotFoundError(
             f"Model registry not found: {registry_path}. Run `python -m src.model_registry`."

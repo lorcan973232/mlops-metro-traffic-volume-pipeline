@@ -503,9 +503,9 @@ def evaluate_model(
 ) -> dict[str, Any]:
     """Create the metric, baseline, cross-validation, and quality-gate reports.
 
-    Reports are saved under `reports/metrics/` so a marker can inspect held-out
-    performance, baseline comparison, confusion matrix, feature importance, and
-    the promotion decision without rerunning the whole pipeline.
+    Reports are saved under `reports/metrics/` so held-out performance, baseline
+    comparison, confusion matrix, feature importance, and the promotion decision
+    can be checked without rerunning the whole pipeline.
     """
     if not model_path.exists():
         train_model(processed_path=processed_path, model_path=model_path)

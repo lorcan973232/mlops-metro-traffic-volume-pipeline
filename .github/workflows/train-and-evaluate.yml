@@ -79,9 +79,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # This job rebuilds the model evidence from model selection through
-      # prediction. It proves training and testing are executable, not just
-      # described in the README.
+      # This job rebuilds the model reports from model selection through
+      # prediction, so training and testing are run rather than only described.
       - name: Run training and evaluation pipeline
         env:
           FAST_MODE: "1"

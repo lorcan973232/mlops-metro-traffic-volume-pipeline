@@ -1,9 +1,9 @@
 name: Monitoring
 
-# Monitoring is offline and simulated for this coursework artefact. The workflow
+# Monitoring is offline and simulated for this student project. The workflow
 # still matters because it rebuilds model metadata, checks the processed batch
 # for schema/data-quality issues, runs deterministic PSI drift checks, and uploads
-# retraining flags for marker inspection.
+# retraining flags.
 
 permissions:
   contents: read
@@ -84,8 +84,8 @@ jobs:
         run: python scripts/monitor.py
 
       - name: Run drift check with retraining recommendation flag
-        # The drift script includes a deterministic shifted batch so the marker
-        # can see that drift detection and retraining flags actually execute.
+        # The drift script includes a deterministic shifted batch so drift
+        # detection and retraining flags are exercised in the workflow.
         run: python scripts/check_drift.py
 
       - name: Show monitoring mode and retraining recommendation

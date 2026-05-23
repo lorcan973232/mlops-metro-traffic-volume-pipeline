@@ -25,7 +25,7 @@ from src.train import MODEL_PATH, train_model
 #
 # The command-line prediction path uses the same schema validation and saved
 # model bundle as the Flask API. This keeps local smoke tests and the browser
-# demo tied to the real trained artefact instead of a separate example path.
+# demo tied to the real trained model instead of a separate example path.
 
 
 def _prediction_result(
@@ -53,7 +53,7 @@ def _prediction_result(
 
 
 def predict(payload: dict, model_path: Path = MODEL_PATH) -> list[dict[str, Any]]:
-    """Validate a payload and score it with the saved training artefact."""
+    """Validate a payload and score it with the saved training model."""
 
     if not model_path.exists():
         train_model(model_path=model_path)

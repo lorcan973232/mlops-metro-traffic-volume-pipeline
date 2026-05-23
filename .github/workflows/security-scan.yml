@@ -1,9 +1,9 @@
 name: Security Scan
 
-# Security Scan creates evidence for common submission risks: committed secrets,
+# Security Scan creates reports for common submission risks: committed secrets,
 # dependency vulnerabilities, Docker non-root runtime, image scan output, and an
-# SBOM. The reports are current evidence for the run; they are not a permanent
-# promise that future dependencies or base images will stay CVE-free.
+# SBOM. The reports describe the current run; they are not a permanent promise
+# that future dependencies or base images will stay CVE-free.
 
 permissions:
   contents: read
@@ -37,7 +37,7 @@ jobs:
           pip install pip-audit
 
       # The local scanner writes a safe summary for the repository. Heavier
-      # dependency and image scans are uploaded as workflow evidence afterwards.
+      # dependency and image scans are uploaded as workflow reports afterwards.
       - name: Generate repository security evidence
         run: python scripts/security_scan.py
 

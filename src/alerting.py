@@ -1,9 +1,9 @@
 """Turn saved metric and monitoring checks into simple incident records.
 
 The alerting layer is deliberately lightweight. It is not a real pager or
-production incident system; it gives the artefact a marker-readable example of
-how SLA, drift, fairness-proxy, and quality-gate failures could trigger follow-up
-records under `reports/alerts/`.
+production incident system; it gives the project a simple example of how SLA,
+drift, fairness-proxy, and quality-gate failures could trigger follow-up records
+under `reports/alerts/`.
 """
 
 from __future__ import annotations
@@ -25,12 +25,12 @@ INCIDENTS_PATH = ALERTS_PATH / "incidents.json"
 # These rules turn monitoring, drift, fairness, and metric checks into simple
 # incident evidence. They are not connected to a real pager; they show how a
 # Continuous Monitoring stage could flag conditions that would matter before a
-# model is promoted or demonstrated.
+# model is promoted or shown in the demo.
 
 
 @dataclass
 class AlertRule:
-    """Define one threshold check that can create a marker-readable alert."""
+    """Define one threshold check that can create a readable alert."""
 
     name: str
     metric_name: str
@@ -40,7 +40,7 @@ class AlertRule:
     description: str
 
 
-# The thresholds are intentionally explicit so the marker can see which model or
+# The thresholds are intentionally explicit so the report shows which model or
 # service condition would trigger an incident record.
 ALERT_RULES: dict[str, AlertRule] = {
     "sla_breach": AlertRule(

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# The smoke test is the quickest proof that the deployed service is the real
+# The smoke test is the quickest check that the deployed service is the real
 # traffic-volume classifier. It checks `/health` first, then sends a valid
 # prediction payload to the same `/predict` route used by the browser UI.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

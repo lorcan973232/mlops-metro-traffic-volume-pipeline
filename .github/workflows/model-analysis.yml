@@ -1,6 +1,6 @@
 name: Tier 3 Model Analysis
 
-# This workflow gathers the optional deeper model evidence in one place:
+# This workflow gathers the optional deeper model reports in one place:
 # hyperparameter search, ensemble comparison, explainability, proxy subgroup
 # checks, simulated cost-benefit analysis, and offline monitoring/drift reports.
 

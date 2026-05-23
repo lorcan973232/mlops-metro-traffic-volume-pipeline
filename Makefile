@@ -12,8 +12,8 @@ API_URL ?= http://127.0.0.1:8080
 
 # The Makefile is a convenience layer over the same scripts and Python modules
 # documented in the README. It does not add a separate workflow path; it gives
-# the student and marker short commands for setup, tests, model evidence, Docker,
-# Kind, monitoring, and security checks.
+# short commands for setup, tests, model reports, Docker, Kind, monitoring, and
+# security checks.
 
 .PHONY: setup setup-ps check-setup check-setup-ps test lint workflow-test data preprocess model-select train evaluate predict run-api flask-import api-smoke api-smoke-ps docker-build docker-run kind-create kind-create-ps kind-load kind-deploy kind-deploy-ps kind-smoke-test kind-smoke-test-ps deployment-readiness monitor monitor-api drift-check security-scan workflow-validate full-local-verify
 
@@ -154,7 +154,7 @@ workflow-validate:
 	    print(f"PASS: {path}")
 	PY
 
-# This target is the quickest marker-facing local check. Kind is kept separate
+# This target is the quickest broad local check. Kind is kept separate
 # because cluster creation depends on the machine's Docker and Kubernetes setup.
 full-local-verify: check-setup test lint workflow-test workflow-validate data preprocess model-select train evaluate predict monitor drift-check flask-import security-scan docker-build
-	@echo "PASS: full local artefact verification completed. Run kind-deploy and kind-smoke-test for the live Kind deployment path."
+	@echo "PASS: full local project verification completed. Run kind-deploy and kind-smoke-test for the live Kind deployment path."

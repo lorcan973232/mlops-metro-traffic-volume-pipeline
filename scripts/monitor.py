@@ -1,4 +1,4 @@
-"""Generate repeatable monitoring evidence for the coursework artefact.
+"""Generate repeatable monitoring reports for the student project.
 
 The project has no live production telemetry, so this script is honest about its
 scope. It runs offline data-quality checks on the processed public dataset and,
@@ -45,8 +45,8 @@ DATA_QUALITY_REPORT_PATH = Path("reports/monitoring/data_quality_report.json")
 # ==============================================================================
 #
 # This is a lightweight monitoring stage rather than full production telemetry.
-# It still gives the marker repeatable evidence for schema checks, missing-value
-# checks, feature summaries, and optional API health/prediction checks.
+# It still gives repeatable reports for schema checks, missing-value checks,
+# feature summaries, and optional API health/prediction checks.
 
 
 def utc_now() -> str:
@@ -55,15 +55,15 @@ def utc_now() -> str:
 
 
 def feature_summary(frame: pd.DataFrame) -> dict[str, dict[str, float]]:
-    """Summarise each model feature for marker-readable data-quality evidence."""
+    """Summarise each model feature for the data-quality report."""
     summary: dict[str, dict[str, float]] = {}
     for column in FEATURE_COLUMNS:
         if pd.api.types.is_numeric_dtype(frame[column]):
             summary[column] = {
-            "min": float(frame[column].min()),
-            "max": float(frame[column].max()),
-            "mean": float(frame[column].mean()),
-            "std": float(frame[column].std()),
+                "min": float(frame[column].min()),
+                "max": float(frame[column].max()),
+                "mean": float(frame[column].mean()),
+                "std": float(frame[column].std()),
             }
         else:
             counts = frame[column].value_counts().to_dict()

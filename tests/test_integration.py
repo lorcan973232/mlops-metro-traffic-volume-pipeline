@@ -49,7 +49,7 @@ def test_full_pipeline_data_to_prediction_produces_identical_results() -> None:
 
 
 def test_integration_pipeline_generates_all_required_artefact_files() -> None:
-    """Verify the pipeline creates the marker evidence files used by the README."""
+    """Verify the pipeline creates the report files used by the README."""
     required_files = [
         "reports/metrics/latest_metrics.json",
         "reports/metrics/model_metadata.json",

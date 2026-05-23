@@ -56,7 +56,7 @@ def detect_regressions(
         prior_metrics = prior_version_record.get("metrics", {})
 
         # Accuracy can move slightly between retraining runs, but a visible drop
-        # should be treated as a critical regression for this artefact.
+        # should be treated as a critical regression for this project.
         accuracy_delta = current_metrics.get("accuracy", 0) - prior_metrics.get(
             "accuracy", 0
         )
@@ -74,7 +74,7 @@ def detect_regressions(
             )
 
         # Weighted F1 is stricter because it reflects both class labels and is the
-        # kind of metric a marker can easily compare between model versions.
+        # kind of metric that is easy to compare between model versions.
         f1_delta = current_metrics.get("f1_weighted", 0) - prior_metrics.get(
             "f1_weighted", 0
         )

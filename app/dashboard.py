@@ -1,9 +1,9 @@
-"""Optional dashboard routes for reading already-generated evidence reports.
+"""Optional dashboard routes for reading already-generated reports.
 
 The main live demo uses the prediction form, but this blueprint shows how the
 same saved reports could feed a metrics dashboard. It deliberately reads JSON
 created by the pipeline instead of recalculating values, so the UI, README, and
-workflow artefacts stay aligned.
+workflow reports stay aligned.
 """
 
 from __future__ import annotations
@@ -21,9 +21,9 @@ dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 # ==============================================================================
 #
 # These helpers read existing reports rather than recalculating metrics. They are
-# useful if the dashboard blueprint is registered later, because a marker can then
-# inspect model versions, drift, SLA, and fairness evidence from the same files
-# created by the pipeline and workflows.
+# useful if the dashboard blueprint is registered later because model versions,
+# drift, SLA, and fairness-proxy results all come from the same files created by
+# the pipeline and workflows.
 
 
 def get_version_metrics() -> list[dict]:
@@ -79,7 +79,7 @@ def get_drift_metrics() -> dict:
 
 
 def get_fairness_metrics() -> dict:
-    """Read the proxy subgroup report if fairness evidence has been generated."""
+    """Read the proxy subgroup report if fairness checks have been generated."""
     fairness_path = Path("reports/metrics/fairness_analysis.json")
     if not fairness_path.exists():
         return {}
@@ -89,7 +89,7 @@ def get_fairness_metrics() -> dict:
 
 @dashboard_bp.route("/")
 def index() -> str:
-    """Render the dashboard using already-generated pipeline evidence."""
+    """Render the dashboard using already-generated pipeline reports."""
     versions = get_version_metrics()
     latest_metrics = get_latest_metrics()
     sla_metrics = get_sla_metrics()

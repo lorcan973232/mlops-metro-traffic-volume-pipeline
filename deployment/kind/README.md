@@ -1,11 +1,11 @@
 # Kind Deployment
 
-This artefact uses Kind Kubernetes only for deployment evidence. It deploys the Flask
+This project uses Kind Kubernetes only for local deployment checks. It deploys the Flask
 prediction image `mlops-flask-api:latest`, which serves the UCI Metro Interstate
 Traffic Volume classifier at `models/traffic_volume_classifier.joblib`.
 
-Kind is used because the marker can reproduce it on a local Docker machine or
-inspect the GitHub Actions run without needing a persistent cloud account. The
+Kind is used because it can run on a local Docker machine or inside GitHub
+Actions without needing a persistent cloud account. The
 deployment is deliberately ephemeral: the image is built from this repository,
 loaded into the local Kind cluster, rolled out, port-forwarded, and smoke-tested.
 

@@ -8,7 +8,7 @@ metadata:
 spec:
   # ClusterIP is enough for Kind because the demo and workflow use port-forward
   # to reach the service. A cloud load balancer would add unnecessary setup and
-  # would make the evidence harder for a marker to reproduce locally.
+  # would make the local deployment harder to reproduce.
   type: ClusterIP
   selector:
     app: mlops-flask-api

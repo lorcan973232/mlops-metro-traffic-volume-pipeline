@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Bash setup mirrors the PowerShell route for Git Bash, Linux, and GitHub Actions.
 # It creates `.venv`, installs requirements, and verifies imports so later
-# commands run from a known coursework environment rather than an unknown system
+# commands run from a known project environment rather than an unknown system
 # Python.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=env_paths.sh
@@ -18,7 +18,7 @@ echo "Creating local virtual environment in .venv"
 "${PYTHON_BIN}" - <<'PY'
 import sys
 if not ((3, 11) <= sys.version_info[:2] < (3, 13)):
-    raise SystemExit("Python 3.11 or 3.12 is required for this pinned artefact environment.")
+    raise SystemExit("Python 3.11 or 3.12 is required for this pinned project environment.")
 PY
 "${PYTHON_BIN}" -m venv .venv
 
@@ -50,7 +50,7 @@ PY
 
 cat <<'GUIDANCE'
 
-Optional local tooling for full artefact verification:
+Optional local tooling for full project verification:
 - Python 3.11 or 3.12: https://www.python.org/downloads/
 - Docker Desktop: https://docs.docker.com/desktop/
 - Kind: https://kind.sigs.k8s.io/docs/user/quick-start/#installation

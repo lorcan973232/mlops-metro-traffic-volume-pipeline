@@ -20,8 +20,8 @@ RUN pip install --no-cache-dir \
     -r requirements.txt
 
 # The container runs as a non-root user because the security workflow checks this.
-# A marker can therefore see that the Docker artefact includes a basic hardening
-# step, not only a working Flask server.
+# This adds a small hardening step instead of only packaging a working Flask
+# server.
 RUN groupadd --system app && \
     useradd --system --gid app --home-dir /app --shell /usr/sbin/nologin appuser
 
@@ -33,9 +33,9 @@ COPY --chown=appuser:app data/raw/ data/raw/
 COPY --chown=appuser:app models/ models/
 COPY --chown=appuser:app reports/ reports/
 
-# Re-run the core pipeline inside the image. This proves the container can build
-# the same evidence package as the local project before it is used by Docker and
-# Kind smoke tests.
+# Re-run the core pipeline inside the image so the container is tied to the same
+# data, model, and report path as the local project before Docker and Kind smoke
+# tests use it.
 RUN python -m compileall app src \
     && python -m src.data \
     && python -m src.preprocess \
@@ -54,5 +54,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=5 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=8)"
 
 # Gunicorn serves the same `app.main:app` object that tests import locally. One
-# worker is enough for this coursework artefact and keeps the demo predictable.
+# worker is enough for this student project and keeps the demo predictable.
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--timeout", "90", "app.main:app"]

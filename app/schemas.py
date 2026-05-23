@@ -81,6 +81,7 @@ class PredictionRequestExample:
 
 
 def feature_label(feature_name: str) -> str:
+    """Return the short label shown next to a feature in the browser form."""
     labels = {
         "temp": "Temperature (K)",
         "rain_1h": "Rain Last Hour",
@@ -102,6 +103,7 @@ def feature_label(feature_name: str) -> str:
 
 
 def feature_helper(feature_name: str) -> str:
+    """Return a short help sentence for the browser input field."""
     helpers = {
         "temp": "Kelvin value from the traffic weather record.",
         "rain_1h": "Millimetres of rain in the last hour.",
@@ -123,6 +125,7 @@ def feature_helper(feature_name: str) -> str:
 
 
 def ui_feature_groups() -> list[dict[str, Any]]:
+    """Build grouped field metadata so the UI and API schema stay aligned."""
     example = PredictionRequestExample().__dict__
     grouped_features = []
     for group_name, features in FEATURE_GROUPS.items():
@@ -148,6 +151,12 @@ def ui_feature_groups() -> list[dict[str, Any]]:
 
 
 def validate_prediction_payload(payload: object) -> list[dict[str, float | str]]:
+    """Check API input and return records in the exact model feature order.
+
+    The API accepts either one feature object, a `features` wrapper, or a list of
+    objects. The final records are ordered by `FEATURE_COLUMNS` so training and
+    prediction use the same schema.
+    """
     if isinstance(payload, dict) and "features" in payload:
         payload = payload["features"]
     if isinstance(payload, dict):

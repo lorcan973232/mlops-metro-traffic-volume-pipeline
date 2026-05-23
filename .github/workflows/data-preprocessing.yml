@@ -2,7 +2,7 @@ name: Data Preprocessing
 
 # This workflow isolates the raw-data and preprocessing stages. It runs when the
 # data or preprocessing code changes, then uploads the ingestion and processed
-# CSV reports so the marker can trace exactly where the training table came from.
+# CSV reports so the training table can be traced back to the raw file.
 
 permissions:
   contents: read
@@ -44,9 +44,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # This stage proves the public data can be acquired and validated before any
-      # model is trained. The report is uploaded separately so ingestion evidence
-      # is not hidden inside the training workflow.
+      # This stage checks the public data can be acquired and validated before
+      # any model is trained. The report is uploaded separately so ingestion is
+      # not hidden inside the training workflow.
       - name: Generate and validate UCI Metro traffic data
         run: python -m src.data
 
@@ -74,8 +74,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Preprocessing is run after ingestion so the marker can trace raw data into
-      # the deterministic CSV used by training, testing, Docker, and CT.
+      # Preprocessing is run after ingestion so raw data can be traced into the
+      # deterministic CSV used by training, testing, Docker, and CT.
       - name: Run ingestion and preprocessing
         run: |
           python -m src.data

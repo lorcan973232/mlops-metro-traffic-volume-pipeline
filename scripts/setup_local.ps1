@@ -2,7 +2,7 @@ param(
     [string]$PythonBin = "python"
 )
 
-# This is the recommended Windows setup route for the marker and student. It
+# This is the recommended Windows setup route for this project. It
 # creates `.venv`, installs the pinned requirements, and checks imports so later
 # README commands do not rely on whatever packages happen to be installed on the
 # system Python.
@@ -15,7 +15,7 @@ if (-not (Test-Path "requirements.txt") -or -not (Test-Path "src") -or -not (Tes
 
 & $PythonBin -c "import sys; raise SystemExit(0 if (3, 11) <= sys.version_info[:2] < (3, 13) else 1)"
 if ($LASTEXITCODE -ne 0) {
-    throw "Python 3.11 or 3.12 is required for this pinned artefact environment."
+    throw "Python 3.11 or 3.12 is required for this pinned project environment."
 }
 
 Write-Host "Creating local virtual environment in .venv"
@@ -57,7 +57,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host ""
-Write-Host "Optional local tooling for full artefact verification:"
+Write-Host "Optional local tooling for full project verification:"
 Write-Host "- Python 3.11 or 3.12: https://www.python.org/downloads/"
 Write-Host "- Docker Desktop: winget install Docker.DockerDesktop"
 Write-Host "- Kind: winget install Kubernetes.kind"

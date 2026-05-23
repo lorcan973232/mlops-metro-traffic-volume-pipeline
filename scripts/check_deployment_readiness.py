@@ -1,9 +1,9 @@
-"""Verify Docker and Kind deployment readiness for the current artefact.
+"""Verify Docker and Kind deployment readiness for the current project.
 
-The preferred proof is a local Docker/Kind run when those tools are installed.
+The preferred check is a local Docker/Kind run when those tools are installed.
 If the local machine lacks Docker, Kind, or kubectl, this script falls back to
-the current GitHub Actions evidence for the exact commit SHA. That gives a
-marker one command which separates a real artefact failure from a local setup
+the current GitHub Actions reports for the exact commit SHA. That gives the user
+one command which separates a real project failure from a local setup
 blocker.
 """
 
@@ -170,7 +170,7 @@ def build_report() -> dict[str, Any]:
 
 
 def main() -> None:
-    """Print deployment readiness and return non-zero only when evidence is insufficient."""
+    """Print deployment readiness and return non-zero only when checks are incomplete."""
     report = build_report()
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     REPORT_PATH.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")

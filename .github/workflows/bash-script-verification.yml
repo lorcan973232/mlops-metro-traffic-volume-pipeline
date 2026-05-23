@@ -1,8 +1,8 @@
 name: Bash Script Verification
 
-# This workflow proves the Bash route on Ubuntu independently from the student's
+# This workflow checks the Bash route on Ubuntu independently from the student's
 # Windows machine. That matters because a local broken WSL installation should
-# not be confused with broken coursework scripts.
+# not be confused with broken project scripts.
 
 permissions:
   contents: read
@@ -42,9 +42,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # This Ubuntu job proves the `.sh` path independently from a Windows laptop.
-      # That matters because local Windows bash can be blocked by WSL setup rather
-      # than by a fault in the coursework scripts.
+      # This Ubuntu job checks the `.sh` path independently from a Windows
+      # laptop. Local Windows bash can be blocked by WSL setup rather than by a
+      # fault in the project scripts.
       - name: Verify Bash environment and Python setup
         run: |
           bash scripts/check_bash_environment.sh | tee bash-environment.log

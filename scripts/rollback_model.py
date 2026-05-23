@@ -4,7 +4,7 @@
 This is a model-management support script for the repository-local registry. It
 does not change the trained model itself; it updates metadata so the current
 version points at an earlier quality-gate-approved record. A real deployment
-would need additional operational controls, which this coursework artefact does
+would need additional operational controls, which this student project does
 not claim to provide.
 """
 from __future__ import annotations
@@ -29,9 +29,9 @@ def rollback_model(target_version: str) -> None:
     if not version_record:
         raise ValueError(f"Version record not found for {target_version}")
 
-    # The registry record is the evidence pointer used by this artefact. Updating
-    # it is enough for this lightweight model-management scope; no external
-    # registry or cloud service is being claimed.
+    # The registry record is the pointer used by this project. Updating it is
+    # enough for this lightweight model-management scope; no external registry or
+    # cloud service is being claimed.
     registry = {
         "model_version": target_version,
         "model_path": version_record["model_path"],

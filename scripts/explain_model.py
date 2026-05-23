@@ -3,7 +3,7 @@
 This script is used by local verification and the Tier 3 model-analysis
 workflow. It explains the saved model using SHAP when available and a clearly
 labelled permutation-importance fallback otherwise. The reports are evidence
-files, not screenshots, so a marker can open the JSON and see which features
+files, not screenshots, so the JSON shows which features
 influenced global and local predictions.
 """
 

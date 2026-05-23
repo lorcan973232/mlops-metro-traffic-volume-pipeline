@@ -32,7 +32,7 @@
   async function requestJson(url, options) {
     // The live demo should fail with a useful message if the Flask server or
     // Kubernetes port-forward is not running, instead of leaving a silent browser
-    // error that is hard for a marker to interpret.
+    // error that is hard to interpret.
     let response;
     try {
       response = await fetch(url, options);
@@ -86,8 +86,8 @@
   }
 
   function renderPrediction(data) {
-    // Show the model's returned label, confidence, and version so the demo proves
-    // the browser is calling the trained artefact rather than a static mock.
+    // Show the model's returned label, confidence, and version so the browser
+    // clearly calls the trained model rather than a static mock.
     const label = data.prediction_label || String(data.prediction);
     predictionValue.textContent = label;
     if (typeof data.confidence === "number") {
@@ -120,8 +120,8 @@
     }
 
     try {
-      // Check health first because it proves the deployed service has loaded the
-      // model before the UI sends a prediction request.
+      // Check health first because it confirms the deployed service has loaded
+      // the model before the UI sends a prediction request.
       const health = await requestJson(endpointUrl("healthUrl", "/health"), {method: "GET"});
       if (health.status !== "healthy" || health.model_loaded !== true) {
         throw new Error("Prediction API is not healthy. Check that the model is loaded.");

@@ -2,7 +2,7 @@
 
 The app is used locally, inside Docker, and inside the Kind deployment. Tests can
 inject a model bundle, but normal runs load the same saved artefact produced by
-`src.train`. The route design is intentionally small: `/health` proves the model
+`src.train`. The route design is intentionally small: `/health` checks the model
 is loaded, `/predict` validates and scores real feature payloads, and `/` serves
 the live-demo form that calls the same API.
 """
@@ -55,7 +55,7 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
     app.config["MODEL_BUNDLE"] = model_bundle
 
     def get_model_bundle() -> dict[str, Any]:
-        """Load the model once per app instance so requests reuse the same artefact."""
+        """Load the model once per app instance so requests reuse the same model file."""
         if app.config["MODEL_BUNDLE"] is None:
             app.config["MODEL_BUNDLE"] = load_model()
         return app.config["MODEL_BUNDLE"]

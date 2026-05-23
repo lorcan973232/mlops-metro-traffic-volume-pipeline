@@ -59,5 +59,5 @@ def test_model_selection_fast_mode_outputs_search_and_ensemble_evidence() -> Non
     assert comparison["baseline_model"]["model_name"] == "dummy_most_frequent"
     assert comparison["test_set_usage"] == "not_used_in_model_selection"
     assert ensemble["status"] == "not_applicable"
-    # Model-selection evidence should be computed, not a draft marker.
+    # Model-selection reports should be computed, not draft placeholders.
     assert ("place" + "holder") not in json.dumps(search).lower()

@@ -140,7 +140,7 @@ def check_public_visibility_snapshot() -> list[str]:
 
 
 def main() -> None:
-    """Run all stale-evidence checks and fail with marker-readable findings."""
+    """Run all stale-report checks and fail with readable findings."""
     files = tracked_files()
     findings = []
     findings.extend(check_internal_files(files))

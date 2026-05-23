@@ -1,8 +1,7 @@
-"""Write a current public-repository visibility evidence snapshot.
+"""Write a current public-repository visibility snapshot.
 
-The marker needs proof that the submitted repository is public, but no script can
-prove it will remain public until 21 June 2026. This file records current
-visibility, the checked SHA, and the student's future responsibility honestly.
+This file records current visibility, the checked SHA, and the note that future
+visibility cannot be guaranteed by a single script run.
 """
 
 from __future__ import annotations
@@ -24,8 +23,7 @@ PUBLIC_UNTIL = "2026-06-21"
 # Public repository evidence
 # ==============================================================================
 #
-# The assignment requires a public personal GitHub repository until 21 June 2026.
-# This script can only prove current visibility, so it records a timestamped
+# This script can only check current visibility, so it records a timestamped
 # snapshot and an explicit future-responsibility note instead of making a false
 # permanent claim.
 
@@ -131,7 +129,7 @@ def build_evidence() -> dict[str, Any]:
         **payload,
         "evidence_scope": (
             "Snapshot generated at checked_at. The latest workflow artefact is the "
-            "authoritative current visibility proof for the submitted commit."
+            "authoritative current visibility snapshot for the submitted commit."
         ),
         "checked_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
         "latest_commit_sha_at_check_time": current_sha(),
@@ -140,7 +138,7 @@ def build_evidence() -> dict[str, Any]:
         "requirement": "Repository must remain public until 21 June 2026.",
         "requirement_note": (
             "Current public visibility is verified at checked_at. The repository must remain "
-            "public until 21 June 2026 for assignment compliance."
+            "public until 21 June 2026 for the assignment access period."
         ),
         "public_until_required_date": PUBLIC_UNTIL,
         "current_public_visibility_verified": (
@@ -148,9 +146,8 @@ def build_evidence() -> dict[str, Any]:
         ),
         "future_public_until_proven": False,
         "future_compliance_note": (
-            "Current public visibility is verified. The future public-until date is safeguarded "
-            "through documentation and a repeatable visibility-check workflow, but the student "
-            "must keep the repository public until 21 June 2026."
+            "Current public visibility is verified. Future visibility still depends on the "
+            "repository staying public, so the student must keep it public until 21 June 2026."
         ),
     }
     return evidence

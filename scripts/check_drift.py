@@ -1,9 +1,9 @@
 """Create offline drift evidence using Population Stability Index.
 
 Continuous Monitoring needs a repeatable drift stage even though this student
-artefact has no live production batch. The script compares the processed dataset
-with itself, then compares it with a deterministic shifted batch. That proves
-the no-drift and drift-trigger paths without pretending to have production data.
+project has no live production batch. The script compares the processed dataset
+with itself, then compares it with a deterministic shifted batch. That checks the
+no-drift and drift-trigger paths without pretending to have production data.
 """
 
 from __future__ import annotations
@@ -126,7 +126,7 @@ def population_stability_index(
 
 
 def simulate_drift(frame: pd.DataFrame) -> pd.DataFrame:
-    """Create a repeatable shifted batch so drift detection can be demonstrated."""
+    """Create a repeatable shifted batch for the drift-detection path."""
     drifted = frame.copy()
     drifted["temp"] = drifted["temp"] + 8.0
     drifted["clouds_all"] = (drifted["clouds_all"] + 30.0).clip(upper=100.0)
@@ -253,7 +253,7 @@ def drift_report(processed_path: Path = PROCESSED_DATA_PATH) -> dict[str, Any]:
         "simulated_retraining_signal": {
             "retraining_required": simulated_drift_detected,
             "reason": (
-                "Synthetic drift was injected to demonstrate monitoring "
+                "Synthetic drift was injected to show monitoring "
                 "and retraining trigger logic."
             ),
         },

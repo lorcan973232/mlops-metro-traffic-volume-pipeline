@@ -3,7 +3,7 @@ param(
 )
 
 # This PowerShell smoke test is the Windows equivalent of `smoke_test_api.sh`.
-# It proves the deployed service has loaded the model through `/health`, then
+# It checks the deployed service has loaded the model through `/health`, then
 # sends a real 15-feature traffic payload to `/predict` and checks the response
 # fields used by the browser UI and workflow logs.
 $ErrorActionPreference = "Stop"

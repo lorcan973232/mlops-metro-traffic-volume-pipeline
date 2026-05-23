@@ -24,7 +24,7 @@ def test_deployment_readiness_script_reports_local_or_github_evidence() -> None:
 
 
 def test_readme_documents_deployment_readiness_check() -> None:
-    """Check the marker-facing deployment-readiness command is documented."""
+    """Check the deployment-readiness command is documented."""
     readme = Path("README.md").read_text(encoding="utf-8")
     assert "python scripts/check_deployment_readiness.py" in readme
     assert "github_actions_current_sha" in readme

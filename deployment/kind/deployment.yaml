@@ -35,7 +35,7 @@ spec:
             - name: MODEL_PATH
               # Flask reads this path inside the container. It matches the model
               # copied by the Dockerfile, so Kubernetes serving uses the same
-              # trained artefact as local and Docker smoke tests.
+              # trained model as local and Docker smoke tests.
               value: models/traffic_volume_classifier.joblib
           ports:
             - containerPort: 5000

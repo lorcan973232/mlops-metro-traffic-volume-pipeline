@@ -1,8 +1,8 @@
 name: Final Readiness
 
-# Final Readiness is the pre-submission evidence pack. It reruns compile, tests,
-# lint, workflow validation, safe security checks, stale-evidence checks, public
-# visibility evidence, and a generated readiness report tied to the current SHA.
+# Final Readiness reruns compile, tests, lint, workflow validation, safe security
+# checks, stale-report checks, current visibility checks, and a generated
+# readiness report tied to the current SHA.
 
 permissions:
   contents: read
@@ -48,8 +48,8 @@ jobs:
       - name: Check for stale or internal evidence
         run: python scripts/check_stale_evidence.py
 
-      # The committed reports explain the checks, but this workflow creates the
-      # current SHA-specific evidence that a marker should trust at submission.
+      # The committed reports explain the checks, but this workflow creates a
+      # current SHA-specific report for the run.
       - name: Verify current repository visibility
         env:
           GH_TOKEN: ${{ github.token }}

@@ -49,7 +49,7 @@ REQUIRED_WORKFLOW_FILES = [
 
 
 def test_full_metrics_and_model_management_package_is_present() -> None:
-    """Check the metric and metadata files a marker opens during review exist."""
+    """Check the metric and metadata files used during review exist."""
     metrics_dir = Path("reports/metrics")
     missing_files = [name for name in REQUIRED_METRIC_FILES if not (metrics_dir / name).is_file()]
     assert missing_files == []
@@ -118,7 +118,7 @@ def test_feature_importance_and_fairness_analysis_are_present() -> None:
 
 
 def test_readme_exposes_marker_facing_artefact_evidence() -> None:
-    """Check the README points examiners to lifecycle evidence and demo paths.
+    """Check the README points readers to lifecycle reports and demo paths.
 
     The README was simplified into human coursework wording, so this test checks
     the new section names and saved evidence paths rather than the older formal
