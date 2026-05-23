@@ -150,6 +150,7 @@ def get_rollback_candidates() -> list[str]:
 
 
 def main() -> None:
+    """Print the current model version manifest."""
     manifest = initialize_version_manifest()
     print(json.dumps(manifest, indent=2))
 

@@ -9,6 +9,7 @@ from src.preprocess import preprocess_frame
 
 
 def valid_raw_frame() -> pd.DataFrame:
+    """Build a minimal raw traffic frame with the schema expected by ingestion."""
     rows = []
     for i in range(48000):
         rows.append(
@@ -30,6 +31,7 @@ def valid_raw_frame() -> pd.DataFrame:
 
 
 def test_raw_schema_validation_accepts_expected_traffic_columns() -> None:
+    """Check raw data validation protects the expected Metro traffic schema."""
     report = validate_raw_data(valid_raw_frame())
     assert report["status"] == "valid"
     assert report["feature_columns"] == FEATURE_COLUMNS
@@ -39,6 +41,7 @@ def test_raw_schema_validation_accepts_expected_traffic_columns() -> None:
 
 
 def test_preprocessing_derives_binary_high_traffic_label() -> None:
+    """Check preprocessing creates the model target and feature columns."""
     processed = preprocess_frame(valid_raw_frame())
     assert [*FEATURE_COLUMNS, SOURCE_TARGET_COLUMN, TARGET_COLUMN] == list(processed.columns)
     assert set(processed[TARGET_COLUMN].unique()) == {0, 1}

@@ -127,6 +127,7 @@ def detect_regressions(
 
 
 def main() -> None:
+    """Print the regression-check thresholds used by Continuous Training."""
     print("Regression detection system initialized")
     print("  Configuration: Max accuracy drop = 0.5%, F1 drop = 0%, Balanced accuracy drop = 2%")
 

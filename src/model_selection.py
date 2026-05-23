@@ -457,6 +457,7 @@ def run_model_selection() -> dict[str, Any]:
 
 
 def main() -> None:
+    """Run model selection from the command line and print the report paths."""
     report = run_model_selection()
     print(json.dumps(report, indent=2, sort_keys=True))
 

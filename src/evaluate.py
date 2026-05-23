@@ -208,6 +208,7 @@ def _cross_validation_report(estimator: Any, x_train: Any, y_train: Any) -> dict
     )
 
     def summary(values: np.ndarray) -> dict[str, Any]:
+        """Keep fold values and their mean/std in one report block."""
         return {
             "per_fold": [float(value) for value in values],
             "mean": float(np.mean(values)),

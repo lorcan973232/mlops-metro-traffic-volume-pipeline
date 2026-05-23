@@ -77,6 +77,7 @@ class PredictionRequestExample:
     rolling_24h_volume: float = 3300.0
 
     def as_payload(self) -> dict[str, dict[str, float | str]]:
+        """Return the example in the same wrapper shape accepted by `/predict`."""
         return {"features": self.__dict__.copy()}
 
 

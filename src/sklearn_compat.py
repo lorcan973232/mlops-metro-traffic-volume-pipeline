@@ -41,6 +41,7 @@ def install_column_transformer_remainder_shim() -> None:
             warning_was_emitted: bool = False,
             warning_enabled: bool = True,
         ) -> None:
+            """Store the old remainder-column metadata expected by joblib."""
             super().__init__(columns)
             self.future_dtype = future_dtype
             self.warning_was_emitted = warning_was_emitted
@@ -56,7 +57,7 @@ def install_column_transformer_remainder_shim() -> None:
             self.warning_was_emitted = True
             warnings.warn(
                 "Using a compatibility list for old scikit-learn ColumnTransformer "
-                "remainder columns while loading the saved coursework model.",
+                "remainder columns while loading the saved project model.",
                 FutureWarning,
                 stacklevel=2,
             )

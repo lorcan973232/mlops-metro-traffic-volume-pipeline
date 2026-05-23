@@ -214,6 +214,7 @@ def validate_raw_data(frame: pd.DataFrame, min_rows: int = 48000) -> dict[str, A
 
 
 def main() -> None:
+    """Download/check the raw data and write the ingestion report."""
     ingestion = download_dataset()
     frame = load_raw_data()
     validation = validate_raw_data(frame)

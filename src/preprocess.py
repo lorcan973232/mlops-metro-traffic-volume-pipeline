@@ -100,6 +100,7 @@ def preprocess_dataset(
 
 
 def main() -> None:
+    """Preprocess the raw traffic data and print the saved report."""
     preprocess_dataset()
     report = json.loads(PREPROCESSING_REPORT_PATH.read_text(encoding="utf-8"))
     print(json.dumps(report, indent=2, sort_keys=True))

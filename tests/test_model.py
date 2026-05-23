@@ -17,6 +17,7 @@ from src.train import (
 
 
 def sample_training_frame() -> tuple[pd.DataFrame, np.ndarray]:
+    """Create a small traffic-like frame for fast pipeline contract tests."""
     base = PredictionRequestExample().__dict__.copy()
     rows = []
     labels = []
@@ -37,6 +38,7 @@ def sample_training_frame() -> tuple[pd.DataFrame, np.ndarray]:
 
 
 def test_model_pipeline_fits_and_predicts_with_selected_schema() -> None:
+    """Check the model pipeline fits and predicts with the saved feature order."""
     frame, target = sample_training_frame()
     pipeline = build_pipeline()
     pipeline.fit(frame, target)
@@ -48,6 +50,7 @@ def test_model_pipeline_fits_and_predicts_with_selected_schema() -> None:
 
 
 def test_model_hyperparameters_are_explicit_and_reproducible() -> None:
+    """Check key model settings are fixed for repeatable training reports."""
     classifier = MODEL_HYPERPARAMETERS["classifier"]
     split = MODEL_HYPERPARAMETERS["train_test_split"]
     preprocessing = MODEL_HYPERPARAMETERS["preprocessing"]

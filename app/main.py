@@ -62,6 +62,7 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
 
     @app.get("/")
     def index() -> str:
+        """Render the browser form with model status and feature metadata."""
         model_status: dict[str, Any] = {
             "model_loaded": False,
             "model_version": "unavailable",
@@ -95,6 +96,7 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
 
     @app.get("/health")
     def health() -> tuple[Any, int]:
+        """Report whether Flask can load the trained model bundle."""
         try:
             bundle = get_model_bundle()
         except Exception as exc:  # pragma: no cover - exercised by smoke tests
@@ -124,6 +126,7 @@ def create_app(model_bundle: dict[str, Any] | None = None) -> Flask:
 
     @app.post("/predict")
     def predict() -> tuple[Any, int]:
+        """Validate traffic features, run the model, and return prediction JSON."""
         request_id = str(uuid.uuid4())[:12]
         start_time = datetime.now(UTC)
         logger.info(

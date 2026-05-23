@@ -17,9 +17,11 @@ class DummyClassifier:
     classes_ = np.array([0, 1])
 
     def predict(self, frame: pd.DataFrame) -> np.ndarray:
+        """Return deterministic labels for browser rendering tests."""
         return np.array([1] * len(frame))
 
     def predict_proba(self, frame: pd.DataFrame) -> np.ndarray:
+        """Return fixed probabilities in the same shape as the trained model."""
         return np.array([[0.18, 0.82]] * len(frame))
 
 
@@ -41,6 +43,7 @@ def create_test_app():
 
 
 def test_root_page_renders_clear_traffic_ui() -> None:
+    """Check the home page shows model, dataset, and route details."""
     # The first page must be usable in the recorded demo without extra setup text:
     # it should show the model, dataset, version, and real endpoint routes.
     response = create_test_app().test_client().get("/")
@@ -56,6 +59,7 @@ def test_root_page_renders_clear_traffic_ui() -> None:
 
 
 def test_root_page_form_fields_match_prediction_schema() -> None:
+    """Check the browser form fields match the model feature schema."""
     # This catches a common MLOps/UI failure: adding or renaming a model feature
     # but forgetting to update the browser form used during the demo.
     response = create_test_app().test_client().get("/")
@@ -69,6 +73,7 @@ def test_root_page_form_fields_match_prediction_schema() -> None:
 
 
 def test_ui_javascript_handles_unreachable_prediction_api() -> None:
+    """Check the browser explains API connection failures clearly."""
     # If Flask, Docker, or Kind is not reachable, the browser should explain the
     # problem instead of failing silently during the demo.
     script = Path("app/static/app.js").read_text(encoding="utf-8")
@@ -79,6 +84,7 @@ def test_ui_javascript_handles_unreachable_prediction_api() -> None:
 
 
 def test_use_example_payload_matches_model_schema() -> None:
+    """Check the example button payload stays aligned with `/predict`."""
     # The example button should submit a valid real payload, not a separate mock
     # that bypasses the model's expected feature schema.
     payload = PredictionRequestExample().as_payload()["features"]

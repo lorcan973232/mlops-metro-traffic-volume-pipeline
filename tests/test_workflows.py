@@ -162,6 +162,7 @@ def test_deploy_workflow_and_kind_manifests_are_kind_only() -> None:
 
 
 def test_workflows_reference_existing_commands_and_upload_artefacts() -> None:
+    """Check workflows call real commands and save expected run outputs."""
     # Workflow files should be runnable. This test checks that Actions reference
     # real repository commands and upload reports with current upload/download
     # action versions.

@@ -15,13 +15,16 @@ class DummyClassifier:
     classes_ = np.array([0, 1])
 
     def predict(self, frame: pd.DataFrame) -> np.ndarray:
+        """Return one class per row so route tests do not depend on disk models."""
         return np.array([1] * len(frame))
 
     def predict_proba(self, frame: pd.DataFrame) -> np.ndarray:
+        """Return fixed two-class probabilities matching the real API shape."""
         return np.array([[0.18, 0.82]] * len(frame))
 
 
 def test_api_health_and_prediction_use_traffic_schema() -> None:
+    """Check health and prediction routes use the real traffic schema."""
     # This protects the demo path: `/health` must prove the model is loaded,
     # and `/predict` must return the same label/confidence fields used by the UI
     # and deployment smoke tests.
@@ -56,6 +59,7 @@ def test_api_health_and_prediction_use_traffic_schema() -> None:
 
 
 def test_api_rejects_missing_feature() -> None:
+    """Check missing traffic features are rejected before model scoring."""
     # Missing features should fail before prediction. Otherwise the model could
     # receive shifted or incomplete input and still return a misleading answer.
     app = create_app(
