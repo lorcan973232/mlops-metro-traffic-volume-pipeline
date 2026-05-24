@@ -15,7 +15,7 @@ This file records real branch and pull-request evidence for the artefact branchi
 
 | Evidence item | Value |
 |---|---|
-| Repository | <https://github.com/lorcan973232/mlops-wine-quality-pipeline> |
+| Repository | <https://github.com/lorcan973232/mlops-metro-traffic-volume-pipeline> |
 | Default branch | `main` |
 | Evidence feature branch | `feature/final-artefact-hardening` |
 | Evidence feature SHA at PR creation | `c77d4cf38cea994a249530f95d3fd97f39487cf1` |
@@ -27,14 +27,14 @@ This file records real branch and pull-request evidence for the artefact branchi
 
 | Evidence item | Value |
 |---|---|
-| Earlier feature-to-develop PR | <https://github.com/lorcan973232/mlops-wine-quality-pipeline/pull/1> |
+| Earlier feature-to-develop PR | <https://github.com/lorcan973232/mlops-metro-traffic-volume-pipeline/pull/1> |
 | Earlier feature PR status | Merged into `develop` at `2026-05-16T12:52:43Z`; CI and Docker checks passed. |
-| Earlier develop-to-main PR | <https://github.com/lorcan973232/mlops-wine-quality-pipeline/pull/2> |
+| Earlier develop-to-main PR | <https://github.com/lorcan973232/mlops-metro-traffic-volume-pipeline/pull/2> |
 | Earlier develop-to-main status | Merged into `main` at `2026-05-16T12:55:42Z`; CI and Docker checks passed. |
-| Final hardening feature-to-develop PR | <https://github.com/lorcan973232/mlops-wine-quality-pipeline/pull/3> |
+| Final hardening feature-to-develop PR | <https://github.com/lorcan973232/mlops-metro-traffic-volume-pipeline/pull/3> |
 | Final hardening PR status | Merged into `develop` at `2026-05-16T14:30:31Z`; PR checks passed for CI, Data Preprocessing, Train and Evaluate, Docker Build, and Security Scan after vulnerable dependency pins were fixed. |
 | Final hardening PR merge commit | `4b5f42d6a3620db189404c5fbda5a8f7fe3f0444` |
-| Final develop-to-main PR | <https://github.com/lorcan973232/mlops-wine-quality-pipeline/pull/4> |
+| Final develop-to-main PR | <https://github.com/lorcan973232/mlops-metro-traffic-volume-pipeline/pull/4> |
 | Final develop-to-main PR status | Merged into `main` at `2026-05-16T14:33:59Z`; PR checks passed for CI, Data Preprocessing, Train and Evaluate, Docker Build, and Security Scan. |
 | Final develop-to-main merge commit | `67436a01d7892b0239aedbf0200368e3455d3006` |
 | Strategy mapping | The artefact exercises `feature/* -> develop -> main`, matching the README branching strategy. |
