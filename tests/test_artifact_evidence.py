@@ -44,7 +44,6 @@ REQUIRED_WORKFLOW_FILES = [
     "continuous-training.yml",
     "monitoring.yml",
     "model-analysis.yml",
-    "repository-visibility-check.yml",
 ]
 
 
@@ -126,10 +125,8 @@ def test_readme_exposes_marker_facing_artefact_evidence() -> None:
     readme = Path("README.md").read_text(encoding="utf-8")
 
     required_sections = [
-        "reports/submission/branching_evidence.md",
         "## CI/CD with GitHub Actions",
         "## Extra Evidence",
-        "## Branching Strategy",
         "## Demo Steps",
         "## Traceability",
     ]
@@ -206,8 +203,7 @@ def test_required_workflows_exist_and_upload_marker_evidence() -> None:
         "kind-deployment-logs",
         "continuous-training-artifacts",
         "monitoring-artifacts",
-        "tier3-model-analysis-reports",
-        "repository-visibility-evidence",
+        "model-analysis-reports",
     ]:
         assert artefact_name in workflow_text
 
@@ -217,15 +213,10 @@ def test_required_workflows_exist_and_upload_marker_evidence() -> None:
     assert "retraining_required" in workflow_text
 
 
-def test_public_repository_submission_evidence_is_present() -> None:
-    """Check the saved repository visibility snapshot is present."""
-    evidence_path = Path("reports/submission/public_repository_evidence.json")
-    branching_path = Path("reports/submission/branching_evidence.md")
-    assert evidence_path.is_file()
-    assert branching_path.is_file()
-
-    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
-    assert evidence["repository_url"].startswith("https://github.com/lorcan973232/")
-    assert evidence["visibility"] == "public"
-    assert evidence["private"] is False
-    assert "21 June 2026" in evidence["requirement_note"]
+def test_non_artefact_submission_material_is_absent() -> None:
+    """Check report-submission and screenshot-only evidence folders stay out of the artefact."""
+    assert not Path("reports/submission").exists()
+    assert not Path("reports/screenshots").exists()
+    readme = Path("README.md").read_text(encoding="utf-8")
+    assert "reports/submission" not in readme
+    assert "reports/screenshots" not in readme

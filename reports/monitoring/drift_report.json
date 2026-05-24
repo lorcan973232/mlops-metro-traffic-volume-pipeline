@@ -275,10 +275,10 @@
     }
   },
   "simulated_retraining_signal": {
-    "reason": "Synthetic drift was injected to demonstrate monitoring and retraining trigger logic.",
+    "reason": "Synthetic drift was injected to show monitoring and retraining trigger logic.",
     "retraining_required": true
   },
   "status": "checked",
   "threshold": 0.2,
-  "timestamp_utc": "2026-05-23T11:38:35+00:00"
+  "timestamp_utc": "2026-05-24T17:46:29+00:00"
 }

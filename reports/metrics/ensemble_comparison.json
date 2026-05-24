@@ -1,4 +1,4 @@
 {
-  "reason": "No ensemble selected; tuned gradient boosting gave the best validation evidence.",
+  "reason": "No ensemble selected; tuned gradient boosting gave the best validation metrics.",
   "status": "not_applicable"
 }

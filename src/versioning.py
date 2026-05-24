@@ -1,9 +1,9 @@
 """Maintain the lightweight semantic version manifest for accepted models.
 
 Versioning in this repository is intentionally simple: accepted model versions
-are recorded in JSON under `reports/model_registry/`. The manifest gives CT,
-rollback helpers, and the optional dashboard a shared source of truth without
-claiming an external model registry.
+are recorded in JSON under `reports/model_registry/`. The manifest gives CT and
+the optional dashboard a shared source of truth without claiming an external
+model registry.
 """
 
 from __future__ import annotations
@@ -20,8 +20,8 @@ VERSION_MANIFEST_PATH = Path("reports/model_registry/version_manifest.json")
 # ==============================================================================
 #
 # The project does not claim to use an external model registry. This small
-# manifest records which evaluated model version is active, which versions passed
-# the quality gate, and which versions could be used as rollback candidates.
+# manifest records which evaluated model version is active and which versions
+# passed the quality gate.
 
 
 def initialize_version_manifest() -> dict[str, Any]:
@@ -135,18 +135,12 @@ def register_version(
 
 
 def get_version_record(version: str) -> dict[str, Any] | None:
-    """Return one version record for dashboard or rollback inspection."""
+    """Return one version record for dashboard inspection."""
     manifest = initialize_version_manifest()
     for v in manifest.get("versions", []):
         if v["version"] == version:
             return v
     return None
-
-
-def get_rollback_candidates() -> list[str]:
-    """List previously accepted versions that are safe rollback candidates."""
-    manifest = initialize_version_manifest()
-    return manifest.get("rollback_candidates", [])
 
 
 def main() -> None:

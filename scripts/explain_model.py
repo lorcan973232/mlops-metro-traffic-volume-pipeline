@@ -1,7 +1,7 @@
 """Generate model explainability reports for the selected classifier.
 
-This script is used by local verification and the Tier 3 model-analysis
-workflow. It explains the saved model using SHAP when available and a clearly
+This script is used by local verification and the model-analysis workflow. It
+explains the saved model using SHAP when available and a clearly
 labelled permutation-importance fallback otherwise. The JSON reports show which
 features influenced global and local predictions.
 """

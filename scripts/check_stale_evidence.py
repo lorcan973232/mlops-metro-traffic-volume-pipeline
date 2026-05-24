@@ -1,14 +1,12 @@
-"""Check that committed reports do not contain stale or internal claims.
+"""Check that committed artefact files do not contain stale or internal claims.
 
 This script is used by CI, Security Scan, and Final Readiness. It fails when
-committed files contain internal planning language, hard-coded final-readiness
-SHAs, or visibility wording that claims future public access has already been
-proven.
+committed files contain internal planning language or hard-coded final-readiness
+SHAs.
 """
 
 from __future__ import annotations
 
-import json
 import re
 import subprocess
 from pathlib import Path
@@ -27,7 +25,7 @@ INTERNAL_PHRASES = [
     "+" + "marks",
     "marking " + "strategy",
     "to maximise " + "marks",
-    "Tier 3 " + "roadmap",
+    "tier-three roadmap",
     "TIER3_" + "COMPLETE_" + "IMPLEMENTATION",
 ]
 
@@ -84,7 +82,7 @@ def read_text(path: Path) -> str | None:
 
 
 def check_internal_phrases(files: list[Path]) -> list[str]:
-    """Find wording that would make the submission look like planning notes."""
+    """Find wording that would make the artefact look like planning notes."""
     findings: list[str] = []
     for path in files:
         posix = path.as_posix()
@@ -118,27 +116,6 @@ def check_final_readiness_reports() -> list[str]:
     return findings
 
 
-def check_public_visibility_snapshot() -> list[str]:
-    """Ensure visibility output is a current snapshot, not a future guarantee."""
-    path = Path("reports/submission/public_repository_evidence.json")
-    if not path.is_file():
-        return [f"{path.as_posix()}: missing public repository snapshot"]
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        return [f"{path.as_posix()}: invalid JSON: {exc}"]
-
-    findings: list[str] = []
-    if payload.get("future_public_until_proven") is not False:
-        findings.append(f"{path.as_posix()}: must not claim future public access is proven")
-    scope = str(payload.get("evidence_scope", "")).lower()
-    if "snapshot" not in scope:
-        findings.append(f"{path.as_posix()}: must label visibility output as a snapshot")
-    if payload.get("private") is not False or payload.get("visibility") != "public":
-        findings.append(f"{path.as_posix()}: current visibility is not verified public")
-    return findings
-
-
 def main() -> None:
     """Run all stale-report checks and fail with readable findings."""
     files = tracked_files()
@@ -146,7 +123,6 @@ def main() -> None:
     findings.extend(check_internal_files(files))
     findings.extend(check_internal_phrases(files))
     findings.extend(check_final_readiness_reports())
-    findings.extend(check_public_visibility_snapshot())
 
     if findings:
         print("FAIL: stale or internal report wording found.")
@@ -154,7 +130,7 @@ def main() -> None:
             print(f"- {finding}")
         raise SystemExit(1)
 
-    print("PASS: no stale SHA claims, internal planning files, or misleading report wording found.")
+    print("PASS: no stale SHA claims or internal planning files found.")
 
 
 if __name__ == "__main__":

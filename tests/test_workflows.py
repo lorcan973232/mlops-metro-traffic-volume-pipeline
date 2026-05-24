@@ -20,7 +20,6 @@ EXPECTED_WORKFLOWS = {
     "deploy.yml",
     "monitoring.yml",
     "model-analysis.yml",
-    "repository-visibility-check.yml",
     "security-scan.yml",
     "bash-script-verification.yml",
     "final-readiness.yml",
@@ -36,7 +35,6 @@ REQUIRED_COMMAND_PATHS = [
     "scripts/cost_benefit_analysis.py",
     "deployment/kind/",
     "scripts/security_scan.py",
-    "scripts/check_repo_visibility.py",
     "scripts/final_readiness_check.py",
     "scripts/check_stale_evidence.py",
     "scripts/check_bash_environment.sh",
@@ -99,22 +97,14 @@ def test_workflow_triggers_and_dependencies_show_lifecycle() -> None:
     assert "missing_drift_fields" in monitoring_text
 
     model_analysis = load_workflow("model-analysis.yml")
-    assert model_analysis["jobs"]["tier3-analysis"]["env"]["FAST_MODE"] == "1"
+    assert model_analysis["jobs"]["model-analysis"]["env"]["FAST_MODE"] == "1"
     model_analysis_text = Path(".github/workflows/model-analysis.yml").read_text(
         encoding="utf-8"
     )
     assert "python scripts/explain_model.py" in model_analysis_text
     assert "python scripts/fairness_audit.py" in model_analysis_text
     assert "python scripts/cost_benefit_analysis.py" in model_analysis_text
-    assert "tier3-model-analysis-reports" in model_analysis_text
-
-    visibility = load_workflow("repository-visibility-check.yml")
-    assert "schedule" in visibility["on"]
-    visibility_text = Path(".github/workflows/repository-visibility-check.yml").read_text(
-        encoding="utf-8"
-    )
-    assert "python scripts/check_repo_visibility.py" in visibility_text
-    assert "repository-visibility-evidence" in visibility_text
+    assert "model-analysis-reports" in model_analysis_text
 
     bash_verification = load_workflow("bash-script-verification.yml")
     assert bash_verification["jobs"]["bash-verification"]

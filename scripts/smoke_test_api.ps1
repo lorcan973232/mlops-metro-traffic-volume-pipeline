@@ -1,5 +1,7 @@
 param(
-    [string]$ApiUrl = "http://127.0.0.1:8080"
+    [string]$ApiUrl = "http://127.0.0.1:8080",
+    [int]$TimeoutSec = 30,
+    [int]$Retries = 3
 )
 
 # This PowerShell smoke test is the Windows equivalent of `smoke_test_api.sh`.
@@ -9,7 +11,43 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
-$health = Invoke-RestMethod -Uri "$ApiUrl/health" -Method Get -TimeoutSec 10
+function Invoke-JsonWithRetry {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Uri,
+
+        [Parameter(Mandatory=$true)]
+        [string]$Method,
+
+        [AllowNull()]
+        [object]$Body = $null,
+
+        [string]$ContentType = "application/json"
+    )
+
+    $lastError = $null
+    for ($attempt = 1; $attempt -le $Retries; $attempt++) {
+        try {
+            if ([string]::IsNullOrEmpty([string]$Body)) {
+                return Invoke-RestMethod -Uri $Uri -Method $Method -TimeoutSec $TimeoutSec
+            }
+            return Invoke-RestMethod `
+                -Uri $Uri `
+                -Method $Method `
+                -ContentType $ContentType `
+                -Body $Body `
+                -TimeoutSec $TimeoutSec
+        } catch {
+            $lastError = $_
+            if ($attempt -lt $Retries) {
+                Start-Sleep -Seconds 2
+            }
+        }
+    }
+    throw $lastError
+}
+
+$health = Invoke-JsonWithRetry -Uri "$ApiUrl/health" -Method Get
 # `/health` must prove that the model is loaded, not just that Flask is running.
 # Without this, Docker or Kind could appear healthy while prediction would fail.
 if ($health.status -ne "healthy" -or $health.model_loaded -ne $true) {
@@ -48,12 +86,7 @@ $payload = @{
     }
 } | ConvertTo-Json -Depth 10
 
-$prediction = Invoke-RestMethod `
-    -Uri "$ApiUrl/predict" `
-    -Method Post `
-    -ContentType "application/json" `
-    -Body $payload `
-    -TimeoutSec 10
+$prediction = Invoke-JsonWithRetry -Uri "$ApiUrl/predict" -Method Post -Body $payload
 
 # The response checks guard against partial API success. A 200 response is not
 # enough if it does not include the label, confidence, target, and model version

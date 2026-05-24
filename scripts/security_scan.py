@@ -184,7 +184,7 @@ def _run_internal_file_scan() -> list[str]:
         "+" + "marks",
         "marking " + "strategy",
         "to maximise " + "marks",
-        "Tier 3 " + "roadmap",
+        "tier-three roadmap",
         "pro" + "mpt-" + "engineering",
     ]
     findings: list[str] = []

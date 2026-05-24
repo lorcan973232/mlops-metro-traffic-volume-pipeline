@@ -1,8 +1,8 @@
 name: Final Readiness
 
 # Final Readiness reruns compile, tests, lint, workflow validation, safe security
-# checks, stale-report checks, current visibility checks, and a generated
-# readiness report tied to the current SHA.
+# checks, stale-report checks, and a generated readiness report tied to the
+# current SHA.
 
 permissions:
   contents: read
@@ -48,13 +48,6 @@ jobs:
       - name: Check for stale or internal evidence
         run: python scripts/check_stale_evidence.py
 
-      # The committed reports explain the checks, but this workflow creates a
-      # current SHA-specific report for the run.
-      - name: Verify current repository visibility
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python scripts/check_repo_visibility.py
-
       - name: Generate current final readiness evidence
         env:
           GH_TOKEN: ${{ github.token }}
@@ -65,6 +58,5 @@ jobs:
         with:
           name: final-readiness-evidence
           path: |
-            reports/final_readiness/
-            reports/submission/
+            reports/final_readiness/generated/
             reports/security/

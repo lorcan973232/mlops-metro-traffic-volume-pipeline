@@ -329,18 +329,6 @@ output, and SBOM.
 | Kind cannot deploy | Run `python scripts/check_deployment_readiness.py` to check Docker, Kind, and kubectl |
 | API smoke test fails | Check `/health` first, then confirm the smoke test URL matches the port you exposed |
 
-## Branching Strategy
-
-The repository uses a simple branch flow:
-
-- Use feature branches for changes.
-- Use `develop` as an integration branch when needed.
-- Keep `main` as the stable branch.
-- Pull requests trigger checks.
-- Deployment workflows run from `main`.
-
-Branching notes are saved in `reports/submission/branching_evidence.md`.
-
 ## Traceability
 
 | Project need | Where it is shown | How to check it |
@@ -353,7 +341,6 @@ Branching notes are saved in `reports/submission/branching_evidence.md`.
 | Continuous Training | `.github/workflows/continuous-training.yml` | Run the workflow manually or inspect its latest run |
 | Monitoring | `scripts/monitor.py`, `scripts/check_drift.py`, `reports/monitoring/` | Run the monitoring commands |
 | Tests | `tests/` | Run `pytest -q` |
-| Branching strategy | `reports/submission/branching_evidence.md` | Review the saved branching notes |
 
 ## Demo Steps
 

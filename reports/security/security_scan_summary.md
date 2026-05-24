@@ -1,6 +1,6 @@
 # Security Scan Summary
 
-Generated at: `2026-05-23T11:54:50+00:00`
+Generated at: `2026-05-24T17:28:07+00:00`
 Overall status: `PASS`
 
 | Check | Status | Finding count |
@@ -13,6 +13,6 @@ Overall status: `PASS`
 | `docker_non_root` | `PASS` | `0` |
 | `dependency_inventory_or_audit` | `PASS` | `0` |
 
-The committed security evidence is a safe summary. Current dependency
+The committed security summary is deliberately safe. Current dependency
 and image vulnerability detail is produced by the `Security Scan`
 GitHub Actions workflow artefact.

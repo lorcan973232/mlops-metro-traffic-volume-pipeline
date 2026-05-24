@@ -6,17 +6,26 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+.ipynb_checkpoints/
 .coverage
 htmlcov/
 .hypothesis/
 .venv/
 venv/
+env/
+node_modules/
 *.pyc
 *.log
 *.pid
 *.tmp
+*.bak
+*_backup.*
+*_old.*
+*_draft.*
 
 reports/final_readiness/generated/
+reports/submission/
+reports/screenshots/
 
 data/raw/*.csv
 data/raw/*.xlsx
@@ -27,3 +36,16 @@ models/*.joblib
 
 .env
 .DS_Store
+Thumbs.db
+video/
+videos/
+slides/
+presentation/
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.pptx
+*.docx
+*.pdf
+prompt*.txt

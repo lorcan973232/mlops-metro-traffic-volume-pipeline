@@ -88,7 +88,7 @@ jobs:
           python scripts/monitor.py
           python scripts/check_drift.py
 
-      - name: Run Tier 3 analysis smoke path
+      - name: Run model analysis smoke path
         env:
           FAST_MODE: "1"
         run: |

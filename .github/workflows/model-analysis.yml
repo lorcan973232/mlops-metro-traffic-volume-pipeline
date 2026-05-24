@@ -1,4 +1,4 @@
-name: Tier 3 Model Analysis
+name: Model Analysis
 
 # This workflow gathers the optional deeper model reports in one place:
 # hyperparameter search, ensemble comparison, explainability, proxy subgroup
@@ -27,8 +27,8 @@ permissions:
       - ".github/workflows/model-analysis.yml"
 
 jobs:
-  tier3-analysis:
-    name: Reproducible Tier 3 analysis evidence
+  model-analysis:
+    name: Reproducible model analysis evidence
     runs-on: ubuntu-latest
     env:
       FAST_MODE: "1"
@@ -57,7 +57,7 @@ jobs:
           python -m src.evaluate
           python -m src.model_registry
 
-      - name: Generate Tier 3 evidence reports
+      - name: Generate model analysis reports
         run: |
           python scripts/explain_model.py
           python scripts/fairness_audit.py
@@ -65,7 +65,7 @@ jobs:
           python scripts/monitor.py
           python scripts/check_drift.py
 
-      - name: Validate required Tier 3 report package
+      - name: Validate required model analysis report package
         run: |
           python - <<'PY'
           import json
@@ -89,7 +89,7 @@ jobs:
           ]
           missing = [path for path in required if not Path(path).is_file()]
           if missing:
-              raise SystemExit(f"Missing Tier 3 evidence reports: {missing}")
+              raise SystemExit(f"Missing model analysis reports: {missing}")
           summary = json.loads(Path("reports/explainability/shap_summary.json").read_text())
           fairness = json.loads(Path("reports/fairness/fairness_report.json").read_text())
           cost = json.loads(Path("reports/business/cost_benefit_report.json").read_text())
@@ -102,13 +102,13 @@ jobs:
               raise SystemExit("Cost-benefit assumptions must be labelled simulated.")
           if drift["monitoring_mode"] != "offline_simulated":
               raise SystemExit("Drift report must identify offline_simulated mode.")
-          print("Tier 3 report package validated.")
+          print("Model analysis report package validated.")
           PY
 
-      - name: Upload Tier 3 analysis reports
+      - name: Upload model analysis reports
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: tier3-model-analysis-reports
+          name: model-analysis-reports
           path: |
             reports/explainability/
             reports/fairness/

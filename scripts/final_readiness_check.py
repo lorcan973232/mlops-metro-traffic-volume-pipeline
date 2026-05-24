@@ -1,10 +1,9 @@
-"""Build the current final-readiness report pack for submission review.
+"""Build the current final-readiness report pack for artefact review.
 
-This script is run manually or by the Final Readiness workflow near submission.
-It gathers repository visibility, current SHA, recent GitHub Actions runs, core
-report presence, Docker/Kind pointers, API/UI checks, security reports, and
-Windows/Bash route status. Generated files are not committed because they become
-stale after the next push.
+This script is run manually or by the Final Readiness workflow. It gathers the
+current SHA, recent GitHub Actions runs, core report presence, Docker/Kind
+pointers, API/UI checks, security reports, and Windows/Bash route status.
+Generated files are not committed because they become stale after the next push.
 """
 
 from __future__ import annotations
@@ -16,15 +15,14 @@ from pathlib import Path
 from typing import Any
 
 from check_deployment_readiness import build_report as build_deployment_readiness_report
-from check_repo_visibility import build_evidence
 
 REPORT_DIR = Path("reports/final_readiness")
 GENERATED_DIR = REPORT_DIR / "generated"
 REPORT_PATH = GENERATED_DIR / "final_readiness_report.json"
 ACTIONS_PATH = GENERATED_DIR / "latest_github_actions_runs.json"
 COMMANDS_PATH = GENERATED_DIR / "local_command_results.json"
-SUMMARY_PATH = REPORT_DIR / "final_readiness_summary.md"
-DEMO_PATH = REPORT_DIR / "live_demo_checklist.md"
+SUMMARY_PATH = GENERATED_DIR / "final_readiness_summary.md"
+DEMO_PATH = GENERATED_DIR / "live_demo_checklist.md"
 
 EXPECTED_WORKFLOWS = {
     "CI",
@@ -34,9 +32,8 @@ EXPECTED_WORKFLOWS = {
     "Continuous Training",
     "Deploy Kind",
     "Monitoring",
-    "Tier 3 Model Analysis",
+    "Model Analysis",
     "Security Scan",
-    "Repository Visibility Check",
     "Bash Script Verification",
     "Final Readiness",
 }
@@ -47,9 +44,9 @@ EXPECTED_WORKFLOWS = {
 # ==============================================================================
 #
 # The committed README explains the project, but this script creates current
-# reports for the exact checkout being assessed. It records the SHA, repository
-# visibility, expected workflow runs, and report-file presence under
-# `reports/final_readiness/generated/` so review does not rely on stale text.
+# reports for the exact checkout being assessed. It records the SHA, expected
+# workflow runs, and report-file presence under `reports/final_readiness/generated/`
+# so review does not rely on stale text.
 
 
 def run_command(args: list[str], timeout: int = 60) -> tuple[int, str, str]:
@@ -85,10 +82,19 @@ def latest_sha() -> str:
     return stdout if code == 0 and stdout else "unknown"
 
 
-def repository_slug() -> str:
-    """Reuse the visibility evidence builder to identify the GitHub repository."""
-    visibility = build_evidence()
-    return visibility.get("full_name", "")
+def repository_metadata() -> dict[str, str]:
+    """Detect the GitHub repository from the local origin remote when available."""
+    code, stdout, _ = run_command(["git", "remote", "get-url", "origin"])
+    remote_url = stdout if code == 0 else ""
+    full_name = ""
+    if remote_url.startswith("git@github.com:"):
+        full_name = remote_url.removeprefix("git@github.com:").removesuffix(".git")
+    elif "github.com/" in remote_url:
+        full_name = remote_url.split("github.com/", 1)[1].removesuffix(".git").strip("/")
+    return {
+        "remote_url": remote_url,
+        "full_name": full_name,
+    }
 
 
 def github_runs(repo: str) -> list[dict[str, Any]]:
@@ -195,11 +201,10 @@ def command_results() -> dict[str, Any]:
 
 
 def build_report() -> dict[str, Any]:
-    """Build the SHA-specific readiness report used before submission and demo."""
-    visibility = build_evidence()
+    """Build the SHA-specific readiness report used before review and demo."""
     sha = latest_sha()
-    repo = visibility.get("full_name", repository_slug())
-    runs = github_runs(repo)
+    repository = repository_metadata()
+    runs = github_runs(repository["full_name"])
     actions = workflow_summary(runs, sha)
     metrics = read_json("reports/metrics/latest_metrics.json")
     gate = read_json("reports/metrics/quality_gate_report.json")
@@ -211,7 +216,7 @@ def build_report() -> dict[str, Any]:
 
     report = {
         "generated_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
-        "repository": visibility,
+        "repository": repository,
         "latest_commit_sha": sha,
         "github_actions": actions,
         "ml_pipeline": {
@@ -269,11 +274,9 @@ def build_report() -> dict[str, Any]:
         },
         "bash_and_windows_support": command_results()["bash_environment"],
         "deployment_readiness": deployment_readiness,
-        "public_until_21_june_2026_note": visibility["future_compliance_note"],
-        "remaining_student_responsibilities": [
-            "Keep the repository public until 21 June 2026.",
-            "Rerun the visibility workflow close to submission and before the live demo.",
+        "remaining_local_responsibilities": [
             "Use PowerShell on Windows if local bash resolves to a broken WSL installation.",
+            "Rerun Docker and Kind checks on any machine used for the live demo.",
         ],
     }
     return report
@@ -294,29 +297,21 @@ def write_summary(report: dict[str, Any]) -> None:
         "",
         "The readiness check records:",
         "",
-        "- repository URL and current public visibility snapshot;",
+        "- repository remote URL;",
         "- current commit SHA at the time of the check;",
         "- latest GitHub Actions run snapshot for the expected workflows;",
         "- ML metrics, CT quality gate, monitoring, drift, Docker, Kind, API, UI,",
         "  security, Bash, and PowerShell report pointers;",
-        "- remaining student responsibilities for public visibility and live demo use.",
+        "- remaining local responsibilities for Docker, Kind, and live demo use.",
         "",
-        "Before final submission and before the live demo, rerun these workflows:",
+        "Before final artefact review and before the live demo, rerun these workflows:",
         "",
         "- `Final Readiness`;",
-        "- `Repository Visibility Check`;",
         "- `Security Scan`;",
         "- `Docker Build`;",
         "- `Deploy Kind`;",
         "- `Continuous Training`;",
         "- `Monitoring`.",
-        "",
-        (
-            "The future public-until date is not claimed as permanently proven. "
-            "It is checked by the visibility script, scheduled workflow, "
-            "visibility report, and explicit student responsibility to keep the "
-            "repository public until 21 June 2026."
-        ),
     ]
     SUMMARY_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -331,34 +326,28 @@ def write_demo_checklist() -> None:
                 "1. Show the public GitHub repository and latest commit SHA.",
                 (
                     "2. Show the latest successful Actions runs for CI, data, "
-                    "train/evaluate, Docker, Deploy Kind, CT, Monitoring, Tier 3 "
-                    "analysis, Security, Repository Visibility, and Bash Script "
-                    "Verification."
+                    "train/evaluate, Docker, Deploy Kind, CT, Monitoring, model "
+                    "analysis, Security, and Bash Script Verification."
                 ),
                 (
-                    "3. Open `reports/submission/public_repository_evidence.json` "
-                    "and state that the repository must remain public until "
-                    "21 June 2026."
-                ),
-                (
-                    "4. Run `powershell -ExecutionPolicy Bypass -File "
+                    "3. Run `powershell -ExecutionPolicy Bypass -File "
                     "scripts/check_setup.ps1` on Windows."
                 ),
                 (
-                    "5. If Windows bash is broken, run `powershell -ExecutionPolicy "
+                    "4. If Windows bash is broken, run `powershell -ExecutionPolicy "
                     "Bypass -File scripts/check_bash_environment.ps1` and show the "
                     "documented fallback."
                 ),
                 (
-                    "6. Run the Python pipeline, tests, lint, Docker build, Kind "
+                    "5. Run the Python pipeline, tests, lint, Docker build, Kind "
                     "deployment, smoke tests, monitoring, and security checks from "
                     "the README."
                 ),
                 (
-                    "7. Open the Flask UI locally, use the example payload, and show "
+                    "6. Open the Flask UI locally, use the example payload, and show "
                     "the `/health` and `/predict` smoke-test responses."
                 ),
-                "8. Show the CT quality gate and monitoring/drift reports.",
+                "7. Show the CT quality gate and monitoring/drift reports.",
             ]
         )
         + "\n",

@@ -175,7 +175,7 @@
     ]
   },
   "production_claim": "simulated_only",
-  "production_limitation": "No live production telemetry is available in this student artefact; monitoring uses the selected public dataset schema and deterministic batch checks.",
+  "production_limitation": "No live production telemetry is available in this project; monitoring uses the selected public dataset schema and deterministic batch checks.",
   "reason": "No retraining required from offline schema and data-quality checks.",
   "response_status": "simulated_batch_available",
   "retraining_recommended": false,
@@ -190,5 +190,5 @@
     "source_traffic_volume_mean": 3289.169549830475,
     "target": "high_traffic"
   },
-  "timestamp_utc": "2026-05-23T11:54:18+00:00"
+  "timestamp_utc": "2026-05-24T17:48:29+00:00"
 }

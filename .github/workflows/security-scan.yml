@@ -1,6 +1,6 @@
 name: Security Scan
 
-# Security Scan creates reports for common submission risks: committed secrets,
+# Security Scan creates reports for common artefact risks: committed secrets,
 # dependency vulnerabilities, Docker non-root runtime, image scan output, and an
 # SBOM. The reports describe the current run; they are not a permanent promise
 # that future dependencies or base images will stay CVE-free.
