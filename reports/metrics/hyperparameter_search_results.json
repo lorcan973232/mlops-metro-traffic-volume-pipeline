@@ -7,7 +7,7 @@
   },
   "dataset": "UCI Metro Interstate Traffic Volume",
   "fast_mode": false,
-  "generated_at": "2026-05-24T18:39:02+00:00",
+  "generated_at": "2026-05-24T19:45:17+00:00",
   "grid_search": {
     "best_cv_f1_macro": 0.9782397610339688,
     "best_params": {

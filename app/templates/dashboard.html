@@ -101,12 +101,12 @@
                     <h4>Class 0 (Normal Traffic)</h4>
                     <div class="metric-row">
                         <span>F1:</span>
-                        <span class="value">{{ "%.4f" | format(fairness_metrics.per_class_metrics.class_0.f1) }}</span>
+                        <span class="value">{{ "%.4f" | format(fairness_metrics.normal_traffic.f1_score) }}</span>
                     </div>
                     <h4>Class 1 (High Traffic)</h4>
                     <div class="metric-row">
                         <span>F1:</span>
-                        <span class="value">{{ "%.4f" | format(fairness_metrics.per_class_metrics.class_1.f1) }}</span>
+                        <span class="value">{{ "%.4f" | format(fairness_metrics.high_traffic.f1_score) }}</span>
                     </div>
                     {% else %}
                     <!-- The traffic dataset has no protected attributes, so this

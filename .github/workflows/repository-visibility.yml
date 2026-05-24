@@ -1,0 +1,47 @@
+name: Repository Visibility Check
+
+# This workflow records current public-repository evidence for the marker. It
+# cannot guarantee future owner actions, but it fails if the repository is not
+# public at the time of the scheduled or manual check.
+
+permissions:
+  contents: read
+
+"on":
+  schedule:
+    - cron: "30 8 * * *"
+  workflow_dispatch:
+
+jobs:
+  public-repository-check:
+    name: Verify repository is public
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+
+      - name: Query GitHub repository visibility
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          url = f"https://api.github.com/repos/{repo}"
+          request = urllib.request.Request(url, headers={"User-Agent": "mlops-visibility-check"})
+          with urllib.request.urlopen(request, timeout=30) as response:
+              payload = json.load(response)
+
+          evidence = {
+              "repository": payload.get("full_name", repo),
+              "html_url": payload.get("html_url"),
+              "visibility": payload.get("visibility"),
+              "private": payload.get("private"),
+              "default_branch": payload.get("default_branch"),
+              "checked_for_marker_date": "21 June 2026",
+          }
+          print(json.dumps(evidence, indent=2, sort_keys=True))
+          if payload.get("private") is not False or payload.get("visibility") != "public":
+              raise SystemExit("Repository is not public.")
+          PY

@@ -125,6 +125,7 @@ def test_readme_exposes_marker_facing_artefact_evidence() -> None:
     readme = Path("README.md").read_text(encoding="utf-8")
 
     required_sections = [
+        "## Repository Visibility and Branching Strategy",
         "## CI/CD with GitHub Actions",
         "## Extra Evidence",
         "## Demo Steps",
@@ -141,8 +142,18 @@ def test_readme_exposes_marker_facing_artefact_evidence() -> None:
         "Deploy Kind",
         "Continuous Training",
         "Monitoring",
+        "Repository Visibility Check",
     ]:
         assert workflow_name in readme
+
+    for marker_evidence in [
+        "21 June 2026",
+        "`main`",
+        "`develop`",
+        "pull-request",
+        "Scheduled/manual runs",
+    ]:
+        assert marker_evidence in readme
 
 
 def test_live_demo_scripts_cover_python_windows_docker_and_kind_paths() -> None:

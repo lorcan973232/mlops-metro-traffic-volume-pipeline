@@ -1,96 +1,94 @@
 {
   "computed_from_data": true,
-  "current_data_source": "data\\processed\\metro-traffic-processed.csv",
   "feature_distribution_checks": {
     "clouds_all": {
-      "current_mean": 44.21003786472641,
-      "current_std": 38.687014060129165,
-      "reference_mean": 44.21003786472641,
-      "reference_std": 38.687014060129165
+      "max": 100.0,
+      "mean": 44.21003786472641,
+      "min": 0.0,
+      "std": 38.687014060129165
     },
     "day_of_week": {
-      "current_mean": 3.0073997079713912,
-      "current_std": 1.99889086881272,
-      "reference_mean": 3.0073997079713912,
-      "reference_std": 1.99889086881272
+      "max": 6.0,
+      "mean": 3.0073997079713912,
+      "min": 0.0,
+      "std": 1.99889086881272
     },
     "hour": {
-      "current_mean": 11.512955675996734,
-      "current_std": 6.950758718866325,
-      "reference_mean": 11.512955675996734,
-      "reference_std": 6.950758718866325
+      "max": 23.0,
+      "mean": 11.512955675996734,
+      "min": 0.0,
+      "std": 6.950758718866325
     },
     "is_holiday": {
-      "current_mean": 0.0012869057341549732,
-      "current_std": 0.03585082169450873,
-      "reference_mean": 0.0012869057341549732,
-      "reference_std": 0.03585082169450873
+      "max": 1.0,
+      "mean": 0.0012869057341549732,
+      "min": 0.0,
+      "std": 0.03585082169450873
     },
     "is_weekend": {
-      "current_mean": 0.28586631029277104,
-      "current_std": 0.45183162275311145,
-      "reference_mean": 0.28586631029277104,
-      "reference_std": 0.45183162275311145
+      "max": 1.0,
+      "mean": 0.28586631029277104,
+      "min": 0.0,
+      "std": 0.45183162275311145
     },
     "lag_168h_volume": {
-      "current_mean": 3290.2460217289085,
-      "current_std": 1984.752429944231,
-      "reference_mean": 3290.2460217289085,
-      "reference_std": 1984.752429944231
+      "max": 7280.0,
+      "mean": 3290.2460217289085,
+      "min": 0.0,
+      "std": 1984.752429944231
     },
     "lag_1h_volume": {
-      "current_mean": 3289.2563169747814,
-      "current_std": 1984.3345974513736,
-      "reference_mean": 3289.2563169747814,
-      "reference_std": 1984.3345974513736
+      "max": 7280.0,
+      "mean": 3289.2563169747814,
+      "min": 0.0,
+      "std": 1984.3345974513736
     },
     "lag_24h_volume": {
-      "current_mean": 3289.8965278293367,
-      "current_std": 1984.6120362491902,
-      "reference_mean": 3289.8965278293367,
-      "reference_std": 1984.6120362491902
+      "max": 7280.0,
+      "mean": 3289.8965278293367,
+      "min": 0.0,
+      "std": 1984.6120362491902
     },
     "month": {
-      "current_mean": 6.474447496720865,
-      "current_std": 3.373004008622132,
-      "reference_mean": 6.474447496720865,
-      "reference_std": 3.373004008622132
+      "max": 12.0,
+      "mean": 6.474447496720865,
+      "min": 1.0,
+      "std": 3.373004008622132
     },
     "rain_1h": {
-      "current_mean": 0.3199695597297498,
-      "current_std": 48.914007834037896,
-      "reference_mean": 0.3199695597297498,
-      "reference_std": 48.914007834037896
+      "max": 9831.3,
+      "mean": 0.3199695597297498,
+      "min": 0.0,
+      "std": 48.914007834037896
     },
     "rolling_24h_volume": {
-      "current_mean": 3289.6661325182927,
-      "current_std": 526.587832850213,
-      "reference_mean": 3289.6661325182927,
-      "reference_std": 526.587832850213
+      "max": 5049.666666666667,
+      "mean": 3289.6661325182927,
+      "min": 206.625,
+      "std": 526.587832850213
     },
     "rolling_3h_volume": {
-      "current_mean": 3289.3680467905724,
-      "current_std": 1866.8901305928644,
-      "reference_mean": 3289.3680467905724,
-      "reference_std": 1866.8901305928644
+      "max": 6857.333333333333,
+      "mean": 3289.3680467905724,
+      "min": 1.0,
+      "std": 1866.8901305928644
     },
     "snow_1h": {
-      "current_mean": 0.00011780137104957062,
-      "current_std": 0.0056879348378163375,
-      "reference_mean": 0.00011780137104957062,
-      "reference_std": 0.0056879348378163375
+      "max": 0.51,
+      "mean": 0.00011780137104957062,
+      "min": 0.0,
+      "std": 0.0056879348378163375
     },
     "temp": {
-      "current_mean": 281.3110956764917,
-      "current_std": 13.83980794836473,
-      "reference_mean": 281.3110956764917,
-      "reference_std": 13.83980794836473
+      "max": 310.07,
+      "mean": 281.3110956764917,
+      "min": 0.0,
+      "std": 13.83980794836473
     },
     "weather_main": {
-      "current_mean": null,
-      "current_std": null,
-      "reference_mean": null,
-      "reference_std": null
+      "missing": 0.0,
+      "top_frequency": 15014.0,
+      "unique_values": 11.0
     }
   },
   "missing_value_checks": {
@@ -154,8 +152,9 @@
     "missing_values": 0,
     "non_numeric_columns": [],
     "row_count": 40407,
-    "status": "passed"
+    "status": "passed",
+    "unexpected_columns": []
   },
   "status": "passed",
-  "timestamp_utc": "2026-05-24T18:43:01+00:00"
+  "timestamp_utc": "2026-05-24T19:59:39+00:00"
 }

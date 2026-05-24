@@ -72,6 +72,19 @@ def test_root_page_form_fields_match_prediction_schema() -> None:
     assert "Predict Traffic" in html
 
 
+def test_dashboard_page_renders_current_report_schema() -> None:
+    """Check the optional dashboard renders the saved report files."""
+    response = create_test_app().test_client().get("/dashboard/")
+    html = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert "MLOps Model Performance Dashboard" in html
+    assert "Class-Balance Metrics" in html
+    assert "Data Drift Status" in html
+    assert "Normal Traffic" in html
+    assert "High Traffic" in html
+
+
 def test_ui_javascript_handles_unreachable_prediction_api() -> None:
     """Check the browser explains API connection failures clearly."""
     # If Flask, Docker, or Kind is not reachable, the browser should explain the

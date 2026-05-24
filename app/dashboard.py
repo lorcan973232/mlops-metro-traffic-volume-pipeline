@@ -75,7 +75,14 @@ def get_drift_metrics() -> dict:
     if not drift_path.exists():
         return {}
 
-    return json.loads(drift_path.read_text(encoding="utf-8"))
+    report = json.loads(drift_path.read_text(encoding="utf-8"))
+    current_batch = report.get("current_batch", {})
+    return {
+        **report,
+        "drift_detected": current_batch.get("drift_detected", report.get("drift_detected")),
+        "feature_psi": current_batch.get("feature_psi", report.get("feature_psi", {})),
+        "max_psi": current_batch.get("max_psi", report.get("max_psi", report.get("drift_score"))),
+    }
 
 
 def get_fairness_metrics() -> dict:
@@ -84,7 +91,13 @@ def get_fairness_metrics() -> dict:
     if not fairness_path.exists():
         return {}
 
-    return json.loads(fairness_path.read_text(encoding="utf-8"))
+    report = json.loads(fairness_path.read_text(encoding="utf-8"))
+    per_class = report.get("per_class_metrics", {})
+    normal = per_class.get("normal traffic", per_class.get("class_0", {}))
+    high = per_class.get("high traffic", per_class.get("class_1", {}))
+    report["normal_traffic"] = normal
+    report["high_traffic"] = high
+    return report
 
 
 @dashboard_bp.route("/")

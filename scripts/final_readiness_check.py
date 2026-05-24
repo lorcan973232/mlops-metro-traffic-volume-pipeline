@@ -36,6 +36,7 @@ EXPECTED_WORKFLOWS = {
     "Security Scan",
     "Bash Script Verification",
     "Final Readiness",
+    "Repository Visibility Check",
 }
 
 

@@ -11,6 +11,26 @@ The model gives useful results for this project, but it is not a perfect traffic
 forecasting system. The main point is to show the full MLOps workflow around the
 model.
 
+## Repository Visibility and Branching Strategy
+
+The artefact repository is intended to remain public until at least 21 June 2026
+for marking and moderation. The workflow
+`.github/workflows/repository-visibility.yml` can be run manually, and also runs
+on a schedule, to record that the GitHub API currently reports the repository as
+public.
+
+Branching is deliberately simple for the assignment artefact:
+
+| Branch or event | Purpose | Workflow link |
+|---|---|---|
+| `main` | Final stable artefact branch used for marking, Docker, Kind deployment, final readiness, and security evidence | CI, Docker Build, Deploy Kind, Final Readiness, Security Scan |
+| `develop` | Integration branch for development checks before merging into `main` | CI, data preprocessing, training/evaluation, Docker, model analysis, security |
+| Feature/fix branches | Short-lived local or pull-request branches for changes before `develop` or `main` | Pull-request CI checks |
+| Scheduled/manual runs | Continuous Training, Monitoring, and repository visibility checks that do not require code changes | CT, CM, Repository Visibility Check |
+
+The workflow triggers are intentionally tied to these branches so the marker can
+trace code changes from branch policy to CI/CD/CT/CM evidence.
+
 ## What This Project Shows
 
 - Data ingestion and preprocessing.
@@ -247,6 +267,7 @@ runners.
 | `.github/workflows/security-scan.yml` | Security Scan | Secret scan summary, dependency scan, Docker checks, image scan output, and SBOM |
 | `.github/workflows/bash-script-verification.yml` | Bash Script Verification | Bash setup and API smoke scripts on Ubuntu |
 | `.github/workflows/final-readiness.yml` | Final Readiness | Compile, tests, lint, workflow checks, security summary, and current report generation |
+| `.github/workflows/repository-visibility.yml` | Repository Visibility Check | Confirms through the GitHub API that the repository is currently public |
 
 ## Continuous Training
 
@@ -338,6 +359,8 @@ output, and SBOM.
 | Docker container | `Dockerfile`, `.github/workflows/docker-build.yml` | Build and run the image |
 | Kind deployment | `deployment/kind/`, `.github/workflows/deploy.yml` | Run the Kind scripts or inspect the deploy workflow |
 | GitHub Actions | `.github/workflows/` | Check the Actions tab for the commit |
+| Public repository evidence | `.github/workflows/repository-visibility.yml` | Run the workflow manually or inspect its latest scheduled run |
+| Branching strategy | This README and workflow branch triggers | Check `main`, `develop`, pull-request, scheduled, and manual triggers |
 | Continuous Training | `.github/workflows/continuous-training.yml` | Run the workflow manually or inspect its latest run |
 | Monitoring | `scripts/monitor.py`, `scripts/check_drift.py`, `reports/monitoring/` | Run the monitoring commands |
 | Tests | `tests/` | Run `pytest -q` |
@@ -347,16 +370,17 @@ output, and SBOM.
 These steps give a quick way to show the project working.
 
 1. Show the repository and current commit SHA.
-2. Show `.github/workflows/` and the latest relevant workflow runs.
-3. Open `reports/metrics/latest_metrics.json`, `reports/metrics/quality_gate_report.json`, and `reports/metrics/model_metadata.json`.
-4. Run `python -m compileall app src tests scripts`.
-5. Run `pytest -q`.
-6. Start Flask with `python -m app.main`.
-7. Open `http://127.0.0.1:5000/`.
-8. Use the example values on the page and make a prediction.
-9. Run the API smoke test against local Flask.
-10. Show Docker or Kind if the local machine has the required tools.
-11. Show `reports/monitoring/drift_report.json`, `reports/fairness/fairness_report.json`, and `reports/security/security_scan_summary.md`.
+2. Show the repository is public and show the Repository Visibility Check run.
+3. Show `.github/workflows/`, the branching strategy above, and the latest relevant workflow runs.
+4. Open `reports/metrics/latest_metrics.json`, `reports/metrics/quality_gate_report.json`, and `reports/metrics/model_metadata.json`.
+5. Run `python -m compileall app src tests scripts`.
+6. Run `pytest -q`.
+7. Start Flask with `python -m app.main`.
+8. Open `http://127.0.0.1:5000/` and `/dashboard/`.
+9. Use the example values on the page and make a prediction.
+10. Run the API smoke test against local Flask.
+11. Show Docker or Kind if the local machine has the required tools.
+12. Show `reports/monitoring/drift_report.json`, `reports/fairness/fairness_report.json`, and `reports/security/security_scan_summary.md`.
 
 ## Limitations
 

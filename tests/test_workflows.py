@@ -23,6 +23,7 @@ EXPECTED_WORKFLOWS = {
     "security-scan.yml",
     "bash-script-verification.yml",
     "final-readiness.yml",
+    "repository-visibility.yml",
 }
 
 REQUIRED_COMMAND_PATHS = [
@@ -132,6 +133,16 @@ def test_workflow_triggers_and_dependencies_show_lifecycle() -> None:
     assert "python scripts/check_stale_evidence.py" in final_readiness_text
     assert "python scripts/final_readiness_check.py" in final_readiness_text
     assert "final-readiness-evidence" in final_readiness_text
+
+    visibility = load_workflow("repository-visibility.yml")
+    visibility_text = Path(".github/workflows/repository-visibility.yml").read_text(
+        encoding="utf-8"
+    )
+    assert "schedule" in visibility["on"]
+    assert "workflow_dispatch" in visibility["on"]
+    assert visibility["jobs"]["public-repository-check"]
+    assert "Repository is not public." in visibility_text
+    assert "21 June 2026" in visibility_text
 
 
 def test_deploy_workflow_and_kind_manifests_are_kind_only() -> None:
