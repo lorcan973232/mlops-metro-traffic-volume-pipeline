@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "mlops-metro-traffic-pipeline-python-dependencies",
-  "documentNamespace": "https://spdx.org/spdxdocs/mlops-metro-traffic-pipeline/sbom/20260524172807",
+  "documentNamespace": "https://spdx.org/spdxdocs/mlops-metro-traffic-pipeline/sbom/20260524184104",
   "creationInfo": {
-    "created": "2026-05-24T17:28:07+00:00",
+    "created": "2026-05-24T18:41:04+00:00",
     "creators": [
       "Tool: scripts/security_scan.py"
     ]

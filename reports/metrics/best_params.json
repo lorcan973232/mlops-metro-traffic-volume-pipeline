@@ -7,7 +7,7 @@
     "classifier__max_iter": 180,
     "classifier__max_leaf_nodes": 15
   },
-  "generated_at": "2026-05-24T17:23:59+00:00",
+  "generated_at": "2026-05-24T18:39:02+00:00",
   "method": "RandomizedSearchCV",
   "primary_scoring": "f1_macro",
   "selected_model": {

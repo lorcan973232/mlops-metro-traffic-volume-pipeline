@@ -1,6 +1,6 @@
 # Docker Security Notes
 
-Generated at: 2026-05-24T17:28:07+00:00
+Generated at: 2026-05-24T18:41:04+00:00
 
 - Non-root runtime user check: PASS
 - Dockerfile installs dependencies before switching to the runtime user.

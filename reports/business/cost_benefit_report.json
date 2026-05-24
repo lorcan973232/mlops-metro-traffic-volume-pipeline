@@ -19,7 +19,7 @@
     "true_negative": 4287,
     "true_positive": 3623
   },
-  "generated_at": "2026-05-24T17:43:25+00:00",
+  "generated_at": "2026-05-24T18:41:16+00:00",
   "incremental_value_vs_majority_baseline": 28574.0,
   "limitations": [
     "The values are simulated and are not real business figures.",
