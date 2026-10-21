@@ -1,11 +1,29 @@
 # MLOps Metro Traffic Volume Predictor
 
+[![CI](https://github.com/lorcan973232/mlops-metro-traffic-volume-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/lorcan973232/mlops-metro-traffic-volume-pipeline/actions/workflows/ci.yml)
+[![Security Scan](https://github.com/lorcan973232/mlops-metro-traffic-volume-pipeline/actions/workflows/security-scan.yml/badge.svg)](https://github.com/lorcan973232/mlops-metro-traffic-volume-pipeline/actions/workflows/security-scan.yml)
+[![Docker Build](https://github.com/lorcan973232/mlops-metro-traffic-volume-pipeline/actions/workflows/docker-build.yml/badge.svg)](https://github.com/lorcan973232/mlops-metro-traffic-volume-pipeline/actions/workflows/docker-build.yml)
+[![Deploy Kind](https://github.com/lorcan973232/mlops-metro-traffic-volume-pipeline/actions/workflows/deploy.yml/badge.svg)](https://github.com/lorcan973232/mlops-metro-traffic-volume-pipeline/actions/workflows/deploy.yml)
+
 ## Project Summary
 
-This is a Metro traffic MLOps project. It predicts whether hourly traffic volume is
-normal or high using time, weather, holiday, and recent traffic-volume inputs. The
-project includes data processing, model training, testing, a Flask API, a browser
-page, Docker, Kind Kubernetes, GitHub Actions, monitoring checks, and saved reports.
+An end-to-end MLOps pipeline that predicts whether hourly traffic on a US
+interstate is normal or high, from time, weather, holiday and recent
+traffic-volume inputs. Around the model sit a Flask API and browser page, a
+non-root Docker image, a local Kubernetes deployment on Kind, 12 GitHub Actions
+workflows covering CI, deployment, continuous training and monitoring, and
+security checks that can fail the build. Built as a solo MSc project at
+Atlantic Technological University (ATU) Donegal, May 2026.
+
+- **Model:** a scikit-learn `HistGradientBoostingClassifier` scores 0.979
+  accuracy and 0.998 ROC AUC on a held-out test split of 8,082 hours, against a
+  0.541 majority-class baseline. A candidate is accepted only if every gated
+  metric reaches 0.975 and its accuracy beats the baseline by at least 0.20.
+- **Security:** pip-audit, a non-root runtime check and a credential-pattern
+  scan fail the build; Trivy image scanning and an SPDX SBOM are published as
+  reports. See [Security Gates in CI](#security-gates-in-ci).
+- **Monitoring:** Population Stability Index drift checks with a 0.2 threshold,
+  plus schema and data-quality validation.
 
 The model gives useful results for this project, but it is not a perfect traffic
 forecasting system. The main point is to show the full MLOps workflow around the
@@ -13,11 +31,9 @@ model.
 
 ## Repository Visibility and Branching Strategy
 
-The artefact repository is intended to remain public until at least 21 June 2026
-for marking and moderation. The workflow
-`.github/workflows/repository-visibility.yml` can be run manually, and also runs
-on a schedule, to record that the GitHub API currently reports the repository as
-public.
+The repository was kept public through at least 21 June 2026 for marking and
+moderation. The workflow `.github/workflows/repository-visibility.yml` can be
+run manually to record that the GitHub API reports the repository as public.
 
 Branching is deliberately simple for the assignment artefact:
 
@@ -269,6 +285,27 @@ runners.
 | `.github/workflows/final-readiness.yml` | Final Readiness | Compile, tests, lint, workflow checks, security summary, and current report generation |
 | `.github/workflows/repository-visibility.yml` | Repository Visibility Check | Confirms through the GitHub API that the repository is currently public |
 
+Continuous Training, Monitoring and Repository Visibility Check also run on
+schedules. GitHub paused those schedules in July 2026 after 60 days without
+commits. Their last scheduled runs, on 24 and 27 July 2026, passed, and all
+three can still be run manually.
+
+## Security Gates in CI
+
+The Security Scan workflow runs on pushes and pull requests to `main` and
+`develop`.
+
+| Check | How | Fails the build? | Output |
+|---|---|---|---|
+| Known-vulnerable dependencies | `pip-audit` against `requirements.txt` | Yes | `reports/security/dependency_scan.txt` |
+| Container runs as root | Runs `id -u` inside the built image; the `Dockerfile` ends with `USER appuser` | Yes | Workflow log |
+| Committed credentials | `scripts/security_scan.py` searches committed text for GitHub tokens, AWS access keys, private keys and hard-coded password, secret, token or API-key values | Yes | `reports/security/secret_scan.txt` |
+| Image vulnerabilities | Trivy image scan | No, report only | Workflow artefact |
+| Software bill of materials | Trivy SPDX JSON | No, report only | `reports/security/sbom.spdx.json` |
+
+The reports describe the commit they ran on. They are not a promise that future
+dependencies or base images will stay free of known vulnerabilities.
+
 ## Continuous Training
 
 Continuous Training reruns the data, model-selection, training, evaluation,
@@ -394,3 +431,8 @@ features, not protected personal attributes.
 The cost-benefit values are made-up examples, not real business values.
 
 Kind is used for a local Kubernetes demo. It is not a public cloud service.
+
+The train, validation and test splits are stratified random samples of hours,
+not time-ordered. Neighbouring hours, whose lag features are nearly identical,
+can fall on both sides of the split, so the test score is likely optimistic. A
+split by date would be a stricter test.
