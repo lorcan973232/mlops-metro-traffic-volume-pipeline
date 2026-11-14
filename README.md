@@ -29,23 +29,19 @@ The model gives useful results for this project, but it is not a perfect traffic
 forecasting system. The main point is to show the full MLOps workflow around the
 model.
 
-## Repository Visibility and Branching Strategy
+## Branching Strategy
 
-The repository was kept public through at least 21 June 2026 for marking and
-moderation. The workflow `.github/workflows/repository-visibility.yml` can be
-run manually to record that the GitHub API reports the repository as public.
-
-Branching is deliberately simple for the assignment artefact:
+Branching is deliberately simple:
 
 | Branch or event | Purpose | Workflow link |
 |---|---|---|
-| `main` | Final stable artefact branch used for marking, Docker, Kind deployment, final readiness, and security evidence | CI, Docker Build, Deploy Kind, Final Readiness, Security Scan |
+| `main` | Stable branch used for Docker, Kind deployment, final readiness, and security evidence | CI, Docker Build, Deploy Kind, Final Readiness, Security Scan |
 | `develop` | Integration branch for development checks before merging into `main` | CI, data preprocessing, training/evaluation, Docker, model analysis, security |
 | Feature/fix branches | Short-lived local or pull-request branches for changes before `develop` or `main` | Pull-request CI checks |
 | Scheduled/manual runs | Continuous Training, Monitoring, and repository visibility checks that do not require code changes | CT, CM, Repository Visibility Check |
 
-The workflow triggers are intentionally tied to these branches so the marker can
-trace code changes from branch policy to CI/CD/CT/CM evidence.
+The workflow triggers are tied to these branches, so every code change can be
+traced from branch policy to its CI/CD/CT/CM evidence.
 
 ## What This Project Shows
 
